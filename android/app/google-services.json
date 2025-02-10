@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "500904629253",
+    "project_id": "e-porter-95934",
+    "storage_bucket": "e-porter-95934.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:500904629253:android:605ea4c7c68257ee0ab86c",
+        "android_client_info": {
+          "package_name": "com.example.e_porter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0wuDunsKoDmB8H8dCX6ZDmvGH93rlwYE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
