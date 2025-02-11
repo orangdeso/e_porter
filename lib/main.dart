@@ -1,3 +1,4 @@
+import 'package:e_porter/routes/app_rountes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,11 +9,13 @@ void main() async {
   await Firebase.initializeApp();
 
   print("Firebase Initialized Successfully!");
-  runApp(MyApp());
+  runApp(MyApp(initialRoute: Routes.SPLASH));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String initialRoute;
+
+  const MyApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +24,8 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return GetMaterialApp(
           debugShowCheckedModeBanner: true,
-          home: Scaffold(
-            appBar: AppBar(title: Text('Firebase Setup Done!')),
-            body: Center(child: Text('Firebase Initialized')),
-          ),
+          initialRoute: initialRoute,
+          getPages: AppRoutes.routes,
         );
       },
     );
