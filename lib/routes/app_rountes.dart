@@ -1,5 +1,7 @@
+import 'package:e_porter/presentation/screens/auth/pages/forget_password_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/login_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/register_screen.dart';
+import 'package:e_porter/presentation/screens/auth/pages/state_succes_screen.dart';
 import 'package:e_porter/presentation/screens/onboarding/onboarding_screen.dart';
 import 'package:e_porter/presentation/screens/splash/splash_screen.dart';
 import 'package:get/get.dart';
@@ -24,6 +26,14 @@ class AppRoutes {
       name: Routes.REGISTER,
       page: () => RegisterScreen(),
     ),
+    GetPage(
+      name: Routes.FORGETPASSWORD,
+      page: () => ForgetPasswordScreen(),
+    ),
+    GetPage(
+      name: Routes.STATESUCCES,
+      page: () => StateSuccesScreen(),
+    ),
   ];
 }
 
@@ -32,4 +42,6 @@ class Routes {
   static const ONBOARDING = '/onboarding';
   static const LOGIN = '/login';
   static const REGISTER = '/register';
+  static const FORGETPASSWORD = '/forget_password';
+  static const STATESUCCES = '/state_succes';
 }

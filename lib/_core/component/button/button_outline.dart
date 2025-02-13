@@ -25,14 +25,15 @@ class ButtonOutline extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(35.r),
-            ),
-            side: BorderSide(
-              width: 2.w,
-              color: PrimaryColors.primary800,
-            )),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(35.r),
+          ),
+          side: BorderSide(
+            width: 2.w,
+            color: PrimaryColors.primary800,
+          ),
+        ),
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 14.h),
           child: isLoading
@@ -40,7 +41,7 @@ class ButtonOutline extends StatelessWidget {
               : TypographyStyles.h6(
                   text,
                   color: textColor,
-                  letterSpacing: 1.5,
+                  letterSpacing: 1,
                   fontWeight: FontWeight.bold,
                 ),
         ),

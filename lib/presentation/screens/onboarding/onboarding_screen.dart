@@ -43,6 +43,7 @@ class OnboardingScreen extends StatelessWidget {
               child: ButtonOutline(
                 text: 'Masuk sebagai Porter',
                 textColor: PrimaryColors.primary800,
+                onTap: () {},
               ),
             ),
           ],

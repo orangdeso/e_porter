@@ -25,7 +25,8 @@ class ButtonFill extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isLoading ? GrayColors.gray500 : PrimaryColors.primary800,
+          backgroundColor:
+              isLoading ? GrayColors.gray500 : PrimaryColors.primary800,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(35.r),
           ),
@@ -37,7 +38,7 @@ class ButtonFill extends StatelessWidget {
               : TypographyStyles.h6(
                   text,
                   color: textColor,
-                  letterSpacing: 1.5,
+                  letterSpacing: 1,
                   fontWeight: FontWeight.bold,
                 ),
         ),
