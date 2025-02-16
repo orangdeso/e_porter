@@ -2,6 +2,8 @@ import 'package:e_porter/presentation/screens/auth/pages/forget_password_screen.
 import 'package:e_porter/presentation/screens/auth/pages/login_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/register_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/state_succes_screen.dart';
+import 'package:e_porter/presentation/screens/home/pages/booking_tickets.dart';
+import 'package:e_porter/presentation/screens/home/pages/home_screen.dart';
 import 'package:e_porter/presentation/screens/onboarding/onboarding_screen.dart';
 import 'package:e_porter/presentation/screens/splash/splash_screen.dart';
 import 'package:get/get.dart';
@@ -34,6 +36,14 @@ class AppRoutes {
       name: Routes.STATESUCCES,
       page: () => StateSuccesScreen(),
     ),
+    GetPage(
+      name: Routes.HOME,
+      page: () => HomeScreen(),
+    ),
+    GetPage(
+      name: Routes.BOOKINGTICKETS,
+      page: () => BookingTickets(),
+    ),
   ];
 }
 
@@ -44,4 +54,6 @@ class Routes {
   static const REGISTER = '/register';
   static const FORGETPASSWORD = '/forget_password';
   static const STATESUCCES = '/state_succes';
+  static const HOME = '/home';
+  static const BOOKINGTICKETS = '/booking_tickets';
 }

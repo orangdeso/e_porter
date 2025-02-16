@@ -3,9 +3,7 @@ import 'package:e_porter/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
-
 import '../../../../_core/component/button/button_fill.dart';
 import '../../../../_core/constants/colors.dart';
 import '../../../../_core/constants/typography.dart';

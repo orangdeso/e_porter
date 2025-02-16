@@ -75,7 +75,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: ButtonFill(
                     text: 'Masuk',
                     textColor: Colors.white,
-                    onTap: () {},
+                    onTap: () {
+                      Get.toNamed(Routes.HOME);
+                    },
                   ),
                 ),
               ],
