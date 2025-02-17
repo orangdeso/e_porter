@@ -148,7 +148,7 @@ class TypographyStyles extends StatelessWidget {
       this.fontSize,
       this.fontWeight,
       this.height,
-      this.letterSpacing})
+      this.letterSpacing,})
       : style = TextStyle(
           fontFamily: fontFamily,
           fontSize: fontSize ?? 16.sp,

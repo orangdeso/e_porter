@@ -71,7 +71,7 @@ class DefaultAppbarComponent extends StatelessWidget
   final String title;
   final Color backgroundColors;
   final bool automaticallyImplyLeading;
-    final VoidCallback onTab;
+  final VoidCallback onTab;
 
   const DefaultAppbarComponent({
     Key? key,
@@ -88,7 +88,7 @@ class DefaultAppbarComponent extends StatelessWidget
       backgroundColor: backgroundColors,
       elevation: 0,
       centerTitle: true,
-      leadingWidth: 70,
+      leadingWidth: 66,
       title: TypographyStyles.h6(
         title,
         color: GrayColors.gray800,
