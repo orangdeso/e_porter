@@ -7,6 +7,7 @@ class CustomeShadowCotainner extends StatelessWidget {
   final Color backgroundColor;
   final double borderRadius;
   final BoxBorder? border;
+  final EdgeInsets? padding;
 
   const CustomeShadowCotainner({
     Key? key,
@@ -14,13 +15,14 @@ class CustomeShadowCotainner extends StatelessWidget {
     this.backgroundColor = Colors.white,
     this.borderRadius = 10.0,
     this.border,
+    this.padding,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      padding: padding ?? EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(borderRadius),

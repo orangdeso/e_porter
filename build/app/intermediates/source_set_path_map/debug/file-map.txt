@@ -31,4 +31,5 @@ com.example.e_porter.app-resValues-29 D:\Flutter\Flutter Project\e_porter\build\
 com.example.e_porter.app-packageDebugResources-30 D:\Flutter\Flutter Project\e_porter\build\app\intermediates\incremental\debug\packageDebugResources\merged.dir
 com.example.e_porter.app-packageDebugResources-31 D:\Flutter\Flutter Project\e_porter\build\app\intermediates\incremental\debug\packageDebugResources\stripped.dir
 com.example.e_porter.app-merged_res-32 D:\Flutter\Flutter Project\e_porter\build\app\intermediates\merged_res\debug
-com.example.e_porter.app-packaged_res-33 D:\Flutter\Flutter Project\e_porter\build\firebase_core\intermediates\packaged_res\debug
+com.example.e_porter.app-packaged_res-33 D:\Flutter\Flutter Project\e_porter\build\cloud_firestore\intermediates\packaged_res\debug
+com.example.e_porter.app-packaged_res-34 D:\Flutter\Flutter Project\e_porter\build\firebase_core\intermediates\packaged_res\debug

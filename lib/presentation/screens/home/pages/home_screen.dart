@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: GrayColors.gray50,
-      appBar: AppbarHomeComponent(
+      appBar: HomeAppbarComponent(
         title: 'E-Porter',
         subtitle: 'Your Porter, Your Priority',
         backgroundColor: PrimaryColors.primary800,

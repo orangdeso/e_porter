@@ -9,6 +9,9 @@ class ButtonOutline extends StatelessWidget {
   final Color? textColor;
   final VoidCallback? onTap;
   final bool isLoading;
+  final double? buttonWidth;
+  final TextStyle? customTextStyle;
+  final EdgeInsets? padding;
 
   const ButtonOutline({
     Key? key,
@@ -16,12 +19,15 @@ class ButtonOutline extends StatelessWidget {
     required this.textColor,
     this.onTap,
     this.isLoading = false,
+    this.buttonWidth,
+    this.customTextStyle,
+    this.padding,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity,
+      width: buttonWidth ?? double.infinity,
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
@@ -35,17 +41,26 @@ class ButtonOutline extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 14.h),
-          child: isLoading
-              ? _rowLoading()
-              : TypographyStyles.h6(
-                  text,
-                  color: textColor,
-                  letterSpacing: 1,
-                  fontWeight: FontWeight.bold,
-                ),
+          padding: padding ?? EdgeInsets.symmetric(vertical: 14.h),
+          child: isLoading ? _rowLoading() : _buildText(),
         ),
       ),
+    );
+  }
+
+  Widget _buildText() {
+    if (customTextStyle != null) {
+      return Text(
+        text,
+        style: customTextStyle,
+      );
+    }
+
+    return TypographyStyles.h6(
+      text,
+      color: textColor,
+      letterSpacing: 1,
+      fontWeight: FontWeight.bold,
     );
   }
 

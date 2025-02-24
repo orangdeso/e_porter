@@ -4,11 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  // await initializeDateFormatting('en_US', '');
 
   print("Firebase Initialized Successfully!");
   runApp(MyApp(initialRoute: Routes.SPLASH));

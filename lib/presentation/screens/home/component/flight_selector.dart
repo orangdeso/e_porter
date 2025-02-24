@@ -1,14 +1,13 @@
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 
 import '../../../../_core/constants/typography.dart';
 
 class FlightSelector extends StatelessWidget {
   final String label;
   final String hintText;
-  final String svgIconPath;
+  final Widget svgIconPath;
   final VoidCallback? onTap;
 
   const FlightSelector({
@@ -35,7 +34,7 @@ class FlightSelector extends StatelessWidget {
         ),
         child: Row(
           children: [
-            SvgPicture.asset(svgIconPath),
+            svgIconPath,
             SizedBox(width: 16.w),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
