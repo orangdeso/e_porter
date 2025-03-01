@@ -43,11 +43,11 @@ class ButtonListTile extends StatelessWidget {
             onTap: onTab,
             leading: CircleAvatar(
               backgroundColor: PrimaryColors.primary800,
-              radius: 22,
+              radius: 20,
               child: SvgPicture.asset(
                 imageAssets,
                 width: 24.w,
-                height: 24.w,
+                height: 24.h,
               ),
             ),
             title: TypographyStyles.body(

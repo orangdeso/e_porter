@@ -1,12 +1,15 @@
+import 'package:e_porter/_core/constants/typography.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
 class ProfileAvatar extends StatefulWidget {
   final String fullName;
+  final double? radius;
 
   const ProfileAvatar({
     Key? key,
     required this.fullName,
+    this.radius,
   }) : super(key: key);
 
   @override
@@ -34,11 +37,12 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   Widget build(BuildContext context) {
     final initials = _getInitials(widget.fullName);
     return CircleAvatar(
-      radius: 26,
+      radius: widget.radius ?? 24,
       backgroundColor: _randomColor,
-      child: Text(
+      child: TypographyStyles.body(
         initials,
-        style: const TextStyle(color: Colors.white),
+        color: Colors.white,
+        fontWeight: FontWeight.w500,
       ),
     );
   }
@@ -48,8 +52,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     if (parts.length == 1) {
       return parts.first.substring(0, 1).toUpperCase();
     } else {
-      return parts[0].substring(0, 1).toUpperCase() +
-          parts[1].substring(0, 1).toUpperCase();
+      return parts[0].substring(0, 1).toUpperCase() + parts[1].substring(0, 1).toUpperCase();
     }
   }
 }

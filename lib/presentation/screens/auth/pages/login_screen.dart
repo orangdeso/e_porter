@@ -6,7 +6,7 @@ import 'package:e_porter/presentation/screens/auth/component/Input_password.dart
 import 'package:e_porter/presentation/screens/auth/component/footer_text.dart';
 import 'package:e_porter/presentation/screens/auth/component/forget_password.dart';
 import 'package:e_porter/presentation/screens/auth/component/header_text.dart';
-import 'package:e_porter/routes/app_rountes.dart';
+import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -20,6 +20,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final String? role = Get.arguments as String;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,8 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 HeaderText(
                     firstText: 'Masuk',
-                    secondText:
-                        'Selamat datang kembali! Masuk untuk mengakses pengalaman personal Anda'),
+                    secondText: 'Selamat datang kembali! Masuk untuk mengakses pengalaman personal Anda'),
                 SizedBox(height: 50.h),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8.w),
@@ -76,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     text: 'Masuk',
                     textColor: Colors.white,
                     onTap: () {
-                      Get.toNamed(Routes.HOME);
+                      Get.offAllNamed(Routes.NAVBAR, arguments: role);
                     },
                   ),
                 ),

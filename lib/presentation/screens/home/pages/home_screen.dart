@@ -1,14 +1,18 @@
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/button/button_list_tile.dart';
+import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
+import 'package:e_porter/_core/component/icons/icons_library.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/presentation/screens/home/component/profile_avatar.dart';
-import 'package:e_porter/routes/app_rountes.dart';
+import 'package:e_porter/presentation/screens/home/component/summary_card.dart';
+import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,8 +23,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _current = 0;
-  final CarouselSliderController _carouselController =
-      CarouselSliderController();
+  late final String role;
+  final CarouselSliderController _carouselController = CarouselSliderController();
 
   final List<Widget> imageList = [
     Container(
@@ -36,7 +40,20 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    role = Get.arguments ?? 'passenger';
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (role == 'porter') {
+      return _buildPorterUI();
+    }
+    return _buildPassengerUI();
+  }
+
+  Widget _buildPassengerUI() {
     return Scaffold(
       backgroundColor: GrayColors.gray50,
       appBar: HomeAppbarComponent(
@@ -63,8 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: ListView(
               children: [
                 Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10.r),
@@ -93,10 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                TypographyStyles.h6(
-                                  'Muhammad Al Kahfi',
-                                  letterSpacing: 1,
-                                ),
+                                TypographyStyles.body('Muhammad Al Kahfi'),
                                 SizedBox(height: 2.h),
                                 TypographyStyles.caption(
                                   'Jelajahi dunia dengan E-Porter',
@@ -148,17 +161,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: imageList.asMap().entries.map(
                     (entry) {
                       return GestureDetector(
-                        onTap: () =>
-                            _carouselController.animateToPage(entry.key),
+                        onTap: () => _carouselController.animateToPage(entry.key),
                         child: Container(
                           width: 8.w,
                           height: 8.h,
-                          margin: EdgeInsets.symmetric(
-                              vertical: 8.h, horizontal: 4.w),
+                          margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: (Theme.of(context).brightness ==
-                                        Brightness.dark
+                            color: (Theme.of(context).brightness == Brightness.dark
                                     ? Colors.white
                                     : PrimaryColors.primary800)
                                 .withOpacity(_current == entry.key ? 0.9 : 0.4),
@@ -186,4 +196,107 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  Widget _buildPorterUI() {
+    return Scaffold(
+      backgroundColor: GrayColors.gray50,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildAppbar(
+              context,
+              nameAvatar: 'Muhammad Al Kahfi',
+              nameUser: 'Muhammad Al Kahfi',
+              subTitle: 'Selamat datang kembali Rekanku',
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TypographyStyles.h6('Ringkasan Hari ini', color: GrayColors.gray800),
+                      SizedBox(height: 16.h),
+                      Row(
+                        children: [
+                          SummaryCard(
+                            label: 'Pesanan Masuk',
+                            value: '1000000000000000000000',
+                            icon: CustomeIcons.PlaneLeftOutline(),
+                          ),
+                          SizedBox(width: 16.w),
+                          SummaryCard(
+                            label: 'Pesanan Berjalan',
+                            value: '1000000000000000000000',
+                            icon: CustomeIcons.PlaneLeftOutline(),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: 16.w),
+                      Row(
+                        children: [
+                          SummaryCard(
+                            label: 'Pesanan Selesai',
+                            value: '1000000000000000000000',
+                            icon: CustomeIcons.PlaneLeftOutline(),
+                          ),
+                          SizedBox(width: 16.w),
+                          SummaryCard(
+                            label: 'Pendapatan',
+                            value: 'Rp 500.000',
+                            icon: CustomeIcons.PlaneLeftOutline(),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: 32.w),
+                      CustomeShadowCotainner(child: TypographyStyles.body('Mulai Antrian'))
+                    ],
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Widget _buildAppbar(
+  BuildContext context, {
+  required String nameAvatar,
+  required String nameUser,
+  required String subTitle,
+  VoidCallback? onTap,
+}) {
+  return CustomeShadowCotainner(
+    borderRadius: 0.r,
+    child: Row(
+      children: [
+        ProfileAvatar(fullName: nameAvatar),
+        SizedBox(width: 16.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TypographyStyles.h6(nameUser, color: GrayColors.gray800),
+              SizedBox(height: 4.h),
+              TypographyStyles.caption(
+                subTitle,
+                color: GrayColors.gray600,
+                fontWeight: FontWeight.w400,
+              ),
+            ],
+          ),
+        ),
+        ZoomTapAnimation(
+          child: IconButton(
+            onPressed: onTap,
+            icon: CustomeIcons.NotificationOutline(),
+          ),
+        )
+      ],
+    ),
+  );
 }

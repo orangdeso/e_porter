@@ -2,7 +2,7 @@ import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/search_bar/search_bar_component.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
-import 'package:e_porter/domain/controller/search_flight_controller.dart';
+import 'package:e_porter/presentation/controllers/search_flight_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';

@@ -1,7 +1,7 @@
 import 'package:e_porter/_core/component/button/button_fill.dart';
 import 'package:e_porter/_core/component/button/button_no_fill.dart';
 import 'package:e_porter/presentation/screens/auth/component/header_text.dart';
-import 'package:e_porter/routes/app_rountes.dart';
+import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';

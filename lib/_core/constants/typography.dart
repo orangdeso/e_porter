@@ -41,7 +41,7 @@ class TypographyStyles extends StatelessWidget {
           fontWeight: fontWeight ?? FontWeight.w900,
           color: color,
           height: height,
-          letterSpacing: letterSpacing ?? 0,
+          letterSpacing: letterSpacing ?? 0.2,
         );
 
   TypographyStyles.h2(this.text,
@@ -60,7 +60,7 @@ class TypographyStyles extends StatelessWidget {
           fontWeight: fontWeight ?? FontWeight.w900,
           color: color,
           height: height,
-          letterSpacing: letterSpacing ?? 0,
+          letterSpacing: letterSpacing ?? 0.2,
         );
 
   TypographyStyles.h3(this.text,
@@ -79,7 +79,7 @@ class TypographyStyles extends StatelessWidget {
           fontWeight: fontWeight ?? FontWeight.w900,
           color: color,
           height: height,
-          letterSpacing: letterSpacing ?? 0,
+          letterSpacing: letterSpacing ?? 0.2,
         );
 
   TypographyStyles.h4(this.text,
@@ -98,7 +98,7 @@ class TypographyStyles extends StatelessWidget {
           fontWeight: fontWeight ?? FontWeight.w900,
           color: color,
           height: height,
-          letterSpacing: letterSpacing ?? 0,
+          letterSpacing: letterSpacing ?? 0.2,
         );
 
   TypographyStyles.h5(this.text,
@@ -117,7 +117,7 @@ class TypographyStyles extends StatelessWidget {
           fontWeight: fontWeight ?? FontWeight.w900,
           color: color,
           height: height,
-          letterSpacing: letterSpacing ?? 0,
+          letterSpacing: letterSpacing ?? 0.2,
         );
 
   TypographyStyles.h6(this.text,
@@ -136,7 +136,7 @@ class TypographyStyles extends StatelessWidget {
           fontWeight: fontWeight ?? FontWeight.w900,
           color: color,
           height: height,
-          letterSpacing: letterSpacing ?? 0,
+          letterSpacing: letterSpacing ?? 0.2,
         );
 
   TypographyStyles.body(this.text,
@@ -155,7 +155,7 @@ class TypographyStyles extends StatelessWidget {
           fontWeight: fontWeight ?? FontWeight.w900,
           color: color,
           height: height,
-          letterSpacing: letterSpacing ?? 0,
+          letterSpacing: letterSpacing ?? 0.2,
         );
 
   TypographyStyles.caption(this.text,
@@ -174,7 +174,7 @@ class TypographyStyles extends StatelessWidget {
           fontWeight: fontWeight ?? FontWeight.w900,
           color: color,
           height: height,
-          letterSpacing: letterSpacing ?? 0,
+          letterSpacing: letterSpacing ?? 0.2,
         );
 
   TypographyStyles.small(this.text,
@@ -193,7 +193,7 @@ class TypographyStyles extends StatelessWidget {
           fontWeight: fontWeight ?? FontWeight.w900,
           color: color,
           height: height,
-          letterSpacing: letterSpacing ?? 0,
+          letterSpacing: letterSpacing ?? 0.2,
         );
 
   TypographyStyles.tiny(this.text,
@@ -212,7 +212,7 @@ class TypographyStyles extends StatelessWidget {
           fontWeight: fontWeight ?? FontWeight.w900,
           color: color,
           height: height,
-          letterSpacing: letterSpacing ?? 0,
+          letterSpacing: letterSpacing ?? 0.2,
         );
 
   @override

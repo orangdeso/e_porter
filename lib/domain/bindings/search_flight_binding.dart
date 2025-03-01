@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
 import '../../data/repositories/airport_repository.dart';
-import '../controller/search_flight_controller.dart';
+import '../../presentation/controllers/search_flight_controller.dart';
 import '../usecases/get_airport.dart';
 
 class SearchFlightBinding extends Bindings {

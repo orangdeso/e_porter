@@ -4,11 +4,10 @@ import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/component/icons/icons_library.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
-import 'package:e_porter/presentation/controllers/booking_tiketc_controller.dart';
 import 'package:e_porter/presentation/screens/home/component/flight_class_radio.dart';
 import 'package:e_porter/presentation/screens/home/component/flight_date_selector.dart';
 import 'package:e_porter/presentation/screens/home/component/flight_selector.dart';
-import 'package:e_porter/routes/app_rountes.dart';
+import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -28,7 +27,6 @@ class _BookingTicketsState extends State<BookingTickets> {
   String selectedDateText = 'dd/mm/yyyy';
 
   final ValueNotifier<String> selectedClass = ValueNotifier<String>('Economy');
-  final BookingTiketcController bookingTiketcController = Get.put(BookingTiketcController());
 
   @override
   Widget build(BuildContext context) {

@@ -7,13 +7,13 @@ class CustomeIcons {
 
   static SvgPicture getIcon(
     String fileName, {
-    // double? size,
+    double? size,
     Color? color,
   }) {
     return SvgPicture.asset(
       '$_iconPath$fileName.svg',
-      // width: size ?? IconDefaults.defaultWidth,
-      // height: size ?? IconDefaults.defaultHeight,
+      width: size,
+      height: size,
       colorFilter: ColorFilter.mode(
         color ?? PrimaryColors.primary800,
         BlendMode.srcIn,
@@ -39,6 +39,7 @@ class CustomeIcons {
   static SvgPicture SentOutline({double? size, Color? color}) => getIcon('ic_notification', color: color);
   static SvgPicture SearchOutline({double? size, Color? color}) => getIcon('ic_search', color: color);
   static SvgPicture EditOutline({double? size, Color? color}) => getIcon('ic_edit', color: color);
+  static SvgPicture OrderHistoryOutline({double? size, Color? color}) => getIcon('ic_order_history', color: color);
 
   static SvgPicture FlightSeatFilled({double? size, Color? color}) => getIcon('ic_flight_seat_filled', color: color);
   static SvgPicture PlaneRightFilled({double? size, Color? color}) => getIcon('ic_plane_filled', color: color);

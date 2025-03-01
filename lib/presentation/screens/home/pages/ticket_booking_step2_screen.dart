@@ -1,8 +1,7 @@
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
-import 'package:e_porter/_core/component/button/button_outline.dart';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/constants/colors.dart';
-import 'package:e_porter/routes/app_rountes.dart';
+import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -48,9 +47,18 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
                   passenger: '2',
                 ),
                 SizedBox(height: 32.h),
-                TypographyStyles.h6('Pilih Kursi', color: GrayColors.gray800, letterSpacing: 0.2),
+                TypographyStyles.h6('Pilih Kursi', color: GrayColors.gray800),
                 SizedBox(height: 20.h),
-                _buildCardSeatPessenger(),
+                _buildCardSeatPessenger(
+                  context,
+                  label: '1',
+                  namePassenger: 'AHMAD CHOIRUL UMAM ALI R',
+                  seatClass: 'Economy',
+                  numberSeat: '10F',
+                  onTap: () {
+                    Get.toNamed(Routes.CHOOSECHAIR);
+                  },
+                ),
               ],
             ),
           ),
@@ -63,7 +71,7 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
             text: 'Lanjutkan',
             textColor: Colors.white,
             onTap: () {
-              Get.toNamed(Routes.CHOOSECHAIR);
+              Get.toNamed(Routes.TICKETBOOKINGSTEP3);
             },
           ),
         ),
@@ -71,22 +79,28 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
     );
   }
 
-  Widget _buildCardSeatPessenger() {
+  Widget _buildCardSeatPessenger(BuildContext context,
+      {required String label,
+      required String namePassenger,
+      required String seatClass,
+      required String numberSeat,
+      required VoidCallback onTap}) {
     return CustomeShadowCotainner(
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TypographyStyles.caption(
-                'Penumpang 1 (Dewasa)',
+                'Penumpang ${label} (Dewasa)',
                 color: GrayColors.gray600,
                 fontWeight: FontWeight.w400,
                 letterSpacing: 0.2,
               ),
               SizedBox(height: 2.h),
               TypographyStyles.body(
-                'AHMAD CHOIRUL UMAM ALI',
+                namePassenger,
                 color: GrayColors.gray800,
                 fontWeight: FontWeight.w500,
                 letterSpacing: 0.2,
@@ -95,32 +109,29 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
               ),
               SizedBox(height: 2.h),
               TypographyStyles.caption(
-                'Economy / 10F',
+                '${seatClass} / ${numberSeat}',
                 color: GrayColors.gray600,
                 fontWeight: FontWeight.w400,
                 letterSpacing: 0.2,
               )
             ],
           ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18.w),
-              child: ZoomTapAnimation(
-                child: ButtonOutline(
-                  text: 'Pilih Kursi',
-                  padding: EdgeInsets.symmetric(vertical: 6.h),
-                  textColor: PrimaryColors.primary800,
-                  customTextStyle: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.bold,
-                    color: PrimaryColors.primary800,
-                    letterSpacing: 0.1,
-                  ),
-                  onTap: () {},
+          ZoomTapAnimation(
+            child: GestureDetector(
+              onTap: onTap,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  border: Border.all(width: 1.5.w, color: PrimaryColors.primary800),
+                  borderRadius: BorderRadius.circular(35.r),
+                ),
+                child: TypographyStyles.caption(
+                  'Pilih Kursi',
+                  color: PrimaryColors.primary800,
                 ),
               ),
             ),
-          ),
+          )
         ],
       ),
     );

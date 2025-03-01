@@ -4,6 +4,7 @@ import 'package:e_porter/_core/constants/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
 class HomeAppbarComponent extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -115,8 +116,8 @@ class DefaultAppbarComponent extends StatelessWidget implements PreferredSizeWid
 }
 
 class CustomeAppbarComponent extends StatelessWidget implements PreferredSizeWidget {
-  final String valueDari;
-  final String valueKe;
+  final String? valueDari;
+  final String? valueKe;
   final String date;
   final String passenger;
   final Color? color;
@@ -124,8 +125,8 @@ class CustomeAppbarComponent extends StatelessWidget implements PreferredSizeWid
 
   const CustomeAppbarComponent({
     Key? key,
-    required this.valueDari,
-    required this.valueKe,
+    this.valueDari,
+    this.valueKe,
     required this.date,
     required this.passenger,
     this.color = Colors.white,
@@ -147,7 +148,7 @@ class CustomeAppbarComponent extends StatelessWidget implements PreferredSizeWid
             GestureDetector(
               onTap: onTab,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                padding: EdgeInsets.only(left: 16.w),
                 child: SvgPicture.asset(
                   'assets/icons/ic_less_than.svg',
                   width: 14.w,
@@ -163,11 +164,23 @@ class CustomeAppbarComponent extends StatelessWidget implements PreferredSizeWid
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      TypographyStyles.body(valueDari, color: color, letterSpacing: 1),
-                      SizedBox(width: 20.w),
-                      SvgPicture.asset('assets/icons/ic_right.svg'),
-                      SizedBox(width: 20.w),
-                      TypographyStyles.body(valueKe, color: color, letterSpacing: 1),
+                      if (valueDari != null)
+                        TypographyStyles.body(
+                          valueDari!,
+                          color: color,
+                          letterSpacing: 0.2,
+                        ),
+                      if (valueDari != null && valueKe != null) ...[
+                        SizedBox(width: 20.w),
+                        SvgPicture.asset('assets/icons/ic_right.svg'),
+                        SizedBox(width: 20.w),
+                      ],
+                      if (valueKe != null)
+                        TypographyStyles.body(
+                          valueKe!,
+                          color: color,
+                          letterSpacing: 0.2,
+                        ),
                     ],
                   ),
                   SizedBox(height: 8.h),
@@ -240,6 +253,61 @@ class ProgressAppbarComponent extends StatelessWidget implements PreferredSizeWi
           ],
         ),
       ),
+    );
+  }
+
+  @override
+  Size get preferredSize => Size.fromHeight(kToolbarHeight + 20.h);
+}
+
+class SimpleAppbarComponent extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+  final String subTitle;
+  final Color? colorText;
+  final VoidCallback? onTab;
+
+  const SimpleAppbarComponent({
+    Key? key,
+    required this.title,
+    required this.subTitle,
+    this.colorText = GrayColors.gray800,
+    this.onTab,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      toolbarHeight: 70.h,
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.white,
+      elevation: 0,
+      title: Padding(
+        padding: EdgeInsets.only(top: 8.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(width: 10.h),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TypographyStyles.h6(title, color: colorText),
+                  SizedBox(height: 10.h),
+                  TypographyStyles.small(subTitle, color: colorText, fontWeight: FontWeight.w400, maxlines: 2),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        ZoomTapAnimation(
+          child: IconButton(
+            onPressed: onTab,
+            icon: CustomeIcons.OrderHistoryOutline(),
+          ),
+        )
+      ],
     );
   }
 
