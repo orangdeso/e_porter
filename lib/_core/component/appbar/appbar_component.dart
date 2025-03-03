@@ -71,6 +71,7 @@ class DefaultAppbarComponent extends StatelessWidget implements PreferredSizeWid
   final String title;
   final Color backgroundColors;
   final bool automaticallyImplyLeading;
+  final Color? textColor;
   final VoidCallback onTab;
 
   const DefaultAppbarComponent({
@@ -78,6 +79,7 @@ class DefaultAppbarComponent extends StatelessWidget implements PreferredSizeWid
     required this.title,
     this.backgroundColors = Colors.white,
     this.automaticallyImplyLeading = false,
+    this.textColor,
     required this.onTab,
   }) : super(key: key);
 
@@ -91,7 +93,7 @@ class DefaultAppbarComponent extends StatelessWidget implements PreferredSizeWid
       leadingWidth: 66,
       title: TypographyStyles.h6(
         title,
-        color: GrayColors.gray800,
+        color: textColor ?? GrayColors.gray800,
       ),
       leading: GestureDetector(
         onTap: onTab,

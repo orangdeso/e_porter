@@ -40,6 +40,10 @@ class CustomeIcons {
   static SvgPicture SearchOutline({double? size, Color? color}) => getIcon('ic_search', color: color);
   static SvgPicture EditOutline({double? size, Color? color}) => getIcon('ic_edit', color: color);
   static SvgPicture OrderHistoryOutline({double? size, Color? color}) => getIcon('ic_order_history', color: color);
+  static SvgPicture AirplaneLandingOutline({double? size, Color? color}) => getIcon('ic_airplane_landing', color: color);
+  static SvgPicture AirplaneTakeOffOutline({double? size, Color? color}) => getIcon('ic_airplane_take_off', color: color);
+  static SvgPicture TransitOutline({double? size, Color? color}) => getIcon('ic_transit', color: color);
+  static SvgPicture ProtectOutline({double? size, Color? color}) => getIcon('ic_protect', color: color);
 
   static SvgPicture FlightSeatFilled({double? size, Color? color}) => getIcon('ic_flight_seat_filled', color: color);
   static SvgPicture PlaneRightFilled({double? size, Color? color}) => getIcon('ic_plane_filled', color: color);

@@ -21,7 +21,7 @@ class CardSeat extends StatelessWidget {
               height: 32.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(6.r),
-                color: Colors.grey,
+                color: Color(0xFFD9D9D9),
               ),
             ),
           ),

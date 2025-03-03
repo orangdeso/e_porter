@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
 import '../../../../_core/component/button/button_fill.dart';
+import '../../routes/app_rountes.dart';
 
 class ChooseSeatScreen extends StatefulWidget {
   const ChooseSeatScreen({super.key});
@@ -21,8 +22,20 @@ class ChooseSeatScreen extends StatefulWidget {
 }
 
 class _ChooseSeatScreenState extends State<ChooseSeatScreen> {
-  // Menyimpan status setiap kursi apakah terpilih atau tidak
   final List<bool> selectedSeats = List.generate(3, (_) => false);
+  // late ScrollController _scrollController;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _scrollController = ScrollController();
+  // }
+
+  // @override
+  // void dispose() {
+  //   _scrollController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -38,47 +51,84 @@ class _ChooseSeatScreenState extends State<ChooseSeatScreen> {
         },
       ),
       body: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildCardFlight('YIA', 'LOP', 'Economy', '5j 40m'),
-            SizedBox(height: 20.h),
-            SizedBox(
-              height: 84.h,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 3,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: EdgeInsets.only(right: 16.w),
-                      child: _buildPassengerCard('Ahmad', 'Economy', '10F', index),
-                    );
-                  },
+          child: CustomScrollView(
+        // controller: _scrollController,
+        slivers: [
+          SliverAppBar(
+            floating: true,
+            snap: true,
+            backgroundColor: GrayColors.gray50,
+            foregroundColor: Colors.white,
+            surfaceTintColor: Colors.white,
+            expandedHeight: 220.h,
+            flexibleSpace: FlexibleSpaceBar(
+              background: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 0.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildCardFlight("YIA", "LOP", "Economy", "5j 40m"),
+                      SizedBox(height: 20.h),
+                      SizedBox(
+                        height: 84.h,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: 3,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: EdgeInsets.only(right: 16.w),
+                                child: _buildPassengerCard('Ahmad', 'Economy', '10F', index),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            SizedBox(height: 32.h),
-            CustomeShadowCotainner(
+          ),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _SliverHeaderDelegate(
+              minHeight: 50.h,
+              maxHeight: 50.h,
+              child: Container(
+                color: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                alignment: Alignment.centerLeft,
+                child: _buildCardInformationStatus(),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: CustomeShadowCotainner(
               borderRadius: 0.r,
               child: Column(
                 children: [
-                  _buildCardInformationStatus(),
-                  SizedBox(height: 20.h),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       _buildCardSeat(context, label: 'A'),
                       _buildCardSeat(context, label: 'B'),
                       _buildCardSeat(context, label: 'C'),
+                      SizedBox(width: 16.w),
+                      _buildNumberSeat(context, label: '1'),
+                      _buildCardSeat(context, label: 'D'),
+                      _buildCardSeat(context, label: 'E'),
+                      _buildCardSeat(context, label: 'F'),
                     ],
                   )
                 ],
               ),
-            )
-          ],
-        ),
-      ),
+            ),
+          ),
+        ],
+      )),
       bottomNavigationBar: CustomeShadowCotainner(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
         child: ZoomTapAnimation(
@@ -86,7 +136,7 @@ class _ChooseSeatScreenState extends State<ChooseSeatScreen> {
             text: 'Lanjutkan',
             textColor: Colors.white,
             onTap: () {
-              // Get.toNamed(Routes.TICKETBOOKINGSTEP3);
+              Get.toNamed(Routes.TICKETBOOKINGSTEP2);
             },
           ),
         ),
@@ -220,25 +270,56 @@ class _ChooseSeatScreenState extends State<ChooseSeatScreen> {
             child: TypographyStyles.body(label, color: GrayColors.gray800, fontWeight: FontWeight.w500),
           ),
           SizedBox(height: 6.h),
-          SizedBox(
-            height: 330.h,
-            child: ListView.builder(
-              itemCount: 50,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 6.h),
-                  child: CardSeat(),
-                );
-              },
-            ),
+          ListView.builder(
+            itemCount: 20,
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: 6.h),
+                child: CardSeat(),
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNumberSeat() {
+  Widget _buildNumberSeat(
+    BuildContext context, {
+    required label,
+  }) {
+    return Expanded(
+      child: Column(
+        children: [
+          Container(
+            width: 32.w,
+            height: 32.h,
+            child: TypographyStyles.body('', color: Colors.white, fontWeight: FontWeight.w500),
+          ),
+          SizedBox(height: 6.h),
+          ListView.builder(
+            itemCount: 20,
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: 6.h),
+                child: Container(
+                  width: 32.w,
+                  height: 32.h,
+                  child: TypographyStyles.body(label, color: GrayColors.gray800, fontWeight: FontWeight.w500),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNumber() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -279,5 +360,33 @@ class _ChooseSeatScreenState extends State<ChooseSeatScreen> {
         ),
       ],
     );
+  }
+}
+
+class _SliverHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final double minHeight;
+  final double maxHeight;
+  final Widget child;
+
+  _SliverHeaderDelegate({
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
+  });
+
+  @override
+  double get minExtent => minHeight;
+
+  @override
+  double get maxExtent => maxHeight;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return child;
+  }
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+    return true;
   }
 }

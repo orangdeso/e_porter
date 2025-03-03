@@ -7,6 +7,7 @@ import 'package:e_porter/presentation/screens/auth/pages/state_succes_screen.dar
 import 'package:e_porter/presentation/screens/boarding_pass/pages/boarding_pass_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/booking_tickets.dart';
 import 'package:e_porter/presentation/screens/home/pages/choose_seat_screen.dart';
+import 'package:e_porter/presentation/screens/home/pages/payment_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/search_flight_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/search_tickets_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/ticket_booking_step1_screen.dart';
@@ -97,6 +98,10 @@ class AppRoutes {
       name: Routes.CHOOSECHAIR,
       page: () => ChooseSeatScreen(),
     ),
+    GetPage(
+      name: Routes.PAYMENT,
+      page: () => PaymentScreen(),
+    ),
   ];
 }
 
@@ -119,4 +124,5 @@ class Routes {
   static const TICKETBOOKINGSTEP3 = '/ticket_booking_step3';
   static const TICKETBOOKINGSTEP4 = '/ticket_booking_step4';
   static const CHOOSECHAIR = '/choose_chair';
+  static const PAYMENT = '/payment';
 }

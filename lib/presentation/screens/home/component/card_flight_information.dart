@@ -14,6 +14,7 @@ class CardFlightInformation extends StatelessWidget {
   final String arrivalCity;
   final String plane;
   final String seatClass;
+  final String? servicePorter;
   final String passenger;
 
   const CardFlightInformation({
@@ -24,6 +25,7 @@ class CardFlightInformation extends StatelessWidget {
     required this.arrivalCity,
     required this.plane,
     required this.seatClass,
+    this.servicePorter,
     required this.passenger,
   });
 
@@ -59,7 +61,6 @@ class CardFlightInformation extends StatelessWidget {
             children: [
               TypographyStyles.body(departureCity, color: GrayColors.gray800, letterSpacing: 0.2),
               SizedBox(width: 10.w),
-              // SvgPicture.asset('assets/icons/ic_plane_right_filled.svg'),
               CustomeIcons.PlaneRightFilled(color: PrimaryColors.primary800),
               SizedBox(width: 10.w),
               TypographyStyles.body(arrivalCity, color: GrayColors.gray800, letterSpacing: 0.2)
@@ -74,15 +75,8 @@ class CardFlightInformation extends StatelessWidget {
                 letterSpacing: 0.2,
                 fontWeight: FontWeight.w400,
               ),
-              SizedBox(width: 10.w),
-              CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)),
-              SizedBox(width: 10.w),
-              TypographyStyles.small(
-                seatClass,
-                color: GrayColors.gray600,
-                letterSpacing: 0.2,
-                fontWeight: FontWeight.w400,
-              ),
+              _buildText(context, text: seatClass),
+              servicePorter != null ? _buildText(context, text: servicePorter!) : SizedBox.shrink(),
             ],
           ),
           SizedBox(height: 4.h),
@@ -94,6 +88,25 @@ class CardFlightInformation extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+
+  Widget _buildText(
+    BuildContext context, {
+    required String text,
+  }) {
+    return Row(
+      children: [
+        SizedBox(width: 10.w),
+        CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)),
+        SizedBox(width: 10.w),
+        TypographyStyles.small(
+          text,
+          color: GrayColors.gray600,
+          letterSpacing: 0.2,
+          fontWeight: FontWeight.w400,
+        ),
+      ],
     );
   }
 }
