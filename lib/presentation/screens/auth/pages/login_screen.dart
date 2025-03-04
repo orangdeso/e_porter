@@ -1,6 +1,7 @@
 import 'package:e_porter/_core/component/button/button_fill.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
+import 'package:e_porter/presentation/controllers/auth_controller.dart';
 import 'package:e_porter/presentation/screens/auth/component/Input_form.dart';
 import 'package:e_porter/presentation/screens/auth/component/Input_password.dart';
 import 'package:e_porter/presentation/screens/auth/component/footer_text.dart';
@@ -21,6 +22,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final String? role = Get.arguments as String;
+  final authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
@@ -30,58 +32,68 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
           child: Form(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                HeaderText(
-                    firstText: 'Masuk',
-                    secondText: 'Selamat datang kembali! Masuk untuk mengakses pengalaman personal Anda'),
-                SizedBox(height: 50.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w),
-                  child: TypographyStyles.body(
-                    'Email',
-                    color: GrayColors.gray800,
-                    fontWeight: FontWeight.w500,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  HeaderText(
+                      firstText: 'Masuk',
+                      secondText: 'Selamat datang kembali! Masuk untuk mengakses pengalaman personal Anda'),
+                  SizedBox(height: 50.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    child: TypographyStyles.body(
+                      'Email',
+                      color: GrayColors.gray800,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-                SizedBox(height: 16.h),
-                InputForm(
-                  hintText: 'example@gmail.com',
-                  svgIconPath: 'assets/icons/ic_email.svg',
-                ),
-                SizedBox(height: 20.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w),
-                  child: TypographyStyles.body(
-                    'Password',
-                    color: GrayColors.gray800,
-                    fontWeight: FontWeight.w500,
+                  SizedBox(height: 16.h),
+                  InputForm(
+                    controller: authController.emailController,
+                    hintText: 'example@gmail.com',
+                    svgIconPath: 'assets/icons/ic_email.svg',
                   ),
-                ),
-                SizedBox(height: 16.h),
-                InputPassword(
-                  hintText: '••••••••••',
-                  svgIconPath: 'assets/icons/ic_padlock.svg',
-                ),
-                SizedBox(height: 32.h),
-                ForgetPasswordText(
-                  onTab: () {
-                    Get.toNamed(Routes.FORGETPASSWORD);
-                  },
-                ),
-                SizedBox(height: 40.h),
-                ZoomTapAnimation(
-                  child: ButtonFill(
-                    text: 'Masuk',
-                    textColor: Colors.white,
-                    onTap: () {
-                      Get.offAllNamed(Routes.NAVBAR, arguments: role);
+                  SizedBox(height: 20.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    child: TypographyStyles.body(
+                      'Password',
+                      color: GrayColors.gray800,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  InputPassword(
+                    controller: authController.passwordController,
+                    hintText: '••••••••••',
+                    svgIconPath: 'assets/icons/ic_padlock.svg',
+                  ),
+                  SizedBox(height: 32.h),
+                  ForgetPasswordText(
+                    onTab: () {
+                      Get.toNamed(Routes.FORGETPASSWORD);
                     },
                   ),
-                ),
-              ],
+                  SizedBox(height: 40.h),
+                  Obx(() {
+                    if (authController.isLoading.value) {
+                      return Center(child: CircularProgressIndicator());
+                    } else {
+                      return ZoomTapAnimation(
+                        child: ButtonFill(
+                          text: 'Masuk',
+                          textColor: Colors.white,
+                          onTap: () {
+                            authController.login(roleFromOnboarding: role);
+                          },
+                        ),
+                      );
+                    }
+                  }),
+                ],
+              ),
             ),
           ),
         ),

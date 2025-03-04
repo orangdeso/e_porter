@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    role = Get.arguments ?? 'passenger';
+    role = Get.arguments ?? 'penumpang';
   }
 
   @override

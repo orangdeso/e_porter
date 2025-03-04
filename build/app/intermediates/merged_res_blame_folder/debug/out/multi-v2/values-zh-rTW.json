@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.e_porter.app-mergeDebugResources-30:/values-zh-rTW/values-zh-rTW.xml",
+            "outputFile": "com.example.e_porter.app-mergeDebugResources-35:/values-zh-rTW/values-zh-rTW.xml",
             "map": [
                 {
                     "source": "C:\\Users\\ASUS\\.gradle\\caches\\transforms-3\\d655249b53f4937a496c8b2009b6409e\\transformed\\core-1.13.1\\res\\values-zh-rTW\\values-zh-rTW.xml",
@@ -13,11 +13,21 @@
                         "endOffsets": "142,241,335,429,522,615,711,812"
                     },
                     "to": {
-                        "startLines": "2,3,4,5,6,7,8,27",
+                        "startLines": "4,5,6,7,8,9,10,33",
                         "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,147,246,340,434,527,620,2535",
+                        "startOffsets": "272,364,463,557,651,744,837,3122",
                         "endColumns": "91,98,93,93,92,92,95,100",
-                        "endOffsets": "142,241,335,429,522,615,711,2631"
+                        "endOffsets": "359,458,552,646,739,832,928,3218"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\ASUS\\.gradle\\caches\\transforms-3\\4b2f06de02fe9acce1954223634db4cc\\transformed\\jetified-credentials-1.2.0-rc01\\res\\values-zh-rTW\\values-zh-rTW.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,161",
+                        "endColumns": "105,110",
+                        "endOffsets": "156,267"
                     }
                 },
                 {
@@ -30,11 +40,28 @@
                         "endOffsets": "293,417,528,626,729,841,937,1028,1134,1231,1356,1467,1565,1669,1721,1774,1844"
                     },
                     "to": {
-                        "startLines": "9,10,11,12,13,14,15,16,18,19,20,21,22,23,24,25,26",
+                        "startLines": "11,12,13,14,15,16,17,18,20,21,22,23,24,25,26,27,28",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "716,817,945,1060,1162,1269,1385,1485,1683,1793,1894,2023,2138,2240,2348,2404,2461",
+                        "startOffsets": "933,1034,1162,1277,1379,1486,1602,1702,1900,2010,2111,2240,2355,2457,2565,2621,2678",
                         "endColumns": "100,127,114,101,106,115,99,94,109,100,128,114,101,107,55,56,73",
-                        "endOffsets": "812,940,1055,1157,1264,1380,1480,1575,1788,1889,2018,2133,2235,2343,2399,2456,2530"
+                        "endOffsets": "1029,1157,1272,1374,1481,1597,1697,1792,2005,2106,2235,2350,2452,2560,2616,2673,2747"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\ASUS\\.gradle\\caches\\transforms-3\\5c9f333feb8818add79bb73c000d4588\\transformed\\browser-1.4.0\\res\\values-zh-rTW\\values-zh-rTW.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,139,231,332",
+                        "endColumns": "83,91,100,92",
+                        "endOffsets": "134,226,327,420"
+                    },
+                    "to": {
+                        "startLines": "29,30,31,32",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "2752,2836,2928,3029",
+                        "endColumns": "83,91,100,92",
+                        "endOffsets": "2831,2923,3024,3117"
                     }
                 },
                 {
@@ -47,11 +74,11 @@
                         "endOffsets": "297"
                     },
                     "to": {
-                        "startLines": "17",
+                        "startLines": "19",
                         "startColumns": "4",
-                        "startOffsets": "1580",
+                        "startOffsets": "1797",
                         "endColumns": "102",
-                        "endOffsets": "1678"
+                        "endOffsets": "1895"
                     }
                 }
             ]

@@ -35,7 +35,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.e_porter"
-        minSdk = flutter.minSdkVersion
+        //minSdk = flutter.minSdkVersion
+        minSdkVersion 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
