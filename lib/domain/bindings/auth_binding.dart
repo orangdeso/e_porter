@@ -11,12 +11,14 @@ class AuthBinding extends Bindings {
     final authRepository = AuthRepositoryImpl(firebaseAuth);
 
     final loginUseCase = LoginUseCase(authRepository);
-    final getUserRoleUseCase = GetUserRoleUseCase(authRepository); // <-- baru
+    final getUserRoleUseCase = GetUserRoleUseCase(authRepository); 
+    final getUserDataUseCase = GetUserDataUseCase(authRepository);
 
     Get.put<AuthController>(
       AuthController(
         loginUseCase: loginUseCase,
-        getUserRoleUseCase: getUserRoleUseCase,
+        getUserRoleUseCase: getUserRoleUseCase, 
+        getUserDataUseCase: getUserDataUseCase,
       ),
     );
   }

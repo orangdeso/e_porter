@@ -271,7 +271,7 @@ Widget _buildAppbar(
   VoidCallback? onTap,
 }) {
   return CustomeShadowCotainner(
-    borderRadius: 0.r,
+    sizeRadius: 0.r,
     child: Row(
       children: [
         ProfileAvatar(fullName: nameAvatar),

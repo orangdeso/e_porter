@@ -4,5 +4,7 @@ abstract class AuthRepository {
   Future<UserEntity> signInWithEmailPassword(String email, String password);
   Future<void> signOut();
   
-   Future<String?> getUserRole(String uid);
+  Future<String?> getUserRole(String uid);
+  Future<UserData?> getUserData(String uid);
+
 }

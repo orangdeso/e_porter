@@ -1,8 +1,9 @@
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/constants/colors.dart';
-import 'package:e_porter/_core/constants/typography.dart';
+import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 import '../component/card_boarding_pass.dart';
 
@@ -35,7 +36,9 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> with SingleTick
       appBar: SimpleAppbarComponent(
         title: 'Boarding Pass',
         subTitle: 'Semua boarding pass pesawat yang aktif ditampilkan dihalaman ini',
-        onTab: () {},
+        onTab: () {
+          Get.toNamed(Routes.TRANSACTIONHISTORY);
+        },
       ),
       body: SafeArea(
         child: Column(
@@ -62,13 +65,21 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> with SingleTick
                     ListView.builder(
                       itemCount: 1,
                       itemBuilder: (context, index) {
-                        return CardBoardingPass();
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: 16.h),
+                          child: CardBoardingPass(
+                            isActive: false,
+                          ),
+                        );
                       },
                     ),
                     ListView.builder(
                       itemCount: 2,
                       itemBuilder: (context, index) {
-                        return TypographyStyles.body('Belum bayar');
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: 16.h),
+                          child: CardBoardingPass(isActive: true),
+                        );
                       },
                     ),
                   ],

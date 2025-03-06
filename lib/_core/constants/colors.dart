@@ -25,3 +25,13 @@ class GrayColors {
   static const gray800 = Color(0xFF1F2A37);
   static const gray900 = Color(0xFF111928);
 }
+
+class RedColors {
+  static const red200 = Color(0xFFFBD5D5);
+  static const red600 = Color(0xFFE02424);
+}
+
+class GreenColors {
+  static const green100 = Color(0xFFDEF7EC);
+  static const green500 = Color(0xFF0E9F6E);
+}

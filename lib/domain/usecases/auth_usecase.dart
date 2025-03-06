@@ -19,3 +19,12 @@ class GetUserRoleUseCase {
     return await authRepository.getUserRole(uid);
   }
 }
+
+class GetUserDataUseCase {
+  final AuthRepository authRepository;
+  GetUserDataUseCase(this.authRepository);
+  
+  Future<UserData?> call(String uid) async {
+    return await authRepository.getUserData(uid);
+  }
+}

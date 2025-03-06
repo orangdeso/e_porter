@@ -57,7 +57,7 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
                 ),
                 SizedBox(height: 20.h),
                 CustomeShadowCotainner(
-                    borderRadius: 0.r,
+                    sizeRadius: 0.r,
                     height: MediaQuery.of(context).size.height * 0.5,
                     child: Column(
                       children: [

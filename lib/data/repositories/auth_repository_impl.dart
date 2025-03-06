@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuth _firebaseAuth;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance; 
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   AuthRepositoryImpl(this._firebaseAuth);
 
@@ -30,14 +30,25 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<String?> getUserRole(String uid) async {
-    // Ambil dokumen user di Firestore
     final docSnapshot = await _firestore.collection('users').doc(uid).get();
+
     if (docSnapshot.exists) {
-      // Baca field "role"
       final data = docSnapshot.data();
       return data?['role'] as String?;
     } else {
       return null;
     }
+  }
+
+  @override
+  Future<UserData?> getUserData(String uid) async {
+    final docSnapshot = await _firestore.collection('users').doc(uid).get();
+    if (docSnapshot.exists) {
+      final data = docSnapshot.data();
+      if (data != null) {
+        return UserData.fromMap(data);
+      }
+    }
+    return null;
   }
 }

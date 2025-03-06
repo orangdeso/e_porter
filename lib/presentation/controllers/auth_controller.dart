@@ -1,13 +1,16 @@
+
 import 'package:e_porter/domain/usecases/auth_usecase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../_core/service/preferences_service.dart';
 import '../screens/routes/app_rountes.dart';
 
 class AuthController extends GetxController {
   final LoginUseCase loginUseCase;
   final GetUserRoleUseCase getUserRoleUseCase;
+  final GetUserDataUseCase getUserDataUseCase;
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -18,6 +21,7 @@ class AuthController extends GetxController {
   AuthController({
     required this.loginUseCase,
     required this.getUserRoleUseCase,
+    required this.getUserDataUseCase,
   });
 
   Future<void> login({String? roleFromOnboarding}) async {
@@ -34,6 +38,7 @@ class AuthController extends GetxController {
         emailController.text,
         passwordController.text,
       );
+
       final uid = userEntity.uid;
       final roleFromDB = await getUserRoleUseCase(uid);
       print("roleFromDB: $roleFromDB, roleFromOnboarding: $roleFromOnboarding");
@@ -45,8 +50,24 @@ class AuthController extends GetxController {
       }
 
       final effectiveRole = roleFromDB ?? roleFromOnboarding ?? 'penumpang';
+
+      final userData = await getUserDataUseCase(uid);
+      if (userData == null) {
+        _showErrorSnackbar("Login Gagal", "Data user tidak ditemukan.");
+        return;
+      }
+
+      if (userData.role.toLowerCase() != effectiveRole.toLowerCase()) {
+        _showErrorSnackbar("Role Tidak Sesuai",
+            "Data user menunjukkan role '${userData.role}', bukan '$effectiveRole'.");
+        return;
+      }
+
+      await PreferencesService.saveUserData(userData);
       Get.offAllNamed(Routes.NAVBAR, arguments: effectiveRole);
+
     } on FirebaseAuthException catch (e) {
+      print("FirebaseAuthException code: ${e.code}");
       switch (e.code) {
         case 'user-not-found':
           _showErrorSnackbar("Login Gagal", "Email belum terdaftar.");
@@ -56,6 +77,13 @@ class AuthController extends GetxController {
           break;
         case 'invalid-email':
           _showErrorSnackbar("Login Gagal", "Format email tidak valid.");
+          break;
+        case 'invalid-credential':
+          if (e.message != null && e.message!.toLowerCase().contains('password')) {
+            _showErrorSnackbar("Login Gagal", "Password salah.");
+          } else {
+            _showErrorSnackbar("Login Gagal", "Email belum terdaftar.");
+          }
           break;
         default:
           _showErrorSnackbar("Login Gagal", e.message ?? "Terjadi kesalahan.");

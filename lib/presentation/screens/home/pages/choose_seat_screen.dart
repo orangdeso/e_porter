@@ -107,7 +107,7 @@ class _ChooseSeatScreenState extends State<ChooseSeatScreen> {
           ),
           SliverToBoxAdapter(
             child: CustomeShadowCotainner(
-              borderRadius: 0.r,
+              sizeRadius: 0.r,
               child: Column(
                 children: [
                   Row(

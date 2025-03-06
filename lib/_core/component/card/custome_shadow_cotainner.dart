@@ -5,19 +5,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class CustomeShadowCotainner extends StatelessWidget {
   final Widget child;
   final Color backgroundColor;
-  final double borderRadius;
+  final double sizeRadius;
   final BoxBorder? border;
   final EdgeInsets? padding;
   final double? height;
+  final BorderRadiusGeometry? borderRadius;
 
   const CustomeShadowCotainner({
     Key? key,
     required this.child,
     this.backgroundColor = Colors.white,
-    this.borderRadius = 10.0,
+    this.sizeRadius = 10.0,
     this.border,
     this.padding,
     this.height,
+    this.borderRadius,
   }) : super(key: key);
 
   @override
@@ -28,7 +30,7 @@ class CustomeShadowCotainner extends StatelessWidget {
       padding: padding ?? EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: borderRadius ?? BorderRadius.circular(sizeRadius),
         border: border ??
             Border.all(
               strokeAlign: 1,

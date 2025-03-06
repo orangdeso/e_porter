@@ -1,6 +1,7 @@
 import 'package:e_porter/_core/component/button/button_fill.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
+import 'package:e_porter/_core/validators/validators.dart';
 import 'package:e_porter/presentation/controllers/auth_controller.dart';
 import 'package:e_porter/presentation/screens/auth/component/Input_form.dart';
 import 'package:e_porter/presentation/screens/auth/component/Input_password.dart';
@@ -13,6 +14,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
+import '../../../../_core/component/button/button_no_fill.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -24,6 +27,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final String? role = Get.arguments as String;
   final authController = Get.find<AuthController>();
 
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,6 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
           child: Form(
+            key: _formKey,
             child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -54,6 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: authController.emailController,
                     hintText: 'example@gmail.com',
                     svgIconPath: 'assets/icons/ic_email.svg',
+                    validator: Validators.validatorEmail,
+                    textInputType: TextInputType.emailAddress,
                   ),
                   SizedBox(height: 20.h),
                   Padding(
@@ -69,6 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: authController.passwordController,
                     hintText: '••••••••••',
                     svgIconPath: 'assets/icons/ic_padlock.svg',
+                    validator: Validators.validatorPassword,
                   ),
                   SizedBox(height: 32.h),
                   ForgetPasswordText(
@@ -86,12 +98,24 @@ class _LoginScreenState extends State<LoginScreen> {
                           text: 'Masuk',
                           textColor: Colors.white,
                           onTap: () {
-                            authController.login(roleFromOnboarding: role);
+                            if (_formKey.currentState!.validate()) {
+                              authController.login(roleFromOnboarding: role);
+                            }
                           },
                         ),
                       );
                     }
                   }),
+                  SizedBox(height: 10.h),
+                  ZoomTapAnimation(
+                    child: ButtonNoFill(
+                      text: 'Kembali ke sebelumnya',
+                      textColor: GrayColors.gray500,
+                      onTap: () {
+                        Get.back();
+                      },
+                    ),
+                  )
                 ],
               ),
             ),
