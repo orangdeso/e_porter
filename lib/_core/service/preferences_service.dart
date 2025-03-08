@@ -26,6 +26,7 @@ class PreferencesService {
     final now = DateTime.now().millisecondsSinceEpoch;
     if (now > expiredAt) {
       await clearUserData();
+      print("now: $now, expiredAt: $expiredAt");
       return null;
     }
 
@@ -36,7 +37,7 @@ class PreferencesService {
     final userData = UserData.fromMap(map);
     return userData;
   }
-  
+
   static Future<void> clearUserData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userDataKey);

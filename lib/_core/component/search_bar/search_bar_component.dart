@@ -5,10 +5,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class SearchBarComponent extends StatelessWidget {
   final String hintText;
+  final ValueChanged<String>? onChanged;
 
   const SearchBarComponent({
     Key? key,
     required this.hintText,
+    this.onChanged
   });
 
   @override
@@ -18,6 +20,7 @@ class SearchBarComponent extends StatelessWidget {
         color: Colors.white,
       ),
       child: TextField(
+        onChanged: onChanged,
         decoration: InputDecoration(
           prefixIcon: Padding(
             padding: EdgeInsets.only(left: 16.w, right: 11.w),

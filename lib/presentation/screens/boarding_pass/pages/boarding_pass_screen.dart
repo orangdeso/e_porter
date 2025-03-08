@@ -69,6 +69,7 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> with SingleTick
                           padding: EdgeInsets.only(bottom: 16.h),
                           child: CardBoardingPass(
                             isActive: false,
+                            onTap: () {},
                           ),
                         );
                       },
@@ -78,7 +79,10 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> with SingleTick
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: EdgeInsets.only(bottom: 16.h),
-                          child: CardBoardingPass(isActive: true),
+                          child: CardBoardingPass(
+                            isActive: true,
+                            onTap: () {},
+                          ),
                         );
                       },
                     ),

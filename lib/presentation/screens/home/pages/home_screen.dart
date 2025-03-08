@@ -250,7 +250,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       SizedBox(height: 32.w),
-                      CustomeShadowCotainner(child: TypographyStyles.body('Mulai Antrian'))
+                      CustomeShadowCotainner(
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                              decoration: BoxDecoration(
+                                color: PrimaryColors.primary200,
+                                borderRadius: BorderRadius.circular(10.r),
+                              ),
+                              child: SvgPicture.asset(
+                                'assets/icons/ic_account.svg',
+                                width: 32.w,
+                                height: 32.h,
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                            TypographyStyles.body(
+                              'Mulai Antrian',
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 ),

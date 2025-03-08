@@ -5,7 +5,10 @@ import '../../domain/usecases/get_airport.dart';
 
 class SearchFlightController extends GetxController {
   final GetAirports getAirports;
+
   var airports = <Airport>[].obs; // Gunakan Rx agar bisa reaktif
+  var filteredAirports = <Airport>[].obs;
+  var searchText = ''.obs;
 
   SearchFlightController(this.getAirports);
 
@@ -13,24 +16,27 @@ class SearchFlightController extends GetxController {
   void onInit() {
     super.onInit();
     fetchAirports();
+    debounce(searchText, (_) => searchAirports(searchText.value), time: Duration(milliseconds: 300));
   }
 
   void fetchAirports() async {
     final result = await getAirports();
     airports.value = result;
+    filteredAirports.assignAll(result);
   }
 
-  // Misalnya, jika Anda ingin menambahkan pencarian:
   void searchAirports(String query) {
-    // Contoh filter sederhana
-    final filtered = airports.where((airport) {
-      final city = airport.city.toLowerCase();
-      final code = airport.code.toLowerCase();
-      final name = airport.name.toLowerCase();
-      final q = query.toLowerCase();
-      return city.contains(q) || code.contains(q) || name.contains(q);
-    }).toList();
+    final lowerCaseQuery = query.toLowerCase();
 
-    airports.value = filtered;
+    if (lowerCaseQuery.isEmpty) {
+      filteredAirports.assignAll(airports);
+    } else {
+      filteredAirports.assignAll(airports
+          .where((airport) =>
+              airport.name.toLowerCase().contains(lowerCaseQuery) ||
+              airport.city.toLowerCase().contains(lowerCaseQuery) ||
+              airport.code.toLowerCase().contains(lowerCaseQuery))
+          .toList());
+    }
   }
 }

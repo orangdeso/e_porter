@@ -1,6 +1,5 @@
-
+import 'package:e_porter/data/repositories/auth_repository_impl.dart';
 import 'package:e_porter/domain/usecases/auth_usecase.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -57,7 +56,7 @@ class AuthController extends GetxController {
         return;
       }
 
-      if (userData.role.toLowerCase() != effectiveRole.toLowerCase()) {
+      if (userData.role!.toLowerCase() != effectiveRole.toLowerCase()) {
         _showErrorSnackbar("Role Tidak Sesuai",
             "Data user menunjukkan role '${userData.role}', bukan '$effectiveRole'.");
         return;
@@ -66,28 +65,8 @@ class AuthController extends GetxController {
       await PreferencesService.saveUserData(userData);
       Get.offAllNamed(Routes.NAVBAR, arguments: effectiveRole);
 
-    } on FirebaseAuthException catch (e) {
-      print("FirebaseAuthException code: ${e.code}");
-      switch (e.code) {
-        case 'user-not-found':
-          _showErrorSnackbar("Login Gagal", "Email belum terdaftar.");
-          break;
-        case 'wrong-password':
-          _showErrorSnackbar("Login Gagal", "Password salah.");
-          break;
-        case 'invalid-email':
-          _showErrorSnackbar("Login Gagal", "Format email tidak valid.");
-          break;
-        case 'invalid-credential':
-          if (e.message != null && e.message!.toLowerCase().contains('password')) {
-            _showErrorSnackbar("Login Gagal", "Password salah.");
-          } else {
-            _showErrorSnackbar("Login Gagal", "Email belum terdaftar.");
-          }
-          break;
-        default:
-          _showErrorSnackbar("Login Gagal", e.message ?? "Terjadi kesalahan.");
-      }
+    } on AuthException catch (e) {
+      _showErrorSnackbar("Login Gagal", e.message);
     } catch (e) {
       _showErrorSnackbar("Terjadi Kesalahan", e.toString());
     } finally {

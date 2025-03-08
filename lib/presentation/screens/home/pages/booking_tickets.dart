@@ -4,6 +4,7 @@ import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/component/icons/icons_library.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
+import 'package:e_porter/domain/models/airport.dart';
 import 'package:e_porter/presentation/screens/home/component/flight_class_radio.dart';
 import 'package:e_porter/presentation/screens/home/component/flight_date_selector.dart';
 import 'package:e_porter/presentation/screens/home/component/flight_selector.dart';
@@ -25,8 +26,10 @@ class BookingTickets extends StatefulWidget {
 class _BookingTicketsState extends State<BookingTickets> {
   DateTime selectedDate = DateTime.now();
   String selectedDateText = 'dd/mm/yyyy';
-
   final ValueNotifier<String> selectedClass = ValueNotifier<String>('Economy');
+
+  Airport? selectedAirportFrom;
+  Airport? selectedAirportTo;
 
   @override
   Widget build(BuildContext context) {
@@ -51,19 +54,33 @@ class _BookingTicketsState extends State<BookingTickets> {
                     children: [
                       FlightSelector(
                         label: 'Dari',
-                        hintText: 'Pilih Bandara',
+                        hintText: selectedAirportFrom == null
+                            ? 'Pilih Bandara'
+                            : '${selectedAirportFrom!.code} - ${selectedAirportFrom!.city}',
                         svgIconPath: CustomeIcons.PlaneRightOutline(),
-                        onTap: () {
-                          Get.toNamed(Routes.SEARCHFLIGHT);
+                        onTap: () async {
+                          final result = await Get.toNamed(Routes.SEARCHFLIGHT);
+                          if (result != null) {
+                            setState(() {
+                              selectedAirportFrom = result;
+                            });
+                          }
                         },
                       ),
                       SizedBox(height: 16.h),
                       FlightSelector(
                         label: 'Ke',
-                        hintText: 'Pilih Bandara',
+                        hintText: selectedAirportTo == null
+                            ? 'Pilih Bandara'
+                            : '${selectedAirportTo!.code} - ${selectedAirportTo!.city}',
                         svgIconPath: CustomeIcons.PlaneLeftOutline(),
-                        onTap: () {
-                          Get.toNamed(Routes.SEARCHFLIGHT);
+                        onTap: () async {
+                          final result = await Get.toNamed(Routes.SEARCHFLIGHT);
+                          if (result != null) {
+                            setState(() {
+                              selectedAirportTo = result;
+                            });
+                          }
                         },
                       ),
                       SizedBox(height: 16.h),

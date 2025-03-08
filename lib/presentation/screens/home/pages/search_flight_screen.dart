@@ -34,7 +34,12 @@ class _SearchFlightScreenState extends State<SearchFlightScreen> {
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
           child: Column(
             children: [
-              SearchBarComponent(hintText: 'Cari Bandara'),
+              SearchBarComponent(
+                hintText: 'Cari Bandara',
+                onChanged: (value) {
+                  controller.searchText.value = value;
+                },
+              ),
               SizedBox(height: 20.h),
               Expanded(
                 child: Container(
@@ -45,7 +50,11 @@ class _SearchFlightScreenState extends State<SearchFlightScreen> {
                     borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Obx(() {
-                    final airports = controller.airports;
+                    final airports = controller.filteredAirports;
+
+                    if (airports.isEmpty) {
+                      return _buildIsEmpty();
+                    }
                     return ListView.builder(
                       shrinkWrap: true,
                       itemCount: airports.length,
@@ -54,7 +63,9 @@ class _SearchFlightScreenState extends State<SearchFlightScreen> {
                         return _buildCardItem(
                           '${airport.code} - ${airport.city}',
                           '${airport.name}',
-                          () {},
+                          () {
+                            Get.back(result: airport);
+                          },
                         );
                       },
                     );
@@ -97,6 +108,18 @@ class _SearchFlightScreenState extends State<SearchFlightScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildIsEmpty() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),
+      width: double.infinity,
+      child: TypographyStyles.caption(
+        "Data tidak ditemukan",
+        color: GrayColors.gray400,
+        fontWeight: FontWeight.w500,
       ),
     );
   }

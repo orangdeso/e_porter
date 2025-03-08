@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserEntity {
   final String uid;
   final String email;
@@ -9,15 +11,15 @@ class UserEntity {
 }
 
 class UserData {
-  final String name;
-  final String email;
-  final String phone;
-  final String birthDate;
-  final String gender;
-  final String work;
-  final String city;
-  final String address;
-  final String role;
+  final String? name;
+  final String? email;
+  final String? phone;
+  final String? birthDate;
+  final String? gender;
+  final String? work;
+  final String? city;
+  final String? address;
+  final String? role;
 
   UserData({
     required this.name,
@@ -32,19 +34,30 @@ class UserData {
   });
 
   factory UserData.fromMap(Map<String, dynamic> map) {
+    final timestamp = map['birth_date'];
+    String? birthDateString;
+
+    if (timestamp is Timestamp) {
+      // Konversi ke DateTime lalu ke String (format bebas)
+      birthDateString = timestamp.toDate().toIso8601String();
+    } else if (timestamp is String) {
+      // Kalau sudah String, langsung pakai
+      birthDateString = timestamp;
+    }
+
     return UserData(
-      name: map['name'],
-      email: map['email'],
-      phone: map['phone'],
-      birthDate: map['birth_date'],
-      gender: map['gender'],
-      work: map['work'],
-      city: map['city'],
-      address: map['address'],
-      role: map['role'],
+      name: map['name'] as String?,
+      email: map['email'] as String?,
+      phone: map['phone'] as String?,
+      birthDate: birthDateString,
+      gender: map['gender'] as String?,
+      work: map['work'] as String?,
+      city: map['city'] as String?,
+      address: map['address'] as String?,
+      role: map['role'] as String?,
     );
   }
-  
+
   Map<String, dynamic> toMap() {
     return {
       'name': name,
