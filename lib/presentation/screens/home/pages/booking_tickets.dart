@@ -26,10 +26,12 @@ class BookingTickets extends StatefulWidget {
 class _BookingTicketsState extends State<BookingTickets> {
   DateTime selectedDate = DateTime.now();
   String selectedDateText = 'dd/mm/yyyy';
-  final ValueNotifier<String> selectedClass = ValueNotifier<String>('Economy');
+  final ValueNotifier<String> selectedClass = ValueNotifier<String>('');
 
   Airport? selectedAirportFrom;
   Airport? selectedAirportTo;
+
+  int selectedPassengerCount = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +66,7 @@ class _BookingTicketsState extends State<BookingTickets> {
                             setState(() {
                               selectedAirportFrom = result;
                             });
+                            print('Daparture: ${selectedAirportFrom!.code} - ${selectedAirportFrom!.city}');
                           }
                         },
                       ),
@@ -122,38 +125,47 @@ class _BookingTicketsState extends State<BookingTickets> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          FlightSelector(
-                            label: 'Kelas penerbangan',
-                            hintText: 'Pilih Kelas',
-                            svgIconPath: CustomeIcons.FlightSeatOutline(),
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                backgroundColor: Colors.white,
-                                isScrollControlled: true,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(10.r),
-                                    topRight: Radius.circular(10.r),
-                                  ),
-                                ),
-                                builder: (context) {
-                                  return Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                                    child: Wrap(
-                                      children: [
-                                        _buildTitleShowModal('Kelas Penerbangan'),
-                                        _buildFlightClassRadio(),
-                                      ],
+                          ValueListenableBuilder<String>(
+                            valueListenable: selectedClass,
+                            builder: (context, value, child) {
+                              return FlightSelector(
+                                // width: MediaQuery.of(context).size.height * 0.21,
+                                widthText: MediaQuery.of(context).size.height * 0.12,
+                                label: 'Kelas penerbangan',
+                                hintText: value.isEmpty ? 'Pilih Kelas' : value,
+                                svgIconPath: CustomeIcons.FlightSeatOutline(),
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    backgroundColor: Colors.white,
+                                    isScrollControlled: true,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(10.r),
+                                        topRight: Radius.circular(10.r),
+                                      ),
                                     ),
+                                    builder: (context) {
+                                      return Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                        child: Wrap(
+                                          children: [
+                                            _buildTitleShowModal('Kelas Penerbangan'),
+                                            _buildFlightClassRadio(),
+                                          ],
+                                        ),
+                                      );
+                                    },
                                   );
                                 },
                               );
                             },
                           ),
                           FlightSelector(
+                            // width: MediaQuery.of(context).size.height * 0.17,
+                            widthText: 80.w,
                             label: 'Penumpang',
-                            hintText: '1 Dewasa',
+                            hintText: '${selectedPassengerCount} Dewasa',
                             svgIconPath: CustomeIcons.PassengerOutline(),
                             onTap: () {
                               showModalBottomSheet(
@@ -189,12 +201,25 @@ class _BookingTicketsState extends State<BookingTickets> {
                         fontWeight: FontWeight.w400,
                       ),
                       SizedBox(height: 20.h),
-                      ButtonFill(
-                        text: 'Cari Tiket',
-                        textColor: Colors.white,
-                        onTap: () {
-                          Get.toNamed(Routes.SEARCHTICKETS);
-                        },
+                      ZoomTapAnimation(
+                        child: ButtonFill(
+                          text: 'Cari Tiket',
+                          textColor: Colors.white,
+                          onTap: () {
+                            if (selectedAirportFrom != null && selectedAirportTo != null) {
+                              final searchParams = {
+                                "from": '${selectedAirportFrom!.city}',
+                                "to": '${selectedAirportTo!.city}',
+                                "leavingDate": selectedDate,
+                                "flightClass": selectedClass.value,
+                                "passengerCount": selectedPassengerCount,
+                              };
+                              Get.toNamed(Routes.SEARCHTICKETS, arguments: searchParams);
+                            } else {
+                              Get.snackbar("Error", "Silakan pilih bandara keberangkatan dan tujuan");
+                            }
+                          },
+                        ),
                       )
                     ],
                   ),
@@ -303,88 +328,65 @@ class _BookingTicketsState extends State<BookingTickets> {
   }
 
   Widget _buildFlightAddPassenger() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(height: 20.h),
-        TypographyStyles.caption(
-          'Dewasa',
-          color: GrayColors.gray800,
-          fontWeight: FontWeight.w500,
-        ),
-        SizedBox(height: 2.h),
-        TypographyStyles.small(
-          '3 Tahun ke atas',
-          color: GrayColors.gray600,
-          fontWeight: FontWeight.w400,
-        ),
-        SizedBox(height: 14.h),
-        Container(
-          height: 100.h,
-          child: CupertinoPicker(
-            scrollController: FixedExtentScrollController(initialItem: 0), // Start at 1
-            itemExtent: 45.0, // Set the height of each item
-            selectionOverlay: CircleAvatar(
-              radius: 18.r,
-              backgroundColor: PrimaryColors.primary800.withOpacity(0.7),
+    int tempPassengerCount = selectedPassengerCount;
+    return StatefulBuilder(
+      builder: (context, setModalState) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: 20.h),
+            TypographyStyles.caption(
+              'Dewasa',
+              color: GrayColors.gray800,
+              fontWeight: FontWeight.w500,
             ),
-            onSelectedItemChanged: (index) {},
-            children: List<Widget>.generate(10, (index) {
-              return Center(
-                child: TypographyStyles.body('${index + 1}'),
-              );
-            }),
-          ),
-        ),
-        // CircleAvatar(
-        //   radius: 18.r,
-        //   backgroundColor: PrimaryColors.primary800,
-        //   child: Obx(
-        //     () => TypographyStyles.body(
-        //       '${bookingTiketcController.selectedNumber.value}',
-        //       color: Colors.white,
-        //     ),
-        //   ),
-        // ),
-        // SizedBox(height: 10),
-        // CupertinoPicker(
-        //   itemExtent: 50, // Tinggi tiap item
-        //   backgroundColor: Colors.white,
-        //   selectionOverlay: Container(
-        //     color: Colors.white.withOpacity(0.1),
-        //   ),
-        //   scrollController: FixedExtentScrollController(
-        //       initialItem: bookingTiketcController.selectedNumber.value - 1), // Set default pilihan
-        //   onSelectedItemChanged: (int index) {
-        //     bookingTiketcController.updateNumber(index + 1);
-        //   },
-        //   children: List.generate(
-        //     10,
-        //     (index) => Center(
-        //       child: CircleAvatar(
-        //         radius: 18.r,
-        //         backgroundColor: GrayColors.gray50,
-        //         child: TypographyStyles.body(
-        //           '${index + 1}',
-        //           color: GrayColors.gray300,
-        //         ),
-        //       ),
-        //     ),
-        //   ),
-        // ),
-        SizedBox(height: 20.h),
-        Padding(
-          padding: EdgeInsets.only(bottom: 16.h),
-          child: ZoomTapAnimation(
-            child: ButtonFill(
-              text: 'Selesai',
-              textColor: Colors.white,
-              onTap: () {},
+            SizedBox(height: 2.h),
+            TypographyStyles.small(
+              '3 Tahun ke atas',
+              color: GrayColors.gray600,
+              fontWeight: FontWeight.w400,
             ),
-          ),
-        ),
-        // SizedBox(height: 16.h)
-      ],
+            SizedBox(height: 14.h),
+            Container(
+              height: 100.h,
+              child: CupertinoPicker(
+                scrollController: FixedExtentScrollController(initialItem: tempPassengerCount - 1),
+                itemExtent: 45.0,
+                selectionOverlay: CircleAvatar(
+                  radius: 18.r,
+                  backgroundColor: PrimaryColors.primary800.withOpacity(0.7),
+                ),
+                onSelectedItemChanged: (index) {
+                  setModalState(() {
+                    tempPassengerCount = index + 1;
+                  });
+                },
+                children: List<Widget>.generate(10, (index) {
+                  return Center(
+                    child: TypographyStyles.body('${index + 1}'),
+                  );
+                }),
+              ),
+            ),
+            SizedBox(height: 20.h),
+            Padding(
+              padding: EdgeInsets.only(bottom: 16.h),
+              child: ZoomTapAnimation(
+                child: ButtonFill(
+                  text: 'Selesai',
+                  textColor: Colors.white,
+                  onTap: () {
+                    setState(() {
+                      selectedPassengerCount = tempPassengerCount;
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

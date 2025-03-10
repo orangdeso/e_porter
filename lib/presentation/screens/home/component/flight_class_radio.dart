@@ -50,6 +50,8 @@ class FlightClassRadio extends StatelessWidget {
                   TypographyStyles.body(
                     title,
                     color: GrayColors.gray800,
+                    maxlines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 4.h),
                   TypographyStyles.caption(

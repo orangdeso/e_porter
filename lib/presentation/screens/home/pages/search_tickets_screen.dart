@@ -6,6 +6,9 @@ import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+
+import '../../../controllers/ticket_controller.dart';
 
 class SearchTicketsScreen extends StatefulWidget {
   const SearchTicketsScreen({super.key});
@@ -15,15 +18,47 @@ class SearchTicketsScreen extends StatefulWidget {
 }
 
 class _SearchTicketsScreenState extends State<SearchTicketsScreen> {
+  late final TicketController ticketController;
+  late final String from;
+  late final String to;
+  late final DateTime leavingDate;
+  late final String flightClass;
+  late final int passengerCount;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Ambil parameter yang dikirim dari BookingTickets
+    final args = Get.arguments as Map<String, dynamic>;
+    from = args['from'];
+    to = args['to'];
+    leavingDate = args['leavingDate'];
+    flightClass = args['flightClass'] ?? '';
+    passengerCount = args['passengerCount'] ?? 1;
+
+    ticketController = Get.find<TicketController>();
+
+    ticketController.searchTickets(
+      from: from,
+      to: to,
+      leavingDate: leavingDate,
+      flightClass: flightClass,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final formattedDate = DateFormat('EEE, d MMM yyyy').format(leavingDate);
+    final currencyFormatter = NumberFormat.decimalPattern('id_ID');
+
     return Scaffold(
       backgroundColor: GrayColors.gray50,
       appBar: CustomeAppbarComponent(
-        valueDari: 'Yogyakarta',
-        valueKe: 'Lombok',
-        date: 'Sen, 27 Jn 2025',
-        passenger: '2',
+        valueDari: from,
+        valueKe: to,
+        date: '$formattedDate',
+        passenger: '$passengerCount',
         onTab: () {
           Get.back();
         },
@@ -34,33 +69,69 @@ class _SearchTicketsScreenState extends State<SearchTicketsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TypographyStyles.h6('Pilih Pesawat', color: GrayColors.gray800, letterSpacing: 0.2),
+              TypographyStyles.h6(
+                'Pilih Pesawat',
+                color: GrayColors.gray800,
+                letterSpacing: 0.2,
+              ),
               SizedBox(height: 20.h),
               Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: 16.h),
-                      child: CardTickets(
-                        departureCity: 'Yogyakarta (YIA)',
-                        date: 'Sen, 27 Jan',
-                        arrivalCity: 'Lombok (LOP)',
-                        departureCode: 'YIA',
-                        arrivalCode: 'LOP',
-                        departureTime: '12.20 AM',
-                        arrivalTime: '06.00 AM',
-                        duration: '5j 40m',
-                        seatClass: 'Economy',
-                        price: 'Rp 1.200.000',
-                        onTap: () {
-                          Get.toNamed(Routes.TICKETBOOKINGSTEP1);
-                        },
+                child: Obx(() {
+                  if (ticketController.isLoading.value) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (ticketController.ticketFlight.isEmpty) {
+                    return Center(
+                      child: TypographyStyles.body(
+                        "Tiket tidak ditemukan",
+                        color: GrayColors.gray600,
                       ),
                     );
-                  },
-                ),
+                  } else {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: ticketController.ticketFlight.length,
+                      itemBuilder: (context, index) {
+                        final item = ticketController.ticketFlight[index];
+                        final ticket = item.ticket;
+                        final flight = item.flight;
+
+                        final ticketDate = DateFormat("EEE, d MMM").format(ticket.leavingDate);
+                        final departureTime = DateFormat.jm().format(flight.departureTime);
+                        final arrivalTime = DateFormat.jm().format(flight.arrivalTime);
+                        final formattedPrice = 'Rp ${currencyFormatter.format(flight.price)}';
+
+                        Duration diff = flight.arrivalTime.difference(flight.departureTime);
+                        if (diff.isNegative) {
+                          diff = diff + Duration(days: 1);
+                        }
+                        final hours = diff.inHours;
+                        final minutes = diff.inMinutes % 60;
+                        final durationFormatted = '${hours}j ${minutes}m';
+
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: 16.h),
+                          child: CardTickets(
+                            departureCity: '${flight.cityDeparture} (${flight.codeDeparture})',
+                            date: ticketDate,
+                            arrivalCity: '${flight.cityArrival} (${flight.codeArrival})',
+                            departureCode: '${flight.codeDeparture}',
+                            arrivalCode: '${flight.codeArrival}',
+                            departureTime: departureTime,
+                            arrivalTime: arrivalTime,
+                            duration: durationFormatted,
+                            seatClass: flight.flightClass,
+                            price: formattedPrice,
+                            onTap: () {
+                              Get.toNamed(Routes.TICKETBOOKINGSTEP1);
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  }
+                }),
               ),
             ],
           ),

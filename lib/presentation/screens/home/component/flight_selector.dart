@@ -9,13 +9,17 @@ class FlightSelector extends StatelessWidget {
   final String hintText;
   final Widget svgIconPath;
   final VoidCallback? onTap;
+  final double? width;
+  final double? widthText;
 
   const FlightSelector({
     Key? key,
     required this.label,
     required this.hintText,
     required this.svgIconPath,
-    required this.onTap
+    required this.onTap,
+    this.width,
+    this.widthText,
   }) : super(key: key);
 
   @override
@@ -24,6 +28,7 @@ class FlightSelector extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+        width: width,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10.r),
@@ -45,11 +50,15 @@ class FlightSelector extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                 ),
                 SizedBox(height: 4.h),
-                TypographyStyles.body(
-                  hintText,
-                  color: GrayColors.gray800,
-                  fontWeight: FontWeight.w500,
-                  maxlines: 1,
+                Container(
+                  width: widthText,
+                  child: TypographyStyles.body(
+                    hintText,
+                    color: GrayColors.gray800,
+                    fontWeight: FontWeight.w500,
+                    maxlines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 )
               ],
             )

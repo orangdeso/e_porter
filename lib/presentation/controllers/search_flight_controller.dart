@@ -33,9 +33,9 @@ class SearchFlightController extends GetxController {
     } else {
       filteredAirports.assignAll(airports
           .where((airport) =>
-              airport.name.toLowerCase().contains(lowerCaseQuery) ||
-              airport.city.toLowerCase().contains(lowerCaseQuery) ||
-              airport.code.toLowerCase().contains(lowerCaseQuery))
+              airport.name!.toLowerCase().contains(lowerCaseQuery) ||
+              airport.city!.toLowerCase().contains(lowerCaseQuery) ||
+              airport.code!.toLowerCase().contains(lowerCaseQuery))
           .toList());
     }
   }

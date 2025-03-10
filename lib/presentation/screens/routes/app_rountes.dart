@@ -1,6 +1,7 @@
 import 'package:e_porter/domain/bindings/auth_binding.dart';
 import 'package:e_porter/domain/bindings/navigation_binding.dart';
 import 'package:e_porter/domain/bindings/search_flight_binding.dart';
+import 'package:e_porter/domain/bindings/ticket_binding.dart';
 import 'package:e_porter/presentation/screens/auth/pages/forget_password_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/login_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/register_screen.dart';
@@ -81,6 +82,7 @@ class AppRoutes {
     GetPage(
       name: Routes.SEARCHTICKETS,
       page: () => SearchTicketsScreen(),
+      binding: TicketBinding()
     ),
     GetPage(
       name: Routes.TICKETBOOKINGSTEP1,
