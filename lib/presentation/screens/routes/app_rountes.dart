@@ -8,7 +8,7 @@ import 'package:e_porter/presentation/screens/auth/pages/register_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/state_succes_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/boarding_pass_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/transaction_history.dart';
-import 'package:e_porter/presentation/screens/home/pages/booking_tickets.dart';
+import 'package:e_porter/presentation/screens/home/pages/booking_tickets_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/choose_seat_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/payment_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/search_flight_screen.dart';

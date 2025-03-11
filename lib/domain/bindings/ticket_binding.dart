@@ -18,10 +18,13 @@ class TicketBinding extends Bindings {
     Get.lazyPut<SearchFlightUseCase>(
       () => SearchFlightUseCase(Get.find()),
     );
+     Get.lazyPut<GetFlightByIdUseCase>(
+      () => GetFlightByIdUseCase(Get.find()),
+    );
 
     // 3. Daftarkan Controller
     Get.lazyPut<TicketController>(
-      () => TicketController(Get.find()),
+      () => TicketController(Get.find(), Get.find()),
     );
   }
 }

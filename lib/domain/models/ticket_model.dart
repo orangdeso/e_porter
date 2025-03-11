@@ -16,7 +16,7 @@ class TicketModel {
   factory TicketModel.fromDocument(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
 
-    print("TicketModel.fromDocument - Doc ID: ${doc.id}, data: $data");
+    // print("TicketModel.fromDocument - Doc ID: ${doc.id}, data: $data");
     return TicketModel(
       id: doc.id,
       from: data['from'] ?? '',
@@ -36,6 +36,7 @@ class TicketModel {
 
 class FlightModel {
   final String id;
+  final String airLines;
   final String flightClass;
   final String code;
   final String cityDeparture;
@@ -44,11 +45,14 @@ class FlightModel {
   final String codeArrival;
   final DateTime departureTime;
   final DateTime arrivalTime;
+  final String transitAirplane;
+  final String stop;
   final int price;
   final Map<String, SeatInfo> seat;
 
   FlightModel({
     required this.id,
+    required this.airLines,
     required this.flightClass,
     required this.code,
     required this.cityDeparture,
@@ -57,6 +61,8 @@ class FlightModel {
     required this.codeArrival,
     required this.departureTime,
     required this.arrivalTime,
+    required this.transitAirplane,
+    required this.stop,
     required this.price,
     required this.seat,
   });
@@ -75,10 +81,11 @@ class FlightModel {
       );
     });
 
-    print("FlightModel.fromDocument - Doc ID: ${doc.id}, data: $data");
+    // print("FlightModel.fromDocument - Doc ID: ${doc.id}, data: $data");
 
     return FlightModel(
       id: doc.id,
+      airLines: data['airlines'] ?? '',
       flightClass: data['seatClass'] ?? '',
       code: data['code'] ?? '',
       cityDeparture: data['cityDeparture'] ?? '',
@@ -87,6 +94,8 @@ class FlightModel {
       codeArrival: data['codeArrival'] ?? '',
       departureTime: (data['dateDeparture'] as Timestamp).toDate(),
       arrivalTime: (data['dateArrival'] as Timestamp).toDate(),
+      transitAirplane: data['transitAirplane'] ?? '',
+      stop: data['stop'] ?? '',
       price: data['price'] ?? 0,
       seat: seatMap, // masukkan Map<String, SeatInfo>
     );
@@ -94,6 +103,7 @@ class FlightModel {
 
   Map<String, dynamic> toMap() {
     return {
+      'airlines': airLines,
       'seatClass': flightClass,
       'code': code,
       'cityDeparture': cityDeparture,
@@ -102,6 +112,8 @@ class FlightModel {
       'codeArrival': codeArrival,
       'dateDeparture': Timestamp.fromDate(departureTime),
       'dateArrival': Timestamp.fromDate(arrivalTime),
+      'transitAirplane': transitAirplane,
+      'stop': stop,
       'price': price,
       // Konversi Map<String, SeatInfo> jadi Map<String, Map<String,dynamic>>
       'seat': seat.map((key, value) => MapEntry(key, value.toMap())),

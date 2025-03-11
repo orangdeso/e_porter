@@ -11,4 +11,9 @@ abstract class TicketRepository {
     required String ticketId,
     required String flightClass,
   });
+
+  Future<FlightModel> getFlightById({
+    required String ticketId,
+    required String flightId,
+  });
 }

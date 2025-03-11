@@ -3,6 +3,8 @@ import 'package:e_porter/domain/models/user_entity.dart';
 import 'package:e_porter/domain/repositories/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../_core/service/logger_service.dart';
+
 class AuthException implements Exception {
   final String message;
   AuthException(this.message);
@@ -24,8 +26,8 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = userCredential.user!;
       return UserEntity(uid: user.uid, email: user.email ?? "");
     } on FirebaseAuthException catch (e) {
-      print("FirebaseAuthException code: ${e.code}");
-      print("FirebaseAuthException message: ${e.message}");
+      logger.w("FirebaseAuthException code: ${e.code}");
+      logger.w("FirebaseAuthException message: ${e.message}");
 
       switch (e.code) {
         case 'invalid-email':

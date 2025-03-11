@@ -4,6 +4,7 @@ import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/component/icons/icons_library.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
+import 'package:e_porter/_core/service/preferences_service.dart';
 import 'package:e_porter/presentation/screens/home/component/profile_avatar.dart';
 import 'package:e_porter/presentation/screens/home/component/summary_card.dart';
 import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
@@ -13,6 +14,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
+
+import '../../../../domain/models/user_entity.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,6 +27,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _current = 0;
   late final String role;
+  late Future<UserData?> _userDataFuture;
   final CarouselSliderController _carouselController = CarouselSliderController();
 
   final List<Widget> imageList = [
@@ -43,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     role = Get.arguments ?? 'penumpang';
+    _userDataFuture = PreferencesService.getUserData();
   }
 
   @override
@@ -55,232 +60,252 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildPassengerUI() {
     return Scaffold(
-      backgroundColor: GrayColors.gray50,
-      appBar: HomeAppbarComponent(
-        title: 'E-Porter',
-        subtitle: 'Your Porter, Your Priority',
-        backgroundColor: PrimaryColors.primary800,
-        trailing: Flexible(
-          child: SvgPicture.asset(
-            'assets/images/ornamen.svg',
-            height: 40,
-            fit: BoxFit.contain,
+        backgroundColor: GrayColors.gray50,
+        appBar: HomeAppbarComponent(
+          title: 'E-Porter',
+          subtitle: 'Your Porter, Your Priority',
+          backgroundColor: PrimaryColors.primary800,
+          trailing: Flexible(
+            child: SvgPicture.asset(
+              'assets/images/ornamen.svg',
+              height: 40,
+              fit: BoxFit.contain,
+            ),
           ),
         ),
-      ),
-      body: Stack(
-        children: [
-          Container(
-            height: 60.h,
-            width: double.infinity,
-            color: PrimaryColors.primary800,
-          ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-            child: ListView(
+        body: FutureBuilder<UserData?>(
+          future: _userDataFuture,
+          builder: (context, snapshot) {
+            String userName = "Guest";
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasData && snapshot.data?.name != null) {
+              userName = snapshot.data!.name!;
+            }
+            return Stack(
               children: [
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.r),
-                    border: Border.all(
-                      strokeAlign: 1.w,
-                      color: GrayColors.gray100,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        offset: const Offset(0, 4),
-                        blurRadius: 14,
-                        spreadRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: Column(
+                  height: 60.h,
+                  width: double.infinity,
+                  color: PrimaryColors.primary800,
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                  child: ListView(
                     children: [
-                      Row(
-                        children: [
-                          ProfileAvatar(
-                            fullName: 'Muhammad Al Kahfi',
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10.r),
+                          border: Border.all(
+                            strokeAlign: 1.w,
+                            color: GrayColors.gray100,
                           ),
-                          SizedBox(width: 16.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.06),
+                              offset: const Offset(0, 4),
+                              blurRadius: 14,
+                              spreadRadius: 10,
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
                               children: [
-                                TypographyStyles.body('Muhammad Al Kahfi'),
-                                SizedBox(height: 2.h),
-                                TypographyStyles.caption(
-                                  'Jelajahi dunia dengan E-Porter',
-                                  color: GrayColors.gray500,
-                                  fontWeight: FontWeight.w400,
-                                  maxlines: 1,
+                                ProfileAvatar(
+                                  fullName: userName,
                                 ),
+                                SizedBox(width: 16.w),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      TypographyStyles.body(userName, color: GrayColors.gray800),
+                                      SizedBox(height: 2.h),
+                                      TypographyStyles.caption(
+                                        'Jelajahi dunia dengan E-Porter',
+                                        color: GrayColors.gray500,
+                                        fontWeight: FontWeight.w400,
+                                        maxlines: 1,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SvgPicture.asset('assets/icons/ic_notification.svg'),
                               ],
                             ),
-                          ),
-                          SvgPicture.asset('assets/icons/ic_notification.svg'),
-                        ],
+                            SizedBox(height: 20.h),
+                            ButtonListTile(
+                              onTab: () {
+                                Get.toNamed(Routes.BOOKINGTICKETS);
+                              },
+                              titleText: 'Pesan Tiket',
+                              subTitle: 'Jadwalkan penerbangan sekarang!',
+                              imageAssets: 'assets/icons/ic_sent.svg',
+                              backroundColor: GrayColors.gray100,
+                              strokeColor: GrayColors.gray300,
+                            ),
+                          ],
+                        ),
                       ),
-                      SizedBox(height: 20.h),
-                      ButtonListTile(
-                        onTab: () {
-                          Get.toNamed(Routes.BOOKINGTICKETS);
-                        },
-                        titleText: 'Pesan Tiket',
-                        subTitle: 'Jadwalkan penerbangan sekarang!',
-                        imageAssets: 'assets/icons/ic_sent.svg',
-                        backroundColor: GrayColors.gray100,
-                        strokeColor: GrayColors.gray300,
+                      SizedBox(height: 32.h),
+                      Container(
+                        child: CarouselSlider(
+                            items: imageList,
+                            options: CarouselOptions(
+                              autoPlay: true,
+                              enlargeCenterPage: true,
+                              aspectRatio: 2.3,
+                              viewportFraction: 0.8,
+                              initialPage: 0,
+                              reverse: false,
+                              onPageChanged: (index, reason) {
+                                setState(() {
+                                  _current = index;
+                                });
+                              },
+                            )),
+                      ),
+                      SizedBox(height: 10.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: imageList.asMap().entries.map(
+                          (entry) {
+                            return GestureDetector(
+                              onTap: () => _carouselController.animateToPage(entry.key),
+                              child: Container(
+                                width: 8.w,
+                                height: 8.h,
+                                margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: (Theme.of(context).brightness == Brightness.dark
+                                          ? Colors.white
+                                          : PrimaryColors.primary800)
+                                      .withOpacity(_current == entry.key ? 0.9 : 0.4),
+                                ),
+                              ),
+                            );
+                          },
+                        ).toList(),
+                      ),
+                      SizedBox(height: 32.h),
+                      TypographyStyles.h6(
+                        'Layanan untuk Anda',
+                        color: GrayColors.gray800,
+                      ),
+                      SizedBox(height: 4.h),
+                      TypographyStyles.caption(
+                        'Layanan premium yang akan menemani Anda',
+                        color: GrayColors.gray600,
+                        fontWeight: FontWeight.w400,
                       ),
                     ],
                   ),
-                ),
-                SizedBox(height: 32.h),
-                Container(
-                  child: CarouselSlider(
-                      items: imageList,
-                      options: CarouselOptions(
-                        autoPlay: true,
-                        enlargeCenterPage: true,
-                        aspectRatio: 2.3,
-                        viewportFraction: 0.8,
-                        initialPage: 0,
-                        reverse: false,
-                        onPageChanged: (index, reason) {
-                          setState(() {
-                            _current = index;
-                          });
-                        },
-                      )),
-                ),
-                SizedBox(height: 10.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: imageList.asMap().entries.map(
-                    (entry) {
-                      return GestureDetector(
-                        onTap: () => _carouselController.animateToPage(entry.key),
-                        child: Container(
-                          width: 8.w,
-                          height: 8.h,
-                          margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: (Theme.of(context).brightness == Brightness.dark
-                                    ? Colors.white
-                                    : PrimaryColors.primary800)
-                                .withOpacity(_current == entry.key ? 0.9 : 0.4),
-                          ),
-                        ),
-                      );
-                    },
-                  ).toList(),
-                ),
-                SizedBox(height: 32.h),
-                TypographyStyles.h6(
-                  'Layanan untuk Anda',
-                  color: GrayColors.gray800,
-                ),
-                SizedBox(height: 4.h),
-                TypographyStyles.caption(
-                  'Layanan premium yang akan menemani Anda',
-                  color: GrayColors.gray600,
-                  fontWeight: FontWeight.w400,
-                ),
+                )
               ],
-            ),
-          )
-        ],
-      ),
-    );
+            );
+          },
+        ));
   }
 
   Widget _buildPorterUI() {
     return Scaffold(
-      backgroundColor: GrayColors.gray50,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildAppbar(
-              context,
-              nameAvatar: 'Muhammad Al Kahfi',
-              nameUser: 'Muhammad Al Kahfi',
-              subTitle: 'Selamat datang kembali Rekanku',
-            ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TypographyStyles.h6('Ringkasan Hari ini', color: GrayColors.gray800),
-                      SizedBox(height: 16.h),
-                      Row(
-                        children: [
-                          SummaryCard(
-                            label: 'Pesanan Masuk',
-                            value: '1000000000000000000000',
-                            icon: CustomeIcons.PlaneLeftOutline(),
-                          ),
-                          SizedBox(width: 16.w),
-                          SummaryCard(
-                            label: 'Pesanan Berjalan',
-                            value: '1000000000000000000000',
-                            icon: CustomeIcons.PlaneLeftOutline(),
-                          )
-                        ],
-                      ),
-                      SizedBox(height: 16.w),
-                      Row(
-                        children: [
-                          SummaryCard(
-                            label: 'Pesanan Selesai',
-                            value: '1000000000000000000000',
-                            icon: CustomeIcons.PlaneLeftOutline(),
-                          ),
-                          SizedBox(width: 16.w),
-                          SummaryCard(
-                            label: 'Pendapatan',
-                            value: 'Rp 500.000',
-                            icon: CustomeIcons.PlaneLeftOutline(),
-                          )
-                        ],
-                      ),
-                      SizedBox(height: 32.w),
-                      CustomeShadowCotainner(
+        backgroundColor: GrayColors.gray50,
+        body: FutureBuilder<UserData?>(
+          future: _userDataFuture,
+          builder: (context, snapshot) {
+            String userPorter = "Guest";
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasData && snapshot.data?.name != null) {
+              userPorter = snapshot.data!.name!;
+            }
+            return SafeArea(
+              child: Column(
+                children: [
+                  _buildAppbar(
+                    context,
+                    nameAvatar: userPorter,
+                    nameUser: userPorter,
+                    subTitle: 'Selamat datang kembali Rekanku',
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+                      child: SingleChildScrollView(
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-                              decoration: BoxDecoration(
-                                color: PrimaryColors.primary200,
-                                borderRadius: BorderRadius.circular(10.r),
-                              ),
-                              child: SvgPicture.asset(
-                                'assets/icons/ic_account.svg',
-                                width: 32.w,
-                                height: 32.h,
-                              ),
+                            TypographyStyles.h6('Ringkasan Hari ini', color: GrayColors.gray800),
+                            SizedBox(height: 16.h),
+                            Row(
+                              children: [
+                                SummaryCard(
+                                  label: 'Pesanan Masuk',
+                                  value: '1000000000000000000000',
+                                  icon: CustomeIcons.PlaneLeftOutline(),
+                                ),
+                                SizedBox(width: 16.w),
+                                SummaryCard(
+                                  label: 'Pesanan Berjalan',
+                                  value: '1000000000000000000000',
+                                  icon: CustomeIcons.PlaneLeftOutline(),
+                                )
+                              ],
                             ),
-                            SizedBox(height: 10.h),
-                            TypographyStyles.body(
-                              'Mulai Antrian',
+                            SizedBox(height: 16.w),
+                            Row(
+                              children: [
+                                SummaryCard(
+                                  label: 'Pesanan Selesai',
+                                  value: '1000000000000000000000',
+                                  icon: CustomeIcons.PlaneLeftOutline(),
+                                ),
+                                SizedBox(width: 16.w),
+                                SummaryCard(
+                                  label: 'Pendapatan',
+                                  value: 'Rp 500.000',
+                                  icon: CustomeIcons.PlaneLeftOutline(),
+                                )
+                              ],
                             ),
+                            SizedBox(height: 32.w),
+                            CustomeShadowCotainner(
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                                    decoration: BoxDecoration(
+                                      color: PrimaryColors.primary200,
+                                      borderRadius: BorderRadius.circular(10.r),
+                                    ),
+                                    child: SvgPicture.asset(
+                                      'assets/icons/ic_account.svg',
+                                      width: 32.w,
+                                      height: 32.h,
+                                    ),
+                                  ),
+                                  SizedBox(height: 10.h),
+                                  TypographyStyles.body(
+                                    'Mulai Antrian',
+                                  ),
+                                ],
+                              ),
+                            )
                           ],
                         ),
-                      )
-                    ],
-                  ),
-                ),
+                      ),
+                    ),
+                  )
+                ],
               ),
-            )
-          ],
-        ),
-      ),
-    );
+            );
+          },
+        ));
   }
 }
 

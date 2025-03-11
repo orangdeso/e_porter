@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:e_porter/_core/service/logger_service.dart';
 import 'package:e_porter/domain/models/user_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,7 +27,7 @@ class PreferencesService {
     final now = DateTime.now().millisecondsSinceEpoch;
     if (now > expiredAt) {
       await clearUserData();
-      print("now: $now, expiredAt: $expiredAt");
+      logger.d("now: $now, expiredAt: $expiredAt");
       return null;
     }
 

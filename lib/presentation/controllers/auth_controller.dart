@@ -3,6 +3,7 @@ import 'package:e_porter/domain/usecases/auth_usecase.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../_core/service/logger_service.dart';
 import '../../_core/service/preferences_service.dart';
 import '../screens/routes/app_rountes.dart';
 
@@ -40,7 +41,7 @@ class AuthController extends GetxController {
 
       final uid = userEntity.uid;
       final roleFromDB = await getUserRoleUseCase(uid);
-      print("roleFromDB: $roleFromDB, roleFromOnboarding: $roleFromOnboarding");
+      logger.d("roleFromDB: $roleFromDB, roleFromOnboarding: $roleFromOnboarding");
 
       if (roleFromDB != null && roleFromOnboarding != null && roleFromDB != roleFromOnboarding) {
         _showErrorSnackbar(

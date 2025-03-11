@@ -18,3 +18,16 @@ class SearchFlightUseCase {
     );
   }
 }
+
+class GetFlightByIdUseCase {
+  final TicketRepository repository;
+  
+  GetFlightByIdUseCase(this.repository);
+
+  Future<FlightModel> call({
+    required String ticketId,
+    required String flightId,
+  }) {
+    return repository.getFlightById(ticketId: ticketId, flightId: flightId);
+  }
+}
