@@ -1,5 +1,5 @@
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
-import 'package:e_porter/_core/component/search_bar/search_bar_component.dart';
+import 'package:e_porter/_core/component/text_field/search_bar/search_bar_component.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/presentation/controllers/search_flight_controller.dart';

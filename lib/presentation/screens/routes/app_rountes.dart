@@ -19,7 +19,8 @@ import 'package:e_porter/presentation/screens/home/pages/ticket_booking_step3_sc
 import 'package:e_porter/presentation/screens/home/pages/ticket_booking_step4_screen.dart';
 import 'package:e_porter/presentation/screens/navigation/main_navigation.dart';
 import 'package:e_porter/presentation/screens/onboarding/onboarding_screen.dart';
-import 'package:e_porter/presentation/screens/profile/profile_screen.dart';
+import 'package:e_porter/presentation/screens/profile/pages/profile_screen.dart';
+import 'package:e_porter/presentation/screens/profile/pages/add_passenger_screen.dart';
 import 'package:e_porter/presentation/screens/splash/splash_screen.dart';
 import 'package:get/get.dart';
 
@@ -82,7 +83,7 @@ class AppRoutes {
     GetPage(
       name: Routes.SEARCHTICKETS,
       page: () => SearchTicketsScreen(),
-      binding: TicketBinding()
+      binding: TicketBinding(),
     ),
     GetPage(
       name: Routes.TICKETBOOKINGSTEP1,
@@ -112,6 +113,10 @@ class AppRoutes {
       name: Routes.TRANSACTIONHISTORY,
       page: () => transactionHistory(),
     ),
+    GetPage(
+      name: Routes.ADDPASSENGER,
+      page: () => AddPassengerScreen(),
+    ),
   ];
 }
 
@@ -136,4 +141,6 @@ class Routes {
   static const CHOOSECHAIR = '/choose_chair';
   static const PAYMENT = '/payment';
   static const TRANSACTIONHISTORY = '/transaction_history';
+
+  static const ADDPASSENGER = '/add_passenger';
 }

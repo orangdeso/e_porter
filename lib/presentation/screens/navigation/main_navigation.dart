@@ -9,7 +9,8 @@ import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 import '../../../_core/constants/typography.dart';
 import '../../controllers/navigation_controller.dart';
 import '../boarding_pass/pages/boarding_pass_screen.dart';
-import '../profile/profile_screen.dart';
+import '../profile/pages/profile_screen.dart';
+
 
 class MainNavigation extends StatefulWidget {
   final int initialTabIndex;

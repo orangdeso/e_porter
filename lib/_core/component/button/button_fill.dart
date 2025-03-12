@@ -1,6 +1,7 @@
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
 import '../../constants/typography.dart';
 
@@ -20,27 +21,29 @@ class ButtonFill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor:
-              isLoading ? GrayColors.gray500 : PrimaryColors.primary800,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(35.r),
+    return ZoomTapAnimation(
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: onTap,
+          style: ElevatedButton.styleFrom(
+            backgroundColor:
+                isLoading ? GrayColors.gray500 : PrimaryColors.primary800,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(35.r),
+            ),
           ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 14.h),
-          child: isLoading
-              ? _rowLoading()
-              : TypographyStyles.h6(
-                  text,
-                  color: textColor,
-                  letterSpacing: 1,
-                  fontWeight: FontWeight.bold,
-                ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 14.h),
+            child: isLoading
+                ? _rowLoading()
+                : TypographyStyles.h6(
+                    text,
+                    color: textColor,
+                    letterSpacing: 1,
+                    fontWeight: FontWeight.bold,
+                  ),
+          ),
         ),
       ),
     );

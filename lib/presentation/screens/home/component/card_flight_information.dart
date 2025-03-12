@@ -59,22 +59,17 @@ class CardFlightInformation extends StatelessWidget {
           SizedBox(height: 4.h),
           Row(
             children: [
-              TypographyStyles.body(departureCity, color: GrayColors.gray800, letterSpacing: 0.2),
+              TypographyStyles.body(departureCity, color: GrayColors.gray800),
               SizedBox(width: 10.w),
               CustomeIcons.PlaneRightFilled(color: PrimaryColors.primary800),
               SizedBox(width: 10.w),
-              TypographyStyles.body(arrivalCity, color: GrayColors.gray800, letterSpacing: 0.2)
+              TypographyStyles.body(arrivalCity, color: GrayColors.gray800)
             ],
           ),
           SizedBox(height: 4.h),
           Row(
             children: [
-              TypographyStyles.small(
-                plane,
-                color: GrayColors.gray600,
-                letterSpacing: 0.2,
-                fontWeight: FontWeight.w400,
-              ),
+              TypographyStyles.small(plane, color: GrayColors.gray600, fontWeight: FontWeight.w400),
               _buildText(context, text: seatClass),
               servicePorter != null ? _buildText(context, text: servicePorter!) : SizedBox.shrink(),
             ],

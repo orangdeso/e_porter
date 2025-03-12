@@ -17,6 +17,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
+import '../../../../_core/service/logger_service.dart';
+
 class BookingTickets extends StatefulWidget {
   const BookingTickets({super.key});
 
@@ -117,7 +119,7 @@ class _BookingTicketsState extends State<BookingTickets> {
                             setState(() {
                               selectedDate = picked;
                               selectedDateText = DateFormat('EEE, d MMM yyyy', 'en_US').format(selectedDate);
-                              print(selectedDate);
+                              logger.d(selectedDate);
                             });
                           }
                         },
@@ -202,25 +204,23 @@ class _BookingTicketsState extends State<BookingTickets> {
                         fontWeight: FontWeight.w400,
                       ),
                       SizedBox(height: 20.h),
-                      ZoomTapAnimation(
-                        child: ButtonFill(
-                          text: 'Cari Tiket',
-                          textColor: Colors.white,
-                          onTap: () {
-                            if (selectedAirportFrom != null && selectedAirportTo != null) {
-                              final searchParams = {
-                                "from": '${selectedAirportFrom!.city}',
-                                "to": '${selectedAirportTo!.city}',
-                                "leavingDate": selectedDate,
-                                "flightClass": selectedClass.value,
-                                "passengerCount": selectedPassengerCount,
-                              };
-                              Get.toNamed(Routes.SEARCHTICKETS, arguments: searchParams);
-                            } else {
-                              Get.snackbar("Error", "Silakan pilih bandara keberangkatan dan tujuan");
-                            }
-                          },
-                        ),
+                      ButtonFill(
+                        text: 'Cari Tiket',
+                        textColor: Colors.white,
+                        onTap: () {
+                          if (selectedAirportFrom != null && selectedAirportTo != null) {
+                            final searchParams = {
+                              "from": '${selectedAirportFrom!.city}',
+                              "to": '${selectedAirportTo!.city}',
+                              "leavingDate": selectedDate,
+                              "flightClass": selectedClass.value,
+                              "passengerCount": selectedPassengerCount,
+                            };
+                            Get.toNamed(Routes.SEARCHTICKETS, arguments: searchParams);
+                          } else {
+                            Get.snackbar("Error", "Silakan pilih bandara keberangkatan dan tujuan");
+                          }
+                        },
                       )
                     ],
                   ),

@@ -14,8 +14,10 @@ import 'package:e_porter/presentation/screens/home/component/title_show_modal.da
 import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
 class TicketBookingStep1Screen extends StatefulWidget {
@@ -34,6 +36,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
   late Future<FlightModel> _flightFuture;
   late final TicketController ticketController;
   final currencyFormatter = NumberFormat.decimalPattern('id_ID');
+  dynamic _loggedUser;
 
   @override
   void initState() {
@@ -107,14 +110,12 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
       ),
       bottomNavigationBar: CustomeShadowCotainner(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-        child: ZoomTapAnimation(
-          child: ButtonFill(
-            text: 'Lanjutkan',
-            textColor: Colors.white,
-            onTap: () {
-              Get.toNamed(Routes.TICKETBOOKINGSTEP2);
-            },
-          ),
+        child: ButtonFill(
+          text: 'Lanjutkan',
+          textColor: Colors.white,
+          onTap: () {
+            Get.toNamed(Routes.TICKETBOOKINGSTEP2);
+          },
         ),
       ),
     );
@@ -124,11 +125,12 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
     return FutureBuilder(
       future: PreferencesService.getUserData(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CustomeShadowCotainner(child: Center(child: CircularProgressIndicator()));
+        if (snapshot.connectionState == ConnectionState.none) {
+          return SizedBox.shrink();
         } else if (snapshot.hasData && snapshot.data != null) {
           final user = snapshot.data!;
-          logger.d('Data user: ${user.email}');
+          _loggedUser = user;
+          logger.d('Data user: ${user.noId}');
           return CustomeShadowCotainner(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,7 +161,10 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                     SizedBox(width: 20.w),
                     SwitchButton(
                       value: isToggled,
-                      onChanged: (newValue) {
+                      onChanged: (newValue) async {
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setBool('isPassengerAdd', newValue);
+
                         setState(
                           () {
                             isToggled = newValue;
@@ -191,53 +196,116 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
         children: List.generate(
       passenger,
       (index) {
-        return Padding(
-          padding: EdgeInsets.only(bottom: 16.h),
-          child: CustomeShadowCotainner(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TypographyStyles.body(
-                  'Penumpang 1 (Dewasa)',
-                  color: GrayColors.gray800,
-                  fontWeight: FontWeight.w500,
-                ),
-                ZoomTapAnimation(
-                  child: GestureDetector(
-                    child: CustomeIcons.EditOutline(),
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        backgroundColor: Colors.white,
-                        isScrollControlled: true,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10.r),
-                            topRight: Radius.circular(10.r),
-                          ),
-                        ),
-                        builder: (context) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
-                            child: Wrap(
-                              children: [
-                                TitleShowModal(
-                                  text: 'Informasi Penumpang',
-                                  onTap: () {},
-                                ),
-                                _buildAddPassenger(),
-                              ],
-                            ),
-                          );
-                        },
-                      );
-                    },
+        if (isToggled && index == 0 && _loggedUser != null) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: 16.h),
+            child: CustomeShadowCotainner(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TypographyStyles.body(
+                        '${_loggedUser.name}',
+                        color: GrayColors.gray800,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      SizedBox(height: 4.h),
+                      TypographyStyles.caption(
+                        "${_loggedUser.tipeId} - ${_loggedUser.noId}",
+                        color: GrayColors.gray800,
+                        fontWeight: FontWeight.w400,
+                      )
+                    ],
                   ),
-                )
-              ],
+                  ZoomTapAnimation(
+                    child: GestureDetector(
+                      child: CustomeIcons.EditOutline(),
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.white,
+                          isScrollControlled: true,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10.r),
+                              topRight: Radius.circular(10.r),
+                            ),
+                          ),
+                          builder: (context) {
+                            return Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              child: Wrap(
+                                children: [
+                                  TitleShowModal(
+                                    text: 'Informasi Penumpang',
+                                    onTap: () {},
+                                  ),
+                                  _buildAddPassenger(),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  )
+                ],
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          return Padding(
+            padding: EdgeInsets.only(bottom: 16.h),
+            child: CustomeShadowCotainner(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TypographyStyles.body(
+                    'Penumpang ${index + 1} (Dewasa)',
+                    color: GrayColors.gray800,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  ZoomTapAnimation(
+                    child: GestureDetector(
+                      child: CustomeIcons.EditOutline(),
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.white,
+                          isScrollControlled: true,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10.r),
+                              topRight: Radius.circular(10.r),
+                            ),
+                          ),
+                          builder: (context) {
+                            return Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              child: Wrap(
+                                children: [
+                                  TitleShowModal(
+                                    text: 'Informasi Penumpang',
+                                    onTap: () {
+                                      Get.toNamed(Routes.ADDPASSENGER);
+                                    },
+                                  ),
+                                  _buildAddPassenger(),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        }
       },
     ));
   }
@@ -245,6 +313,27 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
   Widget _buildAddPassenger() {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16.h),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        decoration: BoxDecoration(
+            color: GrayColors.gray50,
+            border: Border.all(width: 1.w, color: GrayColors.gray200),
+            borderRadius: BorderRadius.circular(10.r)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TypographyStyles.body("Muhammad Al Kahfi", color: GrayColors.gray800),
+                SizedBox(height: 4.h),
+                TypographyStyles.caption("KTP - 3571", color: GrayColors.gray800, fontWeight: FontWeight.w400)
+              ],
+            ),
+            SvgPicture.asset('assets/icons/ic_more _than.svg')
+          ],
+        ),
+      ),
     );
   }
 }

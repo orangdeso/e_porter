@@ -11,6 +11,8 @@ class UserEntity {
 }
 
 class UserData {
+  final String? tipeId;
+  final String? noId;
   final String? name;
   final String? email;
   final String? phone;
@@ -22,6 +24,8 @@ class UserData {
   final String? role;
 
   UserData({
+    required this.tipeId,
+    required this.noId,
     required this.name,
     required this.email,
     required this.phone,
@@ -46,6 +50,8 @@ class UserData {
     }
 
     return UserData(
+      tipeId: map['tipeId'] ?? '',
+      noId: map['noId'] ?? '',
       name: map['name'] as String?,
       email: map['email'] as String?,
       phone: map['phone'] as String?,
@@ -60,6 +66,8 @@ class UserData {
 
   Map<String, dynamic> toMap() {
     return {
+      'tipeId': tipeId,
+      'noId': noId,
       'name': name,
       'email': email,
       'phone': phone,
