@@ -67,7 +67,9 @@ class AuthRepositoryImpl implements AuthRepository {
     if (docSnapshot.exists) {
       final data = docSnapshot.data();
       if (data != null) {
-        return UserData.fromMap(data);
+        final userData = UserData.fromMap(data);
+        final updatedUserData = userData.copyWith(uid: docSnapshot.id);
+        return updatedUserData;
       }
     }
     return null;

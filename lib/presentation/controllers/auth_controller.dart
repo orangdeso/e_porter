@@ -41,7 +41,7 @@ class AuthController extends GetxController {
 
       final uid = userEntity.uid;
       final roleFromDB = await getUserRoleUseCase(uid);
-      logger.d("roleFromDB: $roleFromDB, roleFromOnboarding: $roleFromOnboarding");
+      logger.d("roleFromDB: $roleFromDB, roleFromOnboarding: $roleFromOnboarding, UID: $uid");
 
       if (roleFromDB != null && roleFromOnboarding != null && roleFromDB != roleFromOnboarding) {
         _showErrorSnackbar(
@@ -58,14 +58,13 @@ class AuthController extends GetxController {
       }
 
       if (userData.role!.toLowerCase() != effectiveRole.toLowerCase()) {
-        _showErrorSnackbar("Role Tidak Sesuai",
-            "Data user menunjukkan role '${userData.role}', bukan '$effectiveRole'.");
+        _showErrorSnackbar(
+            "Role Tidak Sesuai", "Data user menunjukkan role '${userData.role}', bukan '$effectiveRole'.");
         return;
       }
 
       await PreferencesService.saveUserData(userData);
       Get.offAllNamed(Routes.NAVBAR, arguments: effectiveRole);
-
     } on AuthException catch (e) {
       _showErrorSnackbar("Login Gagal", e.message);
     } catch (e) {

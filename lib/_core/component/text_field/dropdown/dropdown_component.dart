@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DropdownComponent extends StatefulWidget {
+  final List<String> items;
   final String? value;
   final Function(String?) onChanged;
   final String hintText;
 
   const DropdownComponent({
     Key? key,
+    required this.items,
     this.value,
     required this.onChanged,
     required this.hintText,
@@ -20,9 +22,7 @@ class DropdownComponent extends StatefulWidget {
 }
 
 class _DropdownComponentState extends State<DropdownComponent> {
-  final List<String> items = ["KTP", "Paspor"];
   String? selectedValue;
-
   bool _isMenuOpen = false;
 
   @override
@@ -39,7 +39,7 @@ class _DropdownComponentState extends State<DropdownComponent> {
         child: DropdownButton2<String>(
           isExpanded: true,
           value: selectedValue,
-          items: items.map((String item) {
+          items: widget.items.map((String item) {
             return DropdownMenuItem<String>(
               value: item,
               child: Text(
@@ -77,7 +77,9 @@ class _DropdownComponentState extends State<DropdownComponent> {
             padding: EdgeInsets.only(left: 10.w, right: 16.w, top: 4.h, bottom: 4.h),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10.r),
-              border: Border.all(width: 1.w, color: _isMenuOpen ? PrimaryColors.primary800 : GrayColors.gray200),
+              border: Border.all(
+                  width: 1.w,
+                  color: _isMenuOpen ? PrimaryColors.primary800 : GrayColors.gray200),
               color: Colors.white,
             ),
           ),

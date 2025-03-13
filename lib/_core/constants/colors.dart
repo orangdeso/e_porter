@@ -27,11 +27,21 @@ class GrayColors {
 }
 
 class RedColors {
+  static const red100 = Color(0xFFFDE8E8);
   static const red200 = Color(0xFFFBD5D5);
+  static const red300 = Color(0xFFF8B4B4);
+  static const red400 = Color(0xFFF98080);
+  static const red500 = Color(0xFFF05252);
   static const red600 = Color(0xFFE02424);
+  
 }
 
 class GreenColors {
+  static const green50 = Color(0xFFE8F6F0);
   static const green100 = Color(0xFFDEF7EC);
+  static const green200 = Color(0xFFBCF0DA);
+  static const green300 = Color(0xFF84E1BC);
+  static const green400 = Color(0xFF31C48D);
   static const green500 = Color(0xFF0E9F6E);
+  static const green600 = Color(0xFF057A55);
 }

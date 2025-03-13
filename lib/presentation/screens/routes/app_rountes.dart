@@ -1,5 +1,6 @@
 import 'package:e_porter/domain/bindings/auth_binding.dart';
 import 'package:e_porter/domain/bindings/navigation_binding.dart';
+import 'package:e_porter/domain/bindings/profil_binding.dart';
 import 'package:e_porter/domain/bindings/search_flight_binding.dart';
 import 'package:e_porter/domain/bindings/ticket_binding.dart';
 import 'package:e_porter/presentation/screens/auth/pages/forget_password_screen.dart';
@@ -116,6 +117,7 @@ class AppRoutes {
     GetPage(
       name: Routes.ADDPASSENGER,
       page: () => AddPassengerScreen(),
+      binding: ProfilBinding(),
     ),
   ];
 }

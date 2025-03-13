@@ -11,6 +11,7 @@ class UserEntity {
 }
 
 class UserData {
+  final String uid;
   final String? tipeId;
   final String? noId;
   final String? name;
@@ -24,6 +25,7 @@ class UserData {
   final String? role;
 
   UserData({
+    required this.uid,
     required this.tipeId,
     required this.noId,
     required this.name,
@@ -50,6 +52,7 @@ class UserData {
     }
 
     return UserData(
+      uid: map['uid'] ?? '',
       tipeId: map['tipeId'] ?? '',
       noId: map['noId'] ?? '',
       name: map['name'] as String?,
@@ -66,6 +69,7 @@ class UserData {
 
   Map<String, dynamic> toMap() {
     return {
+      'uid': uid,
       'tipeId': tipeId,
       'noId': noId,
       'name': name,
@@ -78,5 +82,67 @@ class UserData {
       'address': address,
       'role': role,
     };
+  }
+  
+  UserData copyWith({
+    String? uid,
+    String? tipeId,
+    String? noId,
+    String? name,
+    String? email,
+    String? phone,
+    String? birthDate,
+    String? gender,
+    String? work,
+    String? city,
+    String? address,
+    String? role,
+  }) {
+    return UserData(
+      uid: uid ?? this.uid,
+      tipeId: tipeId ?? this.tipeId,
+      noId: noId ?? this.noId,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      birthDate: birthDate ?? this.birthDate,
+      gender: gender ?? this.gender,
+      work: work ?? this.work,
+      city: city ?? this.city,
+      address: address ?? this.address,
+      role: role ?? this.role,
+    );
+  }
+}
+
+class PassengerModel {
+  final String typeId;
+  final String noId;
+  final String name;
+  final String gender;
+
+  PassengerModel({
+    required this.typeId,
+    required this.noId,
+    required this.name,
+    required this.gender,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'typeId': typeId,
+      'noId': noId,
+      'name': name,
+      'gender': gender,
+    };
+  }
+
+  factory PassengerModel.fromMap(Map<String, dynamic> map) {
+    return PassengerModel(
+      typeId: map['typeId'] ?? '',
+      noId: map['noId'] ?? '',
+      name: map['name'] ?? '',
+      gender: map['gender'] ?? '',
+    );
   }
 }
