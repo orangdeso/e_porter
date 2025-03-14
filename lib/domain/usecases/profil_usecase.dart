@@ -10,10 +10,19 @@ class CreatePassengerUseCase {
     required String userId,
     required PassengerModel passenger,
   }) async {
-    // Lakukan validasi atau logika bisnis lain jika diperlukan
     await profilRepository.createPassenger(
       userId: userId,
       passenger: passenger,
     );
+  }
+}
+
+class GetPassengerByIdUseCase {
+  final ProfilRepository profilRepository;
+  
+  GetPassengerByIdUseCase(this.profilRepository);
+  
+  Future<List<PassengerModel>> call(String userId) async {
+    return await profilRepository.getPassengerById(userId);
   }
 }

@@ -7,7 +7,9 @@ import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/_core/service/logger_service.dart';
 import 'package:e_porter/_core/service/preferences_service.dart';
+import 'package:e_porter/_core/utils/snackbar/snackbar_helper.dart';
 import 'package:e_porter/domain/models/ticket_model.dart';
+import 'package:e_porter/presentation/controllers/profil_controller.dart';
 import 'package:e_porter/presentation/controllers/ticket_controller.dart';
 import 'package:e_porter/presentation/screens/home/component/card_flight_information.dart';
 import 'package:e_porter/presentation/screens/home/component/title_show_modal.dart';
@@ -35,12 +37,14 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
   late final int passenger;
   late Future<FlightModel> _flightFuture;
   late final TicketController ticketController;
+  final ProfilController profilController = Get.find<ProfilController>();
   final currencyFormatter = NumberFormat.decimalPattern('id_ID');
   dynamic _loggedUser;
 
   @override
   void initState() {
     super.initState();
+    _loadPassengers();
     final args = Get.arguments as Map<String, dynamic>;
     ticketId = args['ticketId'];
     flightId = args['flightId'];
@@ -49,6 +53,17 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
 
     ticketController = Get.find<TicketController>();
     _flightFuture = ticketController.getFlightById(ticketId: ticketId, flightId: flightId);
+  }
+
+  Future<void> _loadPassengers() async {
+    final userData = await PreferencesService.getUserData();
+    if (userData == null || userData.uid.isEmpty) {
+      SnackbarHelper.showError('Error', 'User ID tidak ditemukan, silakan login kembali');
+      return;
+    }
+    final userId = userData.uid;
+    await profilController.fetchPassangerById(userId);
+    logger.d('User ID: $userId');
   }
 
   @override
@@ -219,38 +234,6 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                       )
                     ],
                   ),
-                  ZoomTapAnimation(
-                    child: GestureDetector(
-                      child: CustomeIcons.EditOutline(),
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          backgroundColor: Colors.white,
-                          isScrollControlled: true,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(10.r),
-                              topRight: Radius.circular(10.r),
-                            ),
-                          ),
-                          builder: (context) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16.w),
-                              child: Wrap(
-                                children: [
-                                  TitleShowModal(
-                                    text: 'Informasi Penumpang',
-                                    onTap: () {},
-                                  ),
-                                  _buildAddPassenger(),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  )
                 ],
               ),
             ),
@@ -271,8 +254,57 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                     child: GestureDetector(
                       child: CustomeIcons.EditOutline(),
                       onTap: () {
-                        showModalBottomSheet(
-                          context: context,
+                        Get.bottomSheet(
+                          Padding(
+                            padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
+                            child: Wrap(
+                              children: [
+                                TitleShowModal(
+                                  text: 'Informasi Penumpang',
+                                  onTap: () async {
+                                    if (Get.isBottomSheetOpen ?? false) {
+                                      Get.back();
+                                    }
+                                    await Future.delayed(Duration(seconds: 1));
+                                    var result = await Get.toNamed(Routes.ADDPASSENGER);
+                                    if (result == true) {
+                                      _loadPassengers().then((_) => setState(() {}));
+                                      // SnackbarHelper.showSuccess('Berhasil', 'Penumpang berhasil ditambahkan');
+                                    }
+                                  },
+                                ),
+                                Obx(
+                                  () {
+                                    if (profilController.passengerList.isEmpty) {
+                                      return Center(
+                                        child: TypographyStyles.body(
+                                          "Belum ada penumpang",
+                                          color: GrayColors.gray400,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      );
+                                    }
+                                    return ListView.builder(
+                                      itemCount: profilController.passengerList.length,
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) {
+                                        final passenger = profilController.passengerList[index];
+                                        logger.d("Passenger Models : ${passenger.noId}");
+                                        return Padding(
+                                          padding: EdgeInsets.only(top: 16.h),
+                                          child: _buildAddPassenger(
+                                            context,
+                                            title: "${passenger.name}",
+                                            subTitle: "${passenger.noId}",
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
                           backgroundColor: Colors.white,
                           isScrollControlled: true,
                           shape: RoundedRectangleBorder(
@@ -281,23 +313,71 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                               topRight: Radius.circular(10.r),
                             ),
                           ),
-                          builder: (context) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16.w),
-                              child: Wrap(
-                                children: [
-                                  TitleShowModal(
-                                    text: 'Informasi Penumpang',
-                                    onTap: () {
-                                      Get.toNamed(Routes.ADDPASSENGER);
-                                    },
-                                  ),
-                                  _buildAddPassenger(),
-                                ],
-                              ),
-                            );
-                          },
                         );
+                        // showModalBottomSheet(
+                        //   context: context,
+                        //   backgroundColor: Colors.white,
+                        //   isScrollControlled: true,
+                        //   shape: RoundedRectangleBorder(
+                        //     borderRadius: BorderRadius.only(
+                        //       topLeft: Radius.circular(10.r),
+                        //       topRight: Radius.circular(10.r),
+                        //     ),
+                        //   ),
+                        //   builder: (context) {
+                        //     return Padding(
+                        //       padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
+                        //       child: Wrap(
+                        //         children: [
+                        //           TitleShowModal(
+                        //             text: 'Informasi Penumpang',
+                        //             onTap: () {
+                        //               Navigator.pop(context);
+                        //               Future.delayed(Duration(milliseconds: 300), () {
+                        //                 Get.toNamed(Routes.ADDPASSENGER)?.then((result) {
+                        //                   if (result == true) {
+                        //                     _loadPassengers().then((_) => setState(() {}));
+                        //                     SnackbarHelper.showSuccess('Berhasil', 'Penumpang berhasil ditambahkan');
+                        //                   }
+                        //                 });
+                        //               });
+                        //             },
+                        //           ),
+                        //           SizedBox(height: 16.h),
+                        //           Obx(
+                        //             () {
+                        //               if (profilController.passengerList.isEmpty) {
+                        //                 return Center(
+                        //                   child: TypographyStyles.body(
+                        //                     "Belum ada penumpang",
+                        //                     color: GrayColors.gray400,
+                        //                     fontWeight: FontWeight.w500,
+                        //                   ),
+                        //                 );
+                        //               }
+                        //               return ListView.builder(
+                        //                 itemCount: profilController.passengerList.length,
+                        //                 shrinkWrap: true,
+                        //                 itemBuilder: (context, index) {
+                        //                   final passenger = profilController.passengerList[index];
+                        //                   logger.d("Passenger Models : ${passenger.noId}");
+                        //                   return Padding(
+                        //                     padding: EdgeInsets.only(top: 16.h),
+                        //                     child: _buildAddPassenger(
+                        //                       context,
+                        //                       title: "${passenger.name}",
+                        //                       subTitle: "${passenger.noId}",
+                        //                     ),
+                        //                   );
+                        //                 },
+                        //               );
+                        //             },
+                        //           ),
+                        //         ],
+                        //       ),
+                        //     );
+                        //   },
+                        // );
                       },
                     ),
                   )
@@ -310,28 +390,36 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
     ));
   }
 
-  Widget _buildAddPassenger() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.h),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-        decoration: BoxDecoration(
+  Widget _buildAddPassenger(
+    BuildContext context, {
+    required String title,
+    required String subTitle,
+    VoidCallback? onTap,
+  }) {
+    return ZoomTapAnimation(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+          decoration: BoxDecoration(
             color: GrayColors.gray50,
             border: Border.all(width: 1.w, color: GrayColors.gray200),
-            borderRadius: BorderRadius.circular(10.r)),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TypographyStyles.body("Muhammad Al Kahfi", color: GrayColors.gray800),
-                SizedBox(height: 4.h),
-                TypographyStyles.caption("KTP - 3571", color: GrayColors.gray800, fontWeight: FontWeight.w400)
-              ],
-            ),
-            SvgPicture.asset('assets/icons/ic_more _than.svg')
-          ],
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TypographyStyles.body(title, color: GrayColors.gray800),
+                  SizedBox(height: 4.h),
+                  TypographyStyles.caption("KTP - ${subTitle}", color: GrayColors.gray800, fontWeight: FontWeight.w400)
+                ],
+              ),
+              SvgPicture.asset('assets/icons/ic_more _than.svg')
+            ],
+          ),
         ),
       ),
     );

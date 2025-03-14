@@ -89,6 +89,7 @@ class AppRoutes {
     GetPage(
       name: Routes.TICKETBOOKINGSTEP1,
       page: () => TicketBookingStep1Screen(),
+      binding: ProfilBinding(),
     ),
     GetPage(
       name: Routes.TICKETBOOKINGSTEP2,

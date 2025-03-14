@@ -5,4 +5,6 @@ abstract class ProfilRepository {
     required String userId,
     required PassengerModel passenger,
   });
+
+  Future<List<PassengerModel>> getPassengerById(String userId);
 }

@@ -6,15 +6,19 @@ import '../repositories/profil_repository.dart';
 import '../usecases/profil_usecase.dart';
 
 class ProfilBinding extends Bindings {
-   @override
+  @override
   void dependencies() {
     // Injeksi repository
     Get.lazyPut<ProfilRepository>(() => ProfilRepositoryImpl());
-    
+
     // Injeksi use case, menggunakan repository yang telah di-inject
     Get.lazyPut(() => CreatePassengerUseCase(Get.find()));
-    
+    Get.lazyPut(() => GetPassengerByIdUseCase(Get.find()));
+
     // Injeksi controller, menggunakan use case yang sudah tersedia
-    Get.lazyPut(() => ProfilController(createPassengerUseCase: Get.find()));
+    Get.lazyPut(() => ProfilController(
+          createPassengerUseCase: Get.find(),
+          getPassengerByIdUseCase: Get.find(),
+        ));
   }
 }

@@ -22,4 +22,20 @@ class ProfilRepositoryImpl implements ProfilRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<List<PassengerModel>> getPassengerById(String userId) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('passenger')
+        .get();
+      return querySnapshot.docs
+        .map((doc) => PassengerModel.fromMap(doc.data() as Map<String, dynamic>))
+        .toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

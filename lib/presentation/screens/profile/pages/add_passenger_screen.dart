@@ -211,6 +211,7 @@ class _AddPassengerScreenState extends State<AddPassengerScreen> {
 
       SnackbarHelper.showSuccess('Sukses', 'Berhasil menambahkan penumpang baru');
       logger.d("Berhasil menambah penumpang: {name: $name, typeId: $typeId, noId: $noId, gender: $gender}");
+      Navigator.pop(context, true);
     } catch (e) {
       SnackbarHelper.showError('Error', 'Gagal menambahkan penumpang baru: $e');
       logger.e("Gagal menambah penumpang: $e");
