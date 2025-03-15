@@ -10,6 +10,7 @@ class ButtonFill extends StatelessWidget {
   final Color? textColor;
   final VoidCallback? onTap;
   final bool isLoading;
+  final Color? backgroundColor;
 
   const ButtonFill({
     Key? key,
@@ -17,6 +18,7 @@ class ButtonFill extends StatelessWidget {
     required this.textColor,
     this.onTap,
     this.isLoading = false,
+    this.backgroundColor,
   }) : super(key: key);
 
   @override
@@ -27,8 +29,7 @@ class ButtonFill extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onTap,
           style: ElevatedButton.styleFrom(
-            backgroundColor:
-                isLoading ? GrayColors.gray500 : PrimaryColors.primary800,
+            backgroundColor: isLoading ? GrayColors.gray400 : (backgroundColor ?? PrimaryColors.primary800),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(35.r),
             ),

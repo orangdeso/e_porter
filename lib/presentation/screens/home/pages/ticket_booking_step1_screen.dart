@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/button/button_fill.dart';
 import 'package:e_porter/_core/component/button/switch_button.dart';
@@ -9,6 +11,7 @@ import 'package:e_porter/_core/service/logger_service.dart';
 import 'package:e_porter/_core/service/preferences_service.dart';
 import 'package:e_porter/_core/utils/snackbar/snackbar_helper.dart';
 import 'package:e_porter/domain/models/ticket_model.dart';
+import 'package:e_porter/domain/models/user_entity.dart';
 import 'package:e_porter/presentation/controllers/profil_controller.dart';
 import 'package:e_porter/presentation/controllers/ticket_controller.dart';
 import 'package:e_porter/presentation/screens/home/component/card_flight_information.dart';
@@ -40,6 +43,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
   final ProfilController profilController = Get.find<ProfilController>();
   final currencyFormatter = NumberFormat.decimalPattern('id_ID');
   dynamic _loggedUser;
+  List<PassengerModel?> selectedPassengers = [];
 
   @override
   void initState() {
@@ -53,6 +57,8 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
 
     ticketController = Get.find<TicketController>();
     _flightFuture = ticketController.getFlightById(ticketId: ticketId, flightId: flightId);
+
+    selectedPassengers = List.filled(passenger, null, growable: false);
   }
 
   Future<void> _loadPassengers() async {
@@ -64,6 +70,14 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
     final userId = userData.uid;
     await profilController.fetchPassangerById(userId);
     logger.d('User ID: $userId');
+  }
+
+  bool isAllPassengersFilled() {
+    if (isToggled && _loggedUser != null) {
+      return selectedPassengers.skip(1).every((p) => p != null);
+    } else {
+      return selectedPassengers.every((p) => p != null);
+    }
   }
 
   @override
@@ -100,13 +114,15 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CardFlightInformation(
-                      date: '${ticketDate}',
+                      date: ticketDate,
                       time: '$departureTime - $arrivalTime',
-                      departureCity: '${flight.cityDeparture}',
-                      arrivalCity: '${flight.cityArrival}',
+                      departureCity: flight.cityDeparture,
+                      arrivalCity: flight.cityArrival,
                       plane: '${flight.airLines} (${flight.code})',
-                      seatClass: '${flight.flightClass}',
+                      seatClass: flight.flightClass,
                       passenger: '$passenger',
+                      transiAirplane: flight.transitAirplane,
+                      stop: flight.stop,
                     ),
                     SizedBox(height: 32.h),
                     TypographyStyles.h6('Detail Pemesanan', color: GrayColors.gray800),
@@ -122,14 +138,19 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
             ),
           );
         },
-      ),
+      ), 
       bottomNavigationBar: CustomeShadowCotainner(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
         child: ButtonFill(
           text: 'Lanjutkan',
           textColor: Colors.white,
+          backgroundColor: isAllPassengersFilled() ? PrimaryColors.primary800 : GrayColors.gray400,
           onTap: () {
-            Get.toNamed(Routes.TICKETBOOKINGSTEP2);
+            if (!isAllPassengersFilled()) {
+              SnackbarHelper.showError('Error', 'Harap lengkapi slot penumpang');
+            } else {
+              Get.toNamed(Routes.TICKETBOOKINGSTEP2);
+            }
           },
         ),
       ),
@@ -208,186 +229,185 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
 
   Widget _buildCardDetailPessenger() {
     return Column(
-        children: List.generate(
-      passenger,
-      (index) {
-        if (isToggled && index == 0 && _loggedUser != null) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: 16.h),
-            child: CustomeShadowCotainner(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TypographyStyles.body(
-                        '${_loggedUser.name}',
-                        color: GrayColors.gray800,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      SizedBox(height: 4.h),
-                      TypographyStyles.caption(
-                        "${_loggedUser.tipeId} - ${_loggedUser.noId}",
-                        color: GrayColors.gray800,
-                        fontWeight: FontWeight.w400,
-                      )
-                    ],
-                  ),
-                ],
-              ),
+      children: List.generate(
+        passenger,
+        (index) {
+          if (isToggled && index == 0 && _loggedUser != null) {
+            return _buildUserPassengerCard(_loggedUser);
+          } else {
+            final p = selectedPassengers[index];
+            if (p != null) {
+              return _buildSelectedPassengerCard(p, index);
+            } else {
+              return _buildEmptyPassengerCard(index);
+            }
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildUserPassengerCard(dynamic user) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 16.h),
+      child: CustomeShadowCotainner(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TypographyStyles.body(
+                  '${_loggedUser.name}',
+                  color: GrayColors.gray800,
+                  fontWeight: FontWeight.w500,
+                ),
+                SizedBox(height: 4.h),
+                TypographyStyles.caption(
+                  "${_loggedUser.tipeId} - ${_loggedUser.noId}",
+                  color: GrayColors.gray800,
+                  fontWeight: FontWeight.w400,
+                )
+              ],
             ),
-          );
-        } else {
-          return Padding(
-            padding: EdgeInsets.only(bottom: 16.h),
-            child: CustomeShadowCotainner(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TypographyStyles.body(
-                    'Penumpang ${index + 1} (Dewasa)',
-                    color: GrayColors.gray800,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  ZoomTapAnimation(
-                    child: GestureDetector(
-                      child: CustomeIcons.EditOutline(),
-                      onTap: () {
-                        Get.bottomSheet(
-                          Padding(
-                            padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
-                            child: Wrap(
-                              children: [
-                                TitleShowModal(
-                                  text: 'Informasi Penumpang',
-                                  onTap: () async {
-                                    if (Get.isBottomSheetOpen ?? false) {
-                                      Get.back();
-                                    }
-                                    await Future.delayed(Duration(seconds: 1));
-                                    var result = await Get.toNamed(Routes.ADDPASSENGER);
-                                    if (result == true) {
-                                      _loadPassengers().then((_) => setState(() {}));
-                                      // SnackbarHelper.showSuccess('Berhasil', 'Penumpang berhasil ditambahkan');
-                                    }
-                                  },
-                                ),
-                                Obx(
-                                  () {
-                                    if (profilController.passengerList.isEmpty) {
-                                      return Center(
-                                        child: TypographyStyles.body(
-                                          "Belum ada penumpang",
-                                          color: GrayColors.gray400,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      );
-                                    }
-                                    return ListView.builder(
-                                      itemCount: profilController.passengerList.length,
-                                      shrinkWrap: true,
-                                      itemBuilder: (context, index) {
-                                        final passenger = profilController.passengerList[index];
-                                        logger.d("Passenger Models : ${passenger.noId}");
-                                        return Padding(
-                                          padding: EdgeInsets.only(top: 16.h),
-                                          child: _buildAddPassenger(
-                                            context,
-                                            title: "${passenger.name}",
-                                            subTitle: "${passenger.noId}",
-                                          ),
-                                        );
+            ZoomTapAnimation(
+              child: GestureDetector(
+                child: CustomeIcons.EditOutline(),
+                onTap: () {
+                  Get.bottomSheet(
+                    Padding(
+                      padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
+                      child: Wrap(
+                        children: [
+                          TitleShowModal(
+                            text: 'Informasi Penumpang',
+                            onTap: () async {
+                              if (Get.isBottomSheetOpen ?? false) {
+                                Get.back();
+                              }
+                              await Future.delayed(Duration(seconds: 1));
+                              var result = await Get.toNamed(Routes.ADDPASSENGER);
+                              if (result == true) {
+                                _loadPassengers().then((_) => setState(() {}));
+                              }
+                            },
+                          ),
+                          Obx(
+                            () {
+                              if (profilController.passengerList.isEmpty) {
+                                return Center(
+                                  child: TypographyStyles.body(
+                                    "Belum ada penumpang",
+                                    color: GrayColors.gray400,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                );
+                              }
+                              return ListView.builder(
+                                itemCount: profilController.passengerList.length,
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) {
+                                  final passenger = profilController.passengerList[index];
+                                  logger.d("Passenger Models : ${passenger.noId}");
+                                  return Padding(
+                                    padding: EdgeInsets.only(top: 16.h),
+                                    child: _buildAddPassenger(
+                                      context,
+                                      title: "${passenger.name}",
+                                      subTitle: "${passenger.typeId} - ${passenger.noId}",
+                                      onTap: () {
+                                        selectedPassengers[index] = passenger;
+                                        Get.back();
+                                        setState(() {});
                                       },
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
                           ),
-                          backgroundColor: Colors.white,
-                          isScrollControlled: true,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(10.r),
-                              topRight: Radius.circular(10.r),
-                            ),
-                          ),
-                        );
-                        // showModalBottomSheet(
-                        //   context: context,
-                        //   backgroundColor: Colors.white,
-                        //   isScrollControlled: true,
-                        //   shape: RoundedRectangleBorder(
-                        //     borderRadius: BorderRadius.only(
-                        //       topLeft: Radius.circular(10.r),
-                        //       topRight: Radius.circular(10.r),
-                        //     ),
-                        //   ),
-                        //   builder: (context) {
-                        //     return Padding(
-                        //       padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
-                        //       child: Wrap(
-                        //         children: [
-                        //           TitleShowModal(
-                        //             text: 'Informasi Penumpang',
-                        //             onTap: () {
-                        //               Navigator.pop(context);
-                        //               Future.delayed(Duration(milliseconds: 300), () {
-                        //                 Get.toNamed(Routes.ADDPASSENGER)?.then((result) {
-                        //                   if (result == true) {
-                        //                     _loadPassengers().then((_) => setState(() {}));
-                        //                     SnackbarHelper.showSuccess('Berhasil', 'Penumpang berhasil ditambahkan');
-                        //                   }
-                        //                 });
-                        //               });
-                        //             },
-                        //           ),
-                        //           SizedBox(height: 16.h),
-                        //           Obx(
-                        //             () {
-                        //               if (profilController.passengerList.isEmpty) {
-                        //                 return Center(
-                        //                   child: TypographyStyles.body(
-                        //                     "Belum ada penumpang",
-                        //                     color: GrayColors.gray400,
-                        //                     fontWeight: FontWeight.w500,
-                        //                   ),
-                        //                 );
-                        //               }
-                        //               return ListView.builder(
-                        //                 itemCount: profilController.passengerList.length,
-                        //                 shrinkWrap: true,
-                        //                 itemBuilder: (context, index) {
-                        //                   final passenger = profilController.passengerList[index];
-                        //                   logger.d("Passenger Models : ${passenger.noId}");
-                        //                   return Padding(
-                        //                     padding: EdgeInsets.only(top: 16.h),
-                        //                     child: _buildAddPassenger(
-                        //                       context,
-                        //                       title: "${passenger.name}",
-                        //                       subTitle: "${passenger.noId}",
-                        //                     ),
-                        //                   );
-                        //                 },
-                        //               );
-                        //             },
-                        //           ),
-                        //         ],
-                        //       ),
-                        //     );
-                        //   },
-                        // );
-                      },
+                        ],
+                      ),
                     ),
-                  )
-                ],
+                    backgroundColor: Colors.white,
+                    isScrollControlled: true,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10.r),
+                        topRight: Radius.circular(10.r),
+                      ),
+                    ),
+                  );
+                },
               ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectedPassengerCard(PassengerModel p, int slotIndex) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 16.h),
+      child: CustomeShadowCotainner(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TypographyStyles.body(
+                  '${p.name}',
+                  color: GrayColors.gray800,
+                  fontWeight: FontWeight.w500,
+                ),
+                SizedBox(height: 4.h),
+                TypographyStyles.caption(
+                  "${p.typeId} - ${p.noId}",
+                  color: GrayColors.gray800,
+                  fontWeight: FontWeight.w400,
+                )
+              ],
             ),
-          );
-        }
-      },
-    ));
+            ZoomTapAnimation(
+              child: GestureDetector(
+                child: CustomeIcons.EditOutline(),
+                onTap: () {
+                  _onEditPassenger(slotIndex);
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyPassengerCard(int slotIndex) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 16.h),
+      child: CustomeShadowCotainner(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TypographyStyles.body(
+              'Penumpang ${slotIndex + 1} (Dewasa)',
+              color: GrayColors.gray800,
+              fontWeight: FontWeight.w500,
+            ),
+            ZoomTapAnimation(
+              child: GestureDetector(
+                child: CustomeIcons.EditOutline(),
+                onTap: () {
+                  _onEditPassenger(slotIndex);
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildAddPassenger(
@@ -395,10 +415,11 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
     required String title,
     required String subTitle,
     VoidCallback? onTap,
+    bool enabled = true,
   }) {
     return ZoomTapAnimation(
       child: GestureDetector(
-        onTap: onTap,
+        onTap: enabled ? onTap : null,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
           decoration: BoxDecoration(
@@ -412,14 +433,93 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TypographyStyles.body(title, color: GrayColors.gray800),
+                  TypographyStyles.body(title, color: enabled ? GrayColors.gray800 : GrayColors.gray300),
                   SizedBox(height: 4.h),
-                  TypographyStyles.caption("KTP - ${subTitle}", color: GrayColors.gray800, fontWeight: FontWeight.w400)
+                  TypographyStyles.caption(
+                    "${subTitle}",
+                    color: enabled ? GrayColors.gray800 : GrayColors.gray300,
+                    fontWeight: FontWeight.w400,
+                  )
                 ],
               ),
-              SvgPicture.asset('assets/icons/ic_more _than.svg')
+              SvgPicture.asset(
+                'assets/icons/ic_more _than.svg',
+                color: enabled ? PrimaryColors.primary800 : GrayColors.gray300,
+              )
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _onEditPassenger(int slotIndex) {
+    Get.bottomSheet(
+      Padding(
+        padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
+        child: Wrap(
+          children: [
+            TitleShowModal(
+              text: 'Informasi Penumpang',
+              onTap: () async {
+                if (Get.isBottomSheetOpen ?? false) {
+                  Get.back();
+                }
+                await Future.delayed(Duration(seconds: 1));
+                var result = await Get.toNamed(Routes.ADDPASSENGER);
+                if (result == true) {
+                  _loadPassengers().then((_) => setState(() {}));
+                }
+              },
+            ),
+            Obx(
+              () {
+                final usedNoIds = selectedPassengers.where((p) => p != null).map((p) => p!.noId).toSet();
+                if (profilController.passengerList.isEmpty) {
+                  return Center(
+                    child: TypographyStyles.body(
+                      "Belum ada penumpang",
+                      color: GrayColors.gray400,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  itemCount: profilController.passengerList.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, pIndex) {
+                    final passenger = profilController.passengerList[pIndex];
+                    final isUsed = usedNoIds.contains(passenger.noId);
+                    logger.d("Passenger Models : ${passenger.noId}");
+                    return Padding(
+                      padding: EdgeInsets.only(top: 16.h),
+                      child: _buildAddPassenger(
+                        context,
+                        title: "${passenger.name}",
+                        subTitle: "${passenger.typeId} - ${passenger.noId}",
+                        enabled: !isUsed,
+                        onTap: isUsed
+                            ? null
+                            : () {
+                                selectedPassengers[slotIndex] = passenger;
+                                Get.back();
+                                setState(() {});
+                              },
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10.r),
+          topRight: Radius.circular(10.r),
         ),
       ),
     );

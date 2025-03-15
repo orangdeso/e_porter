@@ -203,6 +203,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: GrayColors.gray600,
                         fontWeight: FontWeight.w400,
                       ),
+                      SizedBox(height: 16.h),
+                      
                     ],
                   ),
                 )

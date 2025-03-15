@@ -16,6 +16,8 @@ class CardFlightInformation extends StatelessWidget {
   final String seatClass;
   final String? servicePorter;
   final String passenger;
+  final String? transiAirplane;
+  final String? stop;
 
   const CardFlightInformation({
     Key? key,
@@ -27,6 +29,8 @@ class CardFlightInformation extends StatelessWidget {
     required this.seatClass,
     this.servicePorter,
     required this.passenger,
+    this.transiAirplane,
+    this.stop,
   });
 
   @override
@@ -39,12 +43,13 @@ class CardFlightInformation extends StatelessWidget {
           SizedBox(height: 10.h),
           Row(
             children: [
-              TypographyStyles.small(
-                date,
-                color: GrayColors.gray600,
-                letterSpacing: 0.2,
-                fontWeight: FontWeight.w400,
-              ),
+              if (stop != null && stop!.isNotEmpty) ...[
+                TypographyStyles.small('${stop}', color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                SizedBox(width: 10.w),
+                CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)),
+                SizedBox(width: 10.w),
+              ],
+              TypographyStyles.small(date, color: GrayColors.gray600, fontWeight: FontWeight.w400),
               SizedBox(width: 10.w),
               CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)),
               SizedBox(width: 10.w),
@@ -63,7 +68,13 @@ class CardFlightInformation extends StatelessWidget {
               SizedBox(width: 10.w),
               CustomeIcons.PlaneRightFilled(color: PrimaryColors.primary800),
               SizedBox(width: 10.w),
-              TypographyStyles.body(arrivalCity, color: GrayColors.gray800)
+              if (transiAirplane != null && transiAirplane!.isNotEmpty) ...[
+                TypographyStyles.body('${transiAirplane}', color: GrayColors.gray800),
+                SizedBox(width: 10.w),
+                CustomeIcons.PlaneRightFilled(color: PrimaryColors.primary800),
+                SizedBox(width: 10.w),
+              ],
+              TypographyStyles.body(arrivalCity, color: GrayColors.gray800),
             ],
           ),
           SizedBox(height: 4.h),
