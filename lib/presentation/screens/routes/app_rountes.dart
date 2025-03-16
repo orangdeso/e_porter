@@ -11,6 +11,7 @@ import 'package:e_porter/presentation/screens/boarding_pass/pages/boarding_pass_
 import 'package:e_porter/presentation/screens/boarding_pass/pages/transaction_history.dart';
 import 'package:e_porter/presentation/screens/home/pages/booking_tickets_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/choose_seat_screen.dart';
+import 'package:e_porter/presentation/screens/home/pages/our_service_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/payment_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/search_flight_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/search_tickets_screen.dart';
@@ -71,6 +72,10 @@ class AppRoutes {
     GetPage(
       name: Routes.STATESUCCES,
       page: () => StateSuccesScreen(),
+    ),
+    GetPage(
+      name: Routes.OURSERVICE,
+      page: () => OurServiceScreen(),
     ),
     GetPage(
       name: Routes.BOOKINGTICKETS,
@@ -134,6 +139,7 @@ class Routes {
   static const REGISTER = '/register';
   static const FORGETPASSWORD = '/forget_password';
   static const STATESUCCES = '/state_succes';
+  static const OURSERVICE = '/our_service';
   static const BOOKINGTICKETS = '/booking_tickets';
   static const SEARCHFLIGHT = '/search_flight';
   static const SEARCHTICKETS = '/search_tickets';

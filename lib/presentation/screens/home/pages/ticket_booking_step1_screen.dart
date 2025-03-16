@@ -443,7 +443,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                 ],
               ),
               SvgPicture.asset(
-                'assets/icons/ic_more _than.svg',
+                'assets/icons/ic_more_than.svg',
                 color: enabled ? PrimaryColors.primary800 : GrayColors.gray300,
               )
             ],

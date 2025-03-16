@@ -70,7 +70,7 @@ class ButtonListTile extends StatelessWidget {
                     height: 18.h,
                   )
                 : SvgPicture.asset(
-                    'assets/icons/ic_more _than.svg',
+                    'assets/icons/ic_more_than.svg',
                     width: 18.w,
                     height: 18.h,
                   ),

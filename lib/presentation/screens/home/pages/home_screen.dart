@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/button/button_list_tile.dart';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
@@ -5,6 +7,7 @@ import 'package:e_porter/_core/component/icons/icons_library.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/_core/service/preferences_service.dart';
+import 'package:e_porter/presentation/screens/home/component/card_service_porter.dart';
 import 'package:e_porter/presentation/screens/home/component/profile_avatar.dart';
 import 'package:e_porter/presentation/screens/home/component/summary_card.dart';
 import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
@@ -156,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: CarouselSlider(
                             items: imageList,
                             options: CarouselOptions(
-                              autoPlay: true,
+                              autoPlay: false,
                               enlargeCenterPage: true,
                               aspectRatio: 2.3,
                               viewportFraction: 0.8,
@@ -204,7 +207,33 @@ class _HomeScreenState extends State<HomeScreen> {
                         fontWeight: FontWeight.w400,
                       ),
                       SizedBox(height: 16.h),
-                      
+                      Row(
+                        children: [
+                          CardServicePorter(
+                            text: "Fast Track",
+                            icons: CustomeIcons.RunningOutline(color: Colors.white),
+                            onTap: () {
+                              Get.toNamed(Routes.OURSERVICE, arguments: 0);
+                            },
+                          ),
+                          SizedBox(width: 16.w),
+                          CardServicePorter(
+                            text: "Porter VIP",
+                            icons: CustomeIcons.VIPFilled(color: Colors.white),
+                            onTap: () {
+                              Get.toNamed(Routes.OURSERVICE, arguments: 1);
+                            },
+                          ),
+                          SizedBox(width: 16.w),
+                          CardServicePorter(
+                            text: "Transit",
+                            icons: CustomeIcons.RefreshOutline(color: Colors.white),
+                            onTap: () {
+                              Get.toNamed(Routes.OURSERVICE, arguments: 2);
+                            },
+                          )
+                        ],
+                      )
                     ],
                   ),
                 )
