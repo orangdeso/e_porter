@@ -19,6 +19,7 @@ class CardTickets extends StatelessWidget {
   final String seatClass;
   final String price;
   final VoidCallback onTap;
+  final bool withContainer;
 
   const CardTickets({
     Key? key,
@@ -33,80 +34,83 @@ class CardTickets extends StatelessWidget {
     required this.seatClass,
     required this.price,
     required this.onTap,
+    required this.withContainer,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Konten utama card
+    Widget content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SvgPicture.asset('assets/images/citilink.svg', width: 40.w, height: 10.h),
+        SizedBox(height: 10.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TypographyStyles.small(
+              departureCity,
+              color: GrayColors.gray600,
+              fontWeight: FontWeight.w400,
+              maxlines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            TypographyStyles.small(date, color: GrayColors.gray600, fontWeight: FontWeight.w500),
+            TypographyStyles.small(arrivalCity, color: GrayColors.gray600, fontWeight: FontWeight.w400),
+          ],
+        ),
+        SizedBox(height: 10.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TypographyStyles.body(departureCode, color: GrayColors.gray800),
+            SvgPicture.asset('assets/images/ilustrasi_flight.svg'),
+            TypographyStyles.body(arrivalCode, color: GrayColors.gray800),
+          ],
+        ),
+        SizedBox(height: 10.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TypographyStyles.small(departureTime, color: GrayColors.gray600, fontWeight: FontWeight.w400),
+            TypographyStyles.small(duration, color: GrayColors.gray600, fontWeight: FontWeight.w500),
+            TypographyStyles.small(arrivalTime, color: GrayColors.gray600, fontWeight: FontWeight.w400),
+          ],
+        ),
+        SizedBox(height: 16.h),
+        SvgPicture.asset('assets/images/divider_custome.svg', width: 348.w),
+        SizedBox(height: 6.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                CustomeIcons.FlightSeatFilled(),
+                SizedBox(width: 6.w),
+                TypographyStyles.caption(seatClass, color: GrayColors.gray800),
+              ],
+            ),
+            Row(
+              children: [
+                TypographyStyles.body(price, color: PrimaryColors.primary800),
+                SizedBox(width: 2.w),
+                TypographyStyles.small('/orang', color: GrayColors.gray600, fontWeight: FontWeight.w400),
+              ],
+            ),
+          ],
+        )
+      ],
+    );
+
+    // Jika withShadow = true, bungkus konten dengan CustomeShadowCotainner
+    Widget finalWidget = withContainer
+        ? CustomeShadowCotainner(child: content)
+        : content;
+
     return ZoomTapAnimation(
       child: GestureDetector(
         onTap: onTap,
-        child: CustomeShadowCotainner(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SvgPicture.asset('assets/images/citilink.svg', width: 40.w, height: 10.h),
-              SizedBox(height: 10.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TypographyStyles.small(
-                    departureCity,
-                    color: GrayColors.gray600,
-                    fontWeight: FontWeight.w400,
-                    maxlines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  TypographyStyles.small(date, color: GrayColors.gray600, fontWeight: FontWeight.w500),
-                  TypographyStyles.small(arrivalCity, color: GrayColors.gray600, fontWeight: FontWeight.w400),
-                ],
-              ),
-              SizedBox(height: 10.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TypographyStyles.body(departureCode, color: GrayColors.gray800),
-                  SvgPicture.asset('assets/images/ilustrasi_flight.svg'),
-                  TypographyStyles.body(arrivalCode, color: GrayColors.gray800),
-                ],
-              ),
-              SizedBox(height: 10.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TypographyStyles.small(departureTime, color: GrayColors.gray600, fontWeight: FontWeight.w400),
-                  TypographyStyles.small(duration, color: GrayColors.gray600, fontWeight: FontWeight.w500),
-                  TypographyStyles.small(arrivalTime, color: GrayColors.gray600, fontWeight: FontWeight.w400),
-                ],
-              ),
-              SizedBox(height: 16.h),
-              SvgPicture.asset('assets/images/divider_custome.svg', width: 348.w),
-              SizedBox(height: 6.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    child: Row(
-                      children: [
-                        CustomeIcons.FlightSeatFilled(),
-                        SizedBox(width: 6.w),
-                        TypographyStyles.caption(seatClass, color: GrayColors.gray800)
-                      ],
-                    ),
-                  ),
-                  Container(
-                    child: Row(
-                      children: [
-                        TypographyStyles.body(price, color: PrimaryColors.primary800),
-                        SizedBox(width: 2.w),
-                        TypographyStyles.small('/orang', color: GrayColors.gray600, fontWeight: FontWeight.w400),
-                      ],
-                    ),
-                  )
-                ],
-              )
-            ],
-          ),
-        ),
+        child: finalWidget,
       ),
     );
   }

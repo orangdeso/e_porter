@@ -8,6 +8,8 @@ import 'package:e_porter/presentation/screens/auth/pages/login_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/register_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/state_succes_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/boarding_pass_screen.dart';
+import 'package:e_porter/presentation/screens/boarding_pass/pages/detail_ticket_screen.dart';
+import 'package:e_porter/presentation/screens/boarding_pass/pages/print_boarding_pass_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/transaction_history.dart';
 import 'package:e_porter/presentation/screens/home/pages/booking_tickets_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/choose_seat_screen.dart';
@@ -121,6 +123,14 @@ class AppRoutes {
       page: () => transactionHistory(),
     ),
     GetPage(
+      name: Routes.DETAILTICKET,
+      page: () => DetailTicketScreen(),
+    ),
+    GetPage(
+      name: Routes.PRINTBOARDINGPASS,
+      page: () => PrintBoardingPassScreen(),
+    ),
+    GetPage(
       name: Routes.ADDPASSENGER,
       page: () => AddPassengerScreen(),
       binding: ProfilBinding(),
@@ -150,6 +160,8 @@ class Routes {
   static const CHOOSECHAIR = '/choose_chair';
   static const PAYMENT = '/payment';
   static const TRANSACTIONHISTORY = '/transaction_history';
+  static const DETAILTICKET = '/detail_ticket';
+  static const PRINTBOARDINGPASS = '/print_boarding_pass';
 
   static const ADDPASSENGER = '/add_passenger';
 }

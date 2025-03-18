@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class TypographyStyles extends StatelessWidget {
   static const String fontFamily = 'DMSans';
@@ -35,10 +36,9 @@ class TypographyStyles extends StatelessWidget {
     this.fontWeight,
     this.height,
     this.letterSpacing,
-  }) : style = TextStyle(
-          fontFamily: fontFamily,
+  }) : style = GoogleFonts.dmSans(
           fontSize: fontSize ?? 80.sp,
-          fontWeight: fontWeight ?? FontWeight.w900,
+          fontWeight: fontWeight ?? FontWeight.w700,
           color: color,
           height: height,
           letterSpacing: letterSpacing ?? 0.2,
@@ -54,10 +54,9 @@ class TypographyStyles extends StatelessWidget {
       this.fontWeight,
       this.height,
       this.letterSpacing})
-      : style = TextStyle(
-          fontFamily: fontFamily,
+      : style = GoogleFonts.dmSans(
           fontSize: fontSize ?? 60.sp,
-          fontWeight: fontWeight ?? FontWeight.w900,
+          fontWeight: fontWeight ?? FontWeight.w700,
           color: color,
           height: height,
           letterSpacing: letterSpacing ?? 0.2,
@@ -73,10 +72,9 @@ class TypographyStyles extends StatelessWidget {
       this.fontWeight,
       this.height,
       this.letterSpacing})
-      : style = TextStyle(
-          fontFamily: fontFamily,
+      : style = GoogleFonts.dmSans(
           fontSize: fontSize ?? 40.sp,
-          fontWeight: fontWeight ?? FontWeight.w900,
+          fontWeight: fontWeight ?? FontWeight.w700,
           color: color,
           height: height,
           letterSpacing: letterSpacing ?? 0.2,
@@ -92,10 +90,9 @@ class TypographyStyles extends StatelessWidget {
       this.fontWeight,
       this.height,
       this.letterSpacing})
-      : style = TextStyle(
-          fontFamily: fontFamily,
+      : style = GoogleFonts.dmSans(
           fontSize: fontSize ?? 30.sp,
-          fontWeight: fontWeight ?? FontWeight.w900,
+          fontWeight: fontWeight ?? FontWeight.w700,
           color: color,
           height: height,
           letterSpacing: letterSpacing ?? 0.2,
@@ -111,10 +108,9 @@ class TypographyStyles extends StatelessWidget {
       this.fontWeight,
       this.height,
       this.letterSpacing})
-      : style = TextStyle(
-          fontFamily: fontFamily,
+      : style = GoogleFonts.dmSans(
           fontSize: fontSize ?? 24.sp,
-          fontWeight: fontWeight ?? FontWeight.w900,
+          fontWeight: fontWeight ?? FontWeight.w700,
           color: color,
           height: height,
           letterSpacing: letterSpacing ?? 0.2,
@@ -130,29 +126,28 @@ class TypographyStyles extends StatelessWidget {
       this.fontWeight,
       this.height,
       this.letterSpacing})
-      : style = TextStyle(
-          fontFamily: fontFamily,
+      : style = GoogleFonts.dmSans(
           fontSize: fontSize ?? 20.sp,
-          fontWeight: fontWeight ?? FontWeight.w900,
+          fontWeight: fontWeight ?? FontWeight.w700,
           color: color,
           height: height,
           letterSpacing: letterSpacing ?? 0.2,
         );
 
-  TypographyStyles.body(this.text,
-      {super.key,
-      this.textAlign = TextAlign.start,
-      this.overflow = TextOverflow.ellipsis,
-      this.maxlines,
-      this.color,
-      this.fontSize,
-      this.fontWeight,
-      this.height,
-      this.letterSpacing,})
-      : style = TextStyle(
-          fontFamily: fontFamily,
+  TypographyStyles.body(
+    this.text, {
+    super.key,
+    this.textAlign = TextAlign.start,
+    this.overflow = TextOverflow.ellipsis,
+    this.maxlines,
+    this.color,
+    this.fontSize,
+    this.fontWeight,
+    this.height,
+    this.letterSpacing,
+  }) : style = GoogleFonts.dmSans(
           fontSize: fontSize ?? 16.sp,
-          fontWeight: fontWeight ?? FontWeight.w900,
+          fontWeight: fontWeight ?? FontWeight.w700,
           color: color,
           height: height,
           letterSpacing: letterSpacing ?? 0.2,
@@ -168,10 +163,9 @@ class TypographyStyles extends StatelessWidget {
       this.fontWeight,
       this.height,
       this.letterSpacing})
-      : style = TextStyle(
-          fontFamily: fontFamily,
+      : style = GoogleFonts.dmSans(
           fontSize: fontSize ?? 14.sp,
-          fontWeight: fontWeight ?? FontWeight.w900,
+          fontWeight: fontWeight ?? FontWeight.w700,
           color: color,
           height: height,
           letterSpacing: letterSpacing ?? 0.2,
@@ -187,10 +181,9 @@ class TypographyStyles extends StatelessWidget {
       this.fontWeight,
       this.height,
       this.letterSpacing})
-      : style = TextStyle(
-          fontFamily: fontFamily,
+      : style = GoogleFonts.dmSans(
           fontSize: fontSize ?? 12.sp,
-          fontWeight: fontWeight ?? FontWeight.w900,
+          fontWeight: fontWeight ?? FontWeight.w700,
           color: color,
           height: height,
           letterSpacing: letterSpacing ?? 0.2,
@@ -206,10 +199,9 @@ class TypographyStyles extends StatelessWidget {
       this.fontWeight,
       this.height,
       this.letterSpacing})
-      : style = TextStyle(
-          fontFamily: fontFamily,
+      : style = GoogleFonts.dmSans(
           fontSize: fontSize ?? 10.sp,
-          fontWeight: fontWeight ?? FontWeight.w900,
+          fontWeight: fontWeight ?? FontWeight.w700,
           color: color,
           height: height,
           letterSpacing: letterSpacing ?? 0.2,

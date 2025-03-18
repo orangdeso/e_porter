@@ -81,7 +81,9 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> with SingleTick
                           padding: EdgeInsets.only(bottom: 16.h),
                           child: CardBoardingPass(
                             isActive: true,
-                            onTap: () {},
+                            onTap: () {
+                              Get.toNamed(Routes.DETAILTICKET);
+                            },
                           ),
                         );
                       },
