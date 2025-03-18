@@ -18,8 +18,9 @@ class CardTickets extends StatelessWidget {
   final String duration;
   final String seatClass;
   final String price;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final bool withContainer;
+  final bool showFooter;
 
   const CardTickets({
     Key? key,
@@ -33,13 +34,13 @@ class CardTickets extends StatelessWidget {
     required this.duration,
     required this.seatClass,
     required this.price,
-    required this.onTap,
-    required this.withContainer,
+    this.onTap,
+    this.withContainer = true,
+    this.showFooter = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Konten utama card
     Widget content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -77,35 +78,34 @@ class CardTickets extends StatelessWidget {
             TypographyStyles.small(arrivalTime, color: GrayColors.gray600, fontWeight: FontWeight.w400),
           ],
         ),
-        SizedBox(height: 16.h),
-        SvgPicture.asset('assets/images/divider_custome.svg', width: 348.w),
-        SizedBox(height: 6.h),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                CustomeIcons.FlightSeatFilled(),
-                SizedBox(width: 6.w),
-                TypographyStyles.caption(seatClass, color: GrayColors.gray800),
-              ],
-            ),
-            Row(
-              children: [
-                TypographyStyles.body(price, color: PrimaryColors.primary800),
-                SizedBox(width: 2.w),
-                TypographyStyles.small('/orang', color: GrayColors.gray600, fontWeight: FontWeight.w400),
-              ],
-            ),
-          ],
-        )
+        if (showFooter) ...[
+          SizedBox(height: 16.h),
+          SvgPicture.asset('assets/images/divider_custome.svg', width: 348.w),
+          SizedBox(height: 6.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  CustomeIcons.FlightSeatFilled(),
+                  SizedBox(width: 6.w),
+                  TypographyStyles.caption(seatClass, color: GrayColors.gray800),
+                ],
+              ),
+              Row(
+                children: [
+                  TypographyStyles.body(price, color: PrimaryColors.primary800),
+                  SizedBox(width: 2.w),
+                  TypographyStyles.small('/orang', color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                ],
+              ),
+            ],
+          )
+        ]
       ],
     );
 
-    // Jika withShadow = true, bungkus konten dengan CustomeShadowCotainner
-    Widget finalWidget = withContainer
-        ? CustomeShadowCotainner(child: content)
-        : content;
+    Widget finalWidget = withContainer ? CustomeShadowCotainner(child: content) : content;
 
     return ZoomTapAnimation(
       child: GestureDetector(

@@ -20,6 +20,18 @@
       "languageVersion": "2.18"
     },
     {
+      "name": "barcode",
+      "rootUri": "file:///C:/Users/ASUS/AppData/Local/Pub/Cache/hosted/pub.dev/barcode-2.2.9",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "barcode_widget",
+      "rootUri": "file:///C:/Users/ASUS/AppData/Local/Pub/Cache/hosted/pub.dev/barcode_widget-2.0.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "boolean_selector",
       "rootUri": "file:///C:/Users/ASUS/AppData/Local/Pub/Cache/hosted/pub.dev/boolean_selector-2.1.1",
       "packageUri": "lib/",
@@ -326,6 +338,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "qr",
+      "rootUri": "file:///C:/Users/ASUS/AppData/Local/Pub/Cache/hosted/pub.dev/qr-3.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "shared_preferences",
       "rootUri": "file:///C:/Users/ASUS/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences-2.5.2",
       "packageUri": "lib/",
@@ -482,7 +500,7 @@
       "languageVersion": "3.4"
     }
   ],
-  "generated": "2025-03-18T16:43:58.907612Z",
+  "generated": "2025-03-18T17:25:46.276961Z",
   "generator": "pub",
   "generatorVersion": "3.5.0",
   "flutterRoot": "file:///D:/Flutter/flutter_sdk/flutter_3.24.0",

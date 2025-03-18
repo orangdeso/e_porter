@@ -1,4 +1,6 @@
+import 'package:barcode_widget/barcode_widget.dart';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
+import 'package:e_porter/_core/component/dotted/dashed_line_component.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/presentation/screens/home/component/card_tickets.dart';
@@ -16,7 +18,7 @@ class PrintBoardingPassScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: GrayColors.gray50,
       appBar: DefaultAppbarComponent(
-        title: 'Detail Tiket',
+        title: 'Cetak Boarding Pass',
         textColor: Colors.white,
         backgroundColors: PrimaryColors.primary800,
         onTab: () {
@@ -49,6 +51,7 @@ class PrintBoardingPassScreen extends StatelessWidget {
                       ),
                       CardTickets(
                         withContainer: false,
+                        showFooter: false,
                         departureCity: 'departureCity',
                         date: 'date',
                         arrivalCity: 'arrivalCity',
@@ -59,8 +62,25 @@ class PrintBoardingPassScreen extends StatelessWidget {
                         duration: 'duration',
                         seatClass: 'seatClass',
                         price: 'price',
-                        onTap: () {},
-                      )
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        child: Divider(thickness: 1, color: GrayColors.gray200),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildColumnText(context, label: 'Layanan', value: 'value'),
+                          _buildColumnText(context, label: 'Class', value: 'value'),
+                          _buildColumnText(context, label: 'Gate', value: 'value'),
+                          _buildColumnText(context, label: 'Seat', value: 'value'),
+                        ],
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20.h),
+                        child: CustomDashedLine(),
+                      ),
+                      _buildBarcode(context, barcodeData: 'PK230222BE143')
                     ],
                   ),
                 )
@@ -69,6 +89,39 @@ class PrintBoardingPassScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildColumnText(
+    BuildContext context, {
+    required String label,
+    required String value,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TypographyStyles.small(label, color: GrayColors.gray500, fontWeight: FontWeight.w400),
+        TypographyStyles.caption(
+          value,
+          color: GrayColors.gray800,
+          maxlines: 1,
+        )
+      ],
+    );
+  }
+
+  Widget _buildBarcode(BuildContext context, {required String barcodeData}) {
+    return Column(
+      children: [
+        BarcodeWidget(
+          barcode: Barcode.code128(),
+          data: barcodeData,
+          height: 80.h,
+          drawText: false,
+        ),
+        SizedBox(height: 10.h),
+        TypographyStyles.small(barcodeData, color: GrayColors.gray800, fontWeight: FontWeight.w400)
+      ],
     );
   }
 }

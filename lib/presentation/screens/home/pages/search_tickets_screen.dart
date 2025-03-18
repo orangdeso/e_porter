@@ -124,7 +124,6 @@ class _SearchTicketsScreenState extends State<SearchTicketsScreen> {
                         return Padding(
                           padding: EdgeInsets.only(bottom: 16.h),
                           child: CardTickets(
-                            withContainer: true,
                             departureCity: '${flight.cityDeparture} (${flight.codeDeparture})',
                             date: ticketDate,
                             arrivalCity: '${flight.cityArrival} (${flight.codeArrival})',
