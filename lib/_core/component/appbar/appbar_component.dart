@@ -67,6 +67,34 @@ class HomeAppbarComponent extends StatelessWidget implements PreferredSizeWidget
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
 
+class BasicAppbarComponent extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+  final Color backgroundColors;
+  final Color? textColor;
+
+  const BasicAppbarComponent({
+    Key? key,
+    required this.title,
+    this.backgroundColors = PrimaryColors.primary800,
+    this.textColor,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      backgroundColor: backgroundColors,
+      elevation: 0,
+      title: TypographyStyles.h6(
+        title,
+        color: textColor ?? Colors.white,
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+}
+
 class DefaultAppbarComponent extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final Color backgroundColors;
