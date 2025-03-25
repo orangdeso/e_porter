@@ -45,6 +45,18 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
   dynamic _loggedUser;
   List<PassengerModel?> selectedPassengers = [];
 
+  String? departureTime;
+  String? arrivalTime;
+  String? cityDeparture;
+  String? cityArrival;
+  String? airLines;
+  String? code;
+  String? flightClass;
+  String? transitAirplane;
+  String? stop;
+  String? codeDeparture;
+  String? codeArrival;
+
   @override
   void initState() {
     super.initState();
@@ -59,6 +71,15 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
     _flightFuture = ticketController.getFlightById(ticketId: ticketId, flightId: flightId);
 
     selectedPassengers = List.filled(passenger, null, growable: false);
+  }
+
+  PassengerModel _convertUserDataToPassengerModel(UserData userData) {
+    return PassengerModel(
+      name: userData.name ?? '',
+      typeId: userData.tipeId ?? '',
+      noId: userData.noId ?? '',
+      gender: userData.gender ?? '',
+    );
   }
 
   Future<void> _loadPassengers() async {
@@ -103,8 +124,17 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
           }
           final flight = snapshot.data!;
 
-          final departureTime = DateFormat.jm().format(flight.departureTime);
-          final arrivalTime = DateFormat.jm().format(flight.arrivalTime);
+          departureTime = DateFormat.jm().format(flight.departureTime);
+          arrivalTime = DateFormat.jm().format(flight.arrivalTime);
+          cityDeparture = flight.cityDeparture;
+          cityArrival = flight.cityArrival;
+          airLines = flight.airLines;
+          code = flight.code;
+          flightClass = flight.flightClass;
+          transitAirplane = flight.transitAirplane;
+          stop = flight.stop;
+          codeDeparture = flight.codeDeparture;
+          codeArrival = flight.codeArrival;
 
           return SafeArea(
             child: Padding(
@@ -116,13 +146,13 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                     CardFlightInformation(
                       date: ticketDate,
                       time: '$departureTime - $arrivalTime',
-                      departureCity: flight.cityDeparture,
-                      arrivalCity: flight.cityArrival,
-                      plane: '${flight.airLines} (${flight.code})',
-                      seatClass: flight.flightClass,
+                      departureCity: '$cityDeparture',
+                      arrivalCity: '$cityArrival',
+                      plane: '${airLines} (${code})',
+                      seatClass: '$flightClass',
                       passenger: '$passenger',
-                      transiAirplane: flight.transitAirplane,
-                      stop: flight.stop,
+                      transiAirplane: '$transitAirplane',
+                      stop: '$stop',
                     ),
                     SizedBox(height: 32.h),
                     TypographyStyles.h6('Detail Pemesanan', color: GrayColors.gray800),
@@ -138,7 +168,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
             ),
           );
         },
-      ), 
+      ),
       bottomNavigationBar: CustomeShadowCotainner(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
         child: ButtonFill(
@@ -146,10 +176,30 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
           textColor: Colors.white,
           backgroundColor: isAllPassengersFilled() ? PrimaryColors.primary800 : GrayColors.gray400,
           onTap: () {
-            if (!isAllPassengersFilled()) {
+            logger.d('Selected Passengers: $selectedPassengers');
+            if (selectedPassengers.any((p) => p == null)) {
               SnackbarHelper.showError('Error', 'Harap lengkapi slot penumpang');
             } else {
-              Get.toNamed(Routes.TICKETBOOKINGSTEP2);
+              final argument = {
+                'ticketId': ticketId,
+                'flightId': flightId,
+                'date': ticketDate,
+                'departureTime': departureTime,
+                'arrivalTime': arrivalTime,
+                'cityDeparture': cityDeparture,
+                'cityArrival': cityArrival,
+                'airLines': airLines,
+                'code': code,
+                'flightClass': flightClass,
+                'transitAirplane': transitAirplane,
+                'stop': stop,
+                'codeDeparture': codeDeparture,
+                'codeArrival': codeArrival,
+                'passenger': passenger,
+                'selectedPassenger': selectedPassengers,
+              };
+
+              Get.toNamed(Routes.TICKETBOOKINGSTEP2, arguments: argument);
             }
           },
         ),
@@ -201,11 +251,14 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                         final prefs = await SharedPreferences.getInstance();
                         await prefs.setBool('isPassengerAdd', newValue);
 
-                        setState(
-                          () {
-                            isToggled = newValue;
-                          },
-                        );
+                        setState(() {
+                          isToggled = newValue;
+                          if (!newValue) {
+                            selectedPassengers[0] = null;
+                          } else if (_loggedUser != null) {
+                            selectedPassengers[0] = _convertUserDataToPassengerModel(_loggedUser);
+                          }
+                        });
                       },
                     )
                   ],
@@ -233,7 +286,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
         passenger,
         (index) {
           if (isToggled && index == 0 && _loggedUser != null) {
-            return _buildUserPassengerCard(_loggedUser);
+            return _buildUserPassengerCard(_loggedUser, index);
           } else {
             final p = selectedPassengers[index];
             if (p != null) {
@@ -247,7 +300,8 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
     );
   }
 
-  Widget _buildUserPassengerCard(dynamic user) {
+  Widget _buildUserPassengerCard(dynamic user, int index) {
+    bool isSlotEditTable = !isToggled || index != 0;
     return Padding(
       padding: EdgeInsets.only(bottom: 16.h),
       child: CustomeShadowCotainner(
@@ -270,76 +324,92 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                 )
               ],
             ),
-            ZoomTapAnimation(
-              child: GestureDetector(
-                child: CustomeIcons.EditOutline(),
-                onTap: () {
-                  Get.bottomSheet(
-                    Padding(
-                      padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
-                      child: Wrap(
-                        children: [
-                          TitleShowModal(
-                            text: 'Informasi Penumpang',
-                            onTap: () async {
-                              if (Get.isBottomSheetOpen ?? false) {
-                                Get.back();
-                              }
-                              await Future.delayed(Duration(seconds: 1));
-                              var result = await Get.toNamed(Routes.ADDPASSENGER);
-                              if (result == true) {
-                                _loadPassengers().then((_) => setState(() {}));
-                              }
-                            },
-                          ),
-                          Obx(
-                            () {
-                              if (profilController.passengerList.isEmpty) {
-                                return Center(
-                                  child: TypographyStyles.body(
-                                    "Belum ada penumpang",
-                                    color: GrayColors.gray400,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                );
-                              }
-                              return ListView.builder(
-                                itemCount: profilController.passengerList.length,
-                                shrinkWrap: true,
-                                itemBuilder: (context, index) {
-                                  final passenger = profilController.passengerList[index];
-                                  logger.d("Passenger Models : ${passenger.noId}");
-                                  return Padding(
-                                    padding: EdgeInsets.only(top: 16.h),
-                                    child: _buildAddPassenger(
-                                      context,
-                                      title: "${passenger.name}",
-                                      subTitle: "${passenger.typeId} - ${passenger.noId}",
-                                      onTap: () {
-                                        selectedPassengers[index] = passenger;
-                                        Get.back();
-                                        setState(() {});
+            Row(
+              children: [
+                ZoomTapAnimation(
+                  child: IconButton(
+                    icon: CustomeIcons.RemoveOutline(),
+                    onPressed: () {
+                      setState(() {
+                        selectedPassengers[0] = null;
+                        isToggled = false;
+                      });
+                    },
+                  ),
+                ),
+                if (isSlotEditTable)
+                  ZoomTapAnimation(
+                    child: GestureDetector(
+                      child: CustomeIcons.EditOutline(),
+                      onTap: () {
+                        Get.bottomSheet(
+                          Padding(
+                            padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
+                            child: Wrap(
+                              children: [
+                                TitleShowModal(
+                                  text: 'Informasi Penumpang',
+                                  onTap: () async {
+                                    if (Get.isBottomSheetOpen ?? false) {
+                                      Get.back();
+                                    }
+                                    await Future.delayed(Duration(seconds: 1));
+                                    var result = await Get.toNamed(Routes.ADDPASSENGER);
+                                    if (result == true) {
+                                      _loadPassengers().then((_) => setState(() {}));
+                                    }
+                                  },
+                                ),
+                                Obx(
+                                  () {
+                                    if (profilController.passengerList.isEmpty) {
+                                      return Center(
+                                        child: TypographyStyles.body(
+                                          "Belum ada penumpang",
+                                          color: GrayColors.gray400,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      );
+                                    }
+                                    return ListView.builder(
+                                      itemCount: profilController.passengerList.length,
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) {
+                                        final passenger = profilController.passengerList[index];
+                                        logger.d("Passenger Models : ${passenger.noId}");
+                                        return Padding(
+                                          padding: EdgeInsets.only(top: 16.h),
+                                          child: _buildAddPassenger(
+                                            context,
+                                            title: "${passenger.name}",
+                                            subTitle: "${passenger.typeId} - ${passenger.noId}",
+                                            onTap: () {
+                                              selectedPassengers[index] = passenger;
+                                              Get.back();
+                                              setState(() {});
+                                            },
+                                          ),
+                                        );
                                       },
-                                    ),
-                                  );
-                                },
-                              );
-                            },
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
-                      ),
+                          backgroundColor: Colors.white,
+                          isScrollControlled: true,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10.r),
+                              topRight: Radius.circular(10.r),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    backgroundColor: Colors.white,
-                    isScrollControlled: true,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10.r),
-                        topRight: Radius.circular(10.r),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                  ),
+              ],
             )
           ],
         ),
@@ -370,13 +440,27 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                 )
               ],
             ),
-            ZoomTapAnimation(
-              child: GestureDetector(
-                child: CustomeIcons.EditOutline(),
-                onTap: () {
-                  _onEditPassenger(slotIndex);
-                },
-              ),
+            Row(
+              children: [
+                ZoomTapAnimation(
+                  child: IconButton(
+                    icon: CustomeIcons.RemoveOutline(),
+                    onPressed: () {
+                      setState(() {
+                        selectedPassengers[slotIndex] = null;
+                      });
+                    },
+                  ),
+                ),
+                ZoomTapAnimation(
+                  child: GestureDetector(
+                    child: CustomeIcons.EditOutline(),
+                    onTap: () {
+                      _onEditPassenger(slotIndex);
+                    },
+                  ),
+                ),
+              ],
             )
           ],
         ),

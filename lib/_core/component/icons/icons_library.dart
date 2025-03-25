@@ -47,11 +47,12 @@ class CustomeIcons {
   static SvgPicture PlusOutline({double? size, Color? color}) => getIcon('ic_plus', color: color);
   static SvgPicture RefreshOutline({double? size, Color? color}) => getIcon('ic_refresh', color: color);
   static SvgPicture RunningOutline({double? size, Color? color}) => getIcon('ic_running', color: color);
-  static SvgPicture VIPFilled({double? size, Color? color}) => getIcon('ic_vip', color: color);
-  static SvgPicture LockFilled({double? size, Color? color}) => getIcon('ic_lock', color: color);
-  static SvgPicture AddUserFemaleFilled({double? size, Color? color}) => getIcon('ic_add_user_female', color: color);
-  static SvgPicture LogoutFilled({double? size, Color? color}) => getIcon('ic_logout', color: color);
+  static SvgPicture LockOutline({double? size, Color? color}) => getIcon('ic_lock', color: color);
+  static SvgPicture AddUserFemaleOutline({double? size, Color? color}) => getIcon('ic_add_user_female', color: color);
+  static SvgPicture LogoutOutline({double? size, Color? color}) => getIcon('ic_logout', color: color);
+  static SvgPicture RemoveOutline({double? size, Color? color}) => getIcon('ic_remove', color: color);
 
   static SvgPicture FlightSeatFilled({double? size, Color? color}) => getIcon('ic_flight_seat_filled', color: color);
   static SvgPicture PlaneRightFilled({double? size, Color? color}) => getIcon('ic_plane_filled', color: color);
+  static SvgPicture VIPFilled({double? size, Color? color}) => getIcon('ic_vip', color: color);
 }

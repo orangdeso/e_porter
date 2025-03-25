@@ -42,6 +42,7 @@ class FlightModel {
   final String cityDeparture;
   final String cityArrival;
   final String codeDeparture;
+  final String codeTransit;
   final String codeArrival;
   final DateTime departureTime;
   final DateTime arrivalTime;
@@ -58,6 +59,7 @@ class FlightModel {
     required this.cityDeparture,
     required this.cityArrival,
     required this.codeDeparture,
+    required this.codeTransit,
     required this.codeArrival,
     required this.departureTime,
     required this.arrivalTime,
@@ -91,6 +93,7 @@ class FlightModel {
       cityDeparture: data['cityDeparture'] ?? '',
       cityArrival: data['cityArrival'] ?? '',
       codeDeparture: data['codeDeparture'] ?? '',
+      codeTransit: data['codeTransit'] ?? '',
       codeArrival: data['codeArrival'] ?? '',
       departureTime: (data['dateDeparture'] as Timestamp).toDate(),
       arrivalTime: (data['dateArrival'] as Timestamp).toDate(),
@@ -109,6 +112,7 @@ class FlightModel {
       'cityDeparture': cityDeparture,
       'cityArrival': cityArrival,
       'codeDeparture': codeDeparture,
+      'codeTransit': codeTransit,
       'codeArrival': codeArrival,
       'dateDeparture': Timestamp.fromDate(departureTime),
       'dateArrival': Timestamp.fromDate(arrivalTime),

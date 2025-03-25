@@ -41,7 +41,7 @@ class FooterPrice extends StatelessWidget {
               ),
               children: [
                 TextSpan(
-                  text: "Rp ${price}",
+                  text: price,
                   style: TextStyle(
                     fontFamily: 'DMSans',
                     color: PrimaryColors.primary800,

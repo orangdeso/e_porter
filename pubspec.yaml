@@ -47,7 +47,7 @@ dependencies:
   firebase_core: ^3.11.0
   cloud_firestore: ^5.6.4
   firebase_auth: ^5.5.1
-  shared_preferences: ^2.5.2
+  shared_preferences: ^2.4.6
   logger: ^2.5.0
   dropdown_button2: ^2.3.9
   google_fonts: ^6.2.1

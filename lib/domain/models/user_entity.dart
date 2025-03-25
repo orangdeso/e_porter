@@ -53,7 +53,7 @@ class UserData {
 
     return UserData(
       uid: map['uid'] ?? '',
-      tipeId: map['tipeId'] ?? '',
+      tipeId: map['typeId'] ?? '',
       noId: map['noId'] ?? '',
       name: map['name'] as String?,
       email: map['email'] as String?,
@@ -70,7 +70,7 @@ class UserData {
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
-      'tipeId': tipeId,
+      'typeId': tipeId,
       'noId': noId,
       'name': name,
       'email': email,

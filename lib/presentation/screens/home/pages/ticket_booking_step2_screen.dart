@@ -1,6 +1,9 @@
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/constants/colors.dart';
+import 'package:e_porter/_core/service/logger_service.dart';
+import 'package:e_porter/domain/models/user_entity.dart';
+import 'package:e_porter/presentation/controllers/ticket_controller.dart';
 import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,6 +22,50 @@ class TicketBookingStep2Screen extends StatefulWidget {
 }
 
 class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
+  late final TicketController ticketController;
+  late final String ticketId;
+  late final String flightId;
+  String? ticketDate;
+  String? departureTime;
+  String? arrivalTime;
+  String? cityDeparture;
+  String? cityArrival;
+  String? airLines;
+  String? code;
+  String? flightClass;
+  String? transitAirplane;
+  String? stop;
+  String? codeDeparture;
+  String? codeArrival;
+  late final int passenger;
+  late final List<PassengerModel?> selectedPassengers;
+  late List<String> selectedSeatNumbers;
+
+  @override
+  void initState() {
+    super.initState();
+    final args = Get.arguments as Map<String, dynamic>;
+    ticketId = args['ticketId'];
+    flightId = args['flightId'];
+    ticketDate = args['date'];
+    departureTime = args['departureTime'];
+    arrivalTime = args['arrivalTime'];
+    cityDeparture = args['cityDeparture'];
+    cityArrival = args['cityArrival'];
+    airLines = args['airLines'];
+    code = args['code'];
+    flightClass = args['flightClass'];
+    transitAirplane = args['transitAirplane'];
+    stop = args['stop'];
+    codeDeparture = args['codeDeparture'];
+    codeArrival = args['codeArrival'];
+    passenger = args['passenger'];
+    selectedPassengers = args['selectedPassenger'] ?? [];
+    selectedSeatNumbers = args['selectedSeatNumbers'] ?? List.filled(passenger, '');
+
+    logger.d('Ticket ID: $ticketId \nFlight ID: $flightId');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,25 +85,47 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CardFlightInformation(
-                  date: 'Sen, 27 Jan 2025',
-                  time: '12.20 - 06.00 AM',
-                  departureCity: 'Yogyakarta',
-                  arrivalCity: 'Lombok',
-                  plane: 'Citilink (103)',
-                  seatClass: 'Economy',
-                  passenger: '2',
+                  date: '$ticketDate',
+                  time: '${departureTime} - ${arrivalTime}',
+                  departureCity: '$cityDeparture',
+                  arrivalCity: '$cityArrival',
+                  plane: '${airLines} (${code})',
+                  seatClass: '$flightClass',
+                  passenger: '$passenger',
+                  transiAirplane: '$transitAirplane',
+                  stop: '$stop',
                 ),
                 SizedBox(height: 32.h),
                 TypographyStyles.h6('Pilih Kursi', color: GrayColors.gray800),
-                SizedBox(height: 20.h),
-                _buildCardSeatPessenger(
-                  context,
-                  label: '1',
-                  namePassenger: 'AHMAD CHOIRUL UMAM ALI R',
-                  seatClass: 'Economy',
-                  numberSeat: '10F',
-                  onTap: () {
-                    Get.toNamed(Routes.CHOOSECHAIR);
+                SizedBox(height: 4.h),
+                ...List.generate(
+                  passenger,
+                  (index) {
+                    final passengerData = selectedPassengers[index];
+                    return Padding(
+                      padding: EdgeInsets.only(top: 16.h),
+                      child: _buildCardSeatPessenger(
+                        context,
+                        label: '${index + 1}',
+                        namePassenger: passengerData?.name ?? 'Unknown Passenger',
+                        seatClass: '$flightClass',
+                        numberSeat: '${selectedSeatNumbers[index].isEmpty ? '-' : selectedSeatNumbers[index]}',
+                        onTap: () async {
+                          final argument = {
+                            'ticketId': ticketId,
+                            'flightId': flightId,
+                            'passenger': passenger,
+                            'selectedPassenger': selectedPassengers,
+                          };
+                          final result = await Get.toNamed(Routes.CHOOSECHAIR, arguments: argument);
+                          if (result != null && result is List<String>) {
+                            setState(() {
+                              selectedSeatNumbers = result;
+                            });
+                          }
+                        },
+                      ),
+                    );
                   },
                 ),
               ],
@@ -70,21 +139,36 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
           child: ButtonFill(
             text: 'Lanjutkan',
             textColor: Colors.white,
-            onTap: () {
-              Get.toNamed(Routes.TICKETBOOKINGSTEP3);
-            },
+            backgroundColor:
+                selectedSeatNumbers.any((seat) => seat.isEmpty) ? GrayColors.gray400 : PrimaryColors.primary800,
+            onTap: selectedSeatNumbers.any((seat) => seat.isEmpty)
+                ? null
+                : () {
+                    final argument = {
+                      'ticketId': ticketId,
+                      'flightId': flightId,
+                      'date': ticketDate,
+                      'passenger': passenger,
+                      'selectedPassenger': selectedPassengers,
+                      'numberSeat': selectedSeatNumbers
+                    };
+                    logger.d('Number Seat: $selectedSeatNumbers \n Passenger: $selectedPassengers');
+                    Get.toNamed(Routes.TICKETBOOKINGSTEP3, arguments: argument);
+                  },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildCardSeatPessenger(BuildContext context,
-      {required String label,
-      required String namePassenger,
-      required String seatClass,
-      required String numberSeat,
-      required VoidCallback onTap}) {
+  Widget _buildCardSeatPessenger(
+    BuildContext context, {
+    required String label,
+    required String namePassenger,
+    required String seatClass,
+    required String numberSeat,
+    required VoidCallback onTap,
+  }) {
     return CustomeShadowCotainner(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

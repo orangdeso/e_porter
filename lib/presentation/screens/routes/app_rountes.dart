@@ -1,5 +1,6 @@
 import 'package:e_porter/domain/bindings/auth_binding.dart';
 import 'package:e_porter/domain/bindings/navigation_binding.dart';
+import 'package:e_porter/domain/bindings/porter_service_binding.dart';
 import 'package:e_porter/domain/bindings/profil_binding.dart';
 import 'package:e_porter/domain/bindings/search_flight_binding.dart';
 import 'package:e_porter/domain/bindings/ticket_binding.dart';
@@ -105,6 +106,7 @@ class AppRoutes {
     GetPage(
       name: Routes.TICKETBOOKINGSTEP3,
       page: () => TicketBookingStep3Screen(),
+      binding: PorterServiceBinding(),
     ),
     GetPage(
       name: Routes.TICKETBOOKINGSTEP4,
