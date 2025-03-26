@@ -150,7 +150,6 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
             selectedDepartureService = null;
           }
         }
-
       } else if (serviceType == 'arrival') {
         if (isSelected) {
           if (selectedArrivalService != null) {
@@ -164,7 +163,6 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
             selectedArrivalService = null;
           }
         }
-
       } else if (serviceType == 'transit') {
         if (isSelected) {
           if (selectedTransitService != null) {
@@ -196,92 +194,121 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
     double grandTotal = totalPrice + totalPriceService;
 
     return Scaffold(
-        backgroundColor: GrayColors.gray50,
-        appBar: ProgressAppbarComponent(
-          title: 'Pesan Tiket',
-          subTitle: 'Langkah 3 dari 4',
-          onTab: () {
-            Get.back();
-          },
-        ),
-        body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CardFlightInformation(
-                    date: '$ticketDate',
-                    time: "${departureTime} - ${arrivalTime}",
-                    departureCity: '${flightData?.cityDeparture}',
-                    arrivalCity: "${flightData?.cityArrival}",
-                    plane: "${flightData?.airLines} (${flightData?.code})",
-                    seatClass: "${flightData?.flightClass}",
-                    passenger: "$passenger",
-                    stop: "${flightData?.stop}",
-                    transiAirplane: "${flightData?.transitAirplane}",
-                  ),
-                  SizedBox(height: 32.h),
-                  TypographyStyles.h6("Layanan Porter", color: GrayColors.gray800),
-                  SizedBox(height: 10.h),
-                  TypographyStyles.caption(
-                    "Silahkan pilih opsi penerbangan untuk mencari layanan porter yang cocok untuk perjalanan Anda",
-                    color: GrayColors.gray600,
-                    fontWeight: FontWeight.w400,
-                    maxlines: 3,
-                  ),
-                  SizedBox(height: 16.h),
+      backgroundColor: GrayColors.gray50,
+      appBar: ProgressAppbarComponent(
+        title: 'Pesan Tiket',
+        subTitle: 'Langkah 3 dari 4',
+        onTab: () {
+          Get.back();
+        },
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CardFlightInformation(
+                  date: '$ticketDate',
+                  time: "${departureTime} - ${arrivalTime}",
+                  departureCity: '${flightData?.cityDeparture}',
+                  arrivalCity: "${flightData?.cityArrival}",
+                  plane: "${flightData?.airLines} (${flightData?.code})",
+                  seatClass: "${flightData?.flightClass}",
+                  passenger: "$passenger",
+                  stop: "${flightData?.stop}",
+                  transiAirplane: "${flightData?.transitAirplane}",
+                ),
+                SizedBox(height: 32.h),
+                TypographyStyles.h6("Layanan Porter", color: GrayColors.gray800),
+                SizedBox(height: 10.h),
+                TypographyStyles.caption(
+                  "Silahkan pilih opsi penerbangan untuk mencari layanan porter yang cocok untuk perjalanan Anda",
+                  color: GrayColors.gray600,
+                  fontWeight: FontWeight.w400,
+                  maxlines: 3,
+                ),
+                SizedBox(height: 16.h),
+                _buildCheckBox(
+                  context,
+                  label: "Keberangkatan",
+                  Widget: CustomeIcons.AirplaneTakeOffOutline(color: Colors.white),
+                  value: _isChecked1,
+                  onTap: (bool? value) {
+                    _onCheckboxChanged(1, value);
+                  },
+                ),
+                if (_isChecked1)
+                  _buildPorterServicesList(selectedPorter: selectedPorter1, serviceType: layananTipe[1]!),
+                SizedBox(height: 10.h),
+                _buildCheckBox(
+                  context,
+                  label: "Kedatangan",
+                  Widget: CustomeIcons.AirplaneLandingOutline(color: Colors.white),
+                  value: _isChecked2,
+                  onTap: (bool? value) {
+                    _onCheckboxChanged(2, value);
+                  },
+                ),
+                if (_isChecked2)
+                  _buildPorterServicesList(selectedPorter: selectedPorter2, serviceType: layananTipe[2]!),
+                SizedBox(height: 10.h),
+                if (flightData?.stop != null && flightData!.stop.isNotEmpty) ...[
                   _buildCheckBox(
                     context,
-                    label: "Keberangkatan",
-                    Widget: CustomeIcons.AirplaneTakeOffOutline(color: Colors.white),
-                    value: _isChecked1,
+                    label: "Transit",
+                    Widget: CustomeIcons.TransitOutline(color: Colors.white),
+                    value: _isChecked3,
                     onTap: (bool? value) {
-                      _onCheckboxChanged(1, value);
+                      _onCheckboxChanged(3, value);
                     },
                   ),
-                  if (_isChecked1)
-                    _buildPorterServicesList(selectedPorter: selectedPorter1, serviceType: layananTipe[1]!),
-                  SizedBox(height: 10.h),
-                  _buildCheckBox(
-                    context,
-                    label: "Kedatangan",
-                    Widget: CustomeIcons.AirplaneLandingOutline(color: Colors.white),
-                    value: _isChecked2,
-                    onTap: (bool? value) {
-                      _onCheckboxChanged(2, value);
-                    },
-                  ),
-                  if (_isChecked2)
-                    _buildPorterServicesList(selectedPorter: selectedPorter2, serviceType: layananTipe[2]!),
-                  SizedBox(height: 10.h),
-                  if (flightData?.stop != null && flightData!.stop.isNotEmpty) ...[
-                    _buildCheckBox(
-                      context,
-                      label: "Transit",
-                      Widget: CustomeIcons.TransitOutline(color: Colors.white),
-                      value: _isChecked3,
-                      onTap: (bool? value) {
-                        _onCheckboxChanged(3, value);
-                      },
-                    ),
-                    if (_isChecked3)
-                      _buildPorterServicesList(selectedPorter: selectedPorter3, serviceType: layananTipe[3]!),
-                  ],
+                  if (_isChecked3)
+                    _buildPorterServicesList(selectedPorter: selectedPorter3, serviceType: layananTipe[3]!),
                 ],
-              ),
+              ],
             ),
           ),
         ),
-        bottomNavigationBar: FooterPrice(
-          price: "Rp ${NumberFormat.decimalPattern('id_ID').format(grandTotal)}",
-          labelText: "Pesanan",
-          labelButton: "Lanjut",
-          onTap: () {
-            Get.toNamed(Routes.TICKETBOOKINGSTEP4);
-          },
-        ));
+      ),
+      bottomNavigationBar: FooterPrice(
+        price: "Rp ${NumberFormat.decimalPattern('id_ID').format(grandTotal)}",
+        labelText: "Pesanan",
+        labelButton: "Lanjut",
+        onTap: () {
+          List<String> selectedServiceLabels = [];
+          Map<String, PorterServiceModel?> selectedPorterServices = {};
+
+          if (_isChecked1) {
+            selectedServiceLabels.add("Keberangkatan");
+            selectedPorterServices['departure'] = selectedDepartureService;
+          }
+
+          if (_isChecked2) {
+            selectedServiceLabels.add("Kedatangan");
+            selectedPorterServices['arrival'] = selectedArrivalService;
+          }
+
+          if (_isChecked3) {
+            selectedServiceLabels.add("Transit");
+            selectedPorterServices['transit'] = selectedTransitService;
+          }
+          final argument = {
+            'tickedId': ticketId,
+            'flightId': flightId,
+            'ticketDate': ticketDate,
+            'passenger': passenger,
+            'selectedPassenger': selectedPassengers,
+            'numberSeat': numberSeat,
+            'grandTotal': grandTotal,
+            'selectedServiceLabels': selectedServiceLabels,
+            'selectedPorter': selectedPorterServices,
+          };
+          Get.toNamed(Routes.TICKETBOOKINGSTEP4, arguments: argument);
+        },
+      ),
+    );
   }
 
   Widget _buildCheckBox(

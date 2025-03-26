@@ -7,8 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../../../_core/component/appbar/appbar_component.dart';
 import '../../../../_core/component/icons/icons_library.dart';
+import '../../../../domain/models/porter_service_model.dart';
+import '../../../../domain/models/user_entity.dart';
 import '../component/card_flight_information.dart';
 
 class TicketBookingStep4Screen extends StatefulWidget {
@@ -19,6 +22,31 @@ class TicketBookingStep4Screen extends StatefulWidget {
 }
 
 class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
+  late final String ticketId;
+  late final String flightId;
+  late String? ticketDate;
+  late final int passenger;
+  late final List<PassengerModel?> selectedPassengers;
+  late List<String> numberSeat;
+  late double? grandTotal;
+  late List<String> selectedServiceLabels;
+  late Map<String, PorterServiceModel?> selectedPorterServices;
+
+  @override
+  void initState() {
+    super.initState();
+    final args = Get.arguments as Map<String, dynamic>;
+    ticketId = args['ticketId'] ?? '';
+    flightId = args['flightId'] ?? '';
+    ticketDate = args['date'] ?? '';
+    passenger = args['passenger'] ?? 0;
+    selectedPassengers = args['selectedPassenger'] ?? [];
+    numberSeat = args['numberSeat'] ?? '';
+    grandTotal = args['grandTotal'] ?? 0;
+    selectedServiceLabels = args['selectedServiceLabels'] ?? [];
+    selectedPorterServices = args['selectedPorterServices'] ?? {};
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,7 +158,7 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
         )),
         bottomNavigationBar: FooterPrice(
           labelText: "Pembayaran",
-          price: "1.450.000",
+          price: "Rp ${NumberFormat.decimalPattern('id_ID').format(grandTotal)}",
           labelButton: "Buat Pesanan",
           iconButton: CustomeIcons.ProtectOutline(color: Colors.white),
           onTap: () {
