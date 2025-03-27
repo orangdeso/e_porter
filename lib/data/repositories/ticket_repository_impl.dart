@@ -1,6 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_porter/_core/service/logger_service.dart';
-
 import '../../domain/models/ticket_model.dart';
 import '../../domain/repositories/ticket_repository.dart';
 
@@ -21,8 +19,7 @@ class TicketRepositoryImpl implements TicketRepository {
     final startOfDay = DateTime(leavingDate.year, leavingDate.month, leavingDate.day);
     final endOfDay = startOfDay.add(Duration(days: 1));
 
-    logger.d(
-        "Fetching tickets with parameters: from = $from, to = $to, leavingDate between = ${Timestamp.fromDate(startOfDay)} and ${Timestamp.fromDate(endOfDay)}");
+    // logger.d("Fetching tickets with parameters: from = $from, to = $to, leavingDate between = ${Timestamp.fromDate(startOfDay)} and ${Timestamp.fromDate(endOfDay)}");
 
     final snapshot = await collection
         .where('from', isEqualTo: from)
@@ -31,9 +28,9 @@ class TicketRepositoryImpl implements TicketRepository {
         .where('leavingDate', isLessThan: Timestamp.fromDate(endOfDay))
         .get();
 
-    logger.d("Number of tickets found: ${snapshot.docs.length}");
+    // logger.d("Number of tickets found: ${snapshot.docs.length}");
     snapshot.docs.forEach((doc) {
-      logger.d("Doc ID: ${doc.id} => ${doc.data()}");
+      // logger.d("Doc ID: ${doc.id} => ${doc.data()}");
     });
 
     return snapshot.docs.map((doc) => TicketModel.fromDocument(doc)).toList();
@@ -52,9 +49,9 @@ class TicketRepositoryImpl implements TicketRepository {
     }
 
     final snapshot = await query.get();
-    logger.d("Number of flights found for ticket $ticketId with seatClass '$flightClass': ${snapshot.docs.length}");
+    // logger.d("Number of flights found for ticket $ticketId with seatClass '$flightClass': ${snapshot.docs.length}");
     snapshot.docs.forEach((doc) {
-      logger.d("Flight Doc ID: ${doc.id} => ${doc.data()}");
+      // logger.d("Flight Doc ID: ${doc.id} => ${doc.data()}");
     });
 
     return snapshot.docs.map((doc) => FlightModel.fromDocument(doc)).toList();
@@ -72,7 +69,7 @@ class TicketRepositoryImpl implements TicketRepository {
       .doc(flightId)
       .get();
 
-  logger.d("getFlightById - TicketID: $ticketId, FlightID: $flightId, Data: ${doc.data()}");
+  // logger.d("getFlightById - TicketID: $ticketId, FlightID: $flightId, Data: ${doc.data()}");
 
   return FlightModel.fromDocument(doc);
   }

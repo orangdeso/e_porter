@@ -1,5 +1,4 @@
 // ignore_for_file: unnecessary_null_comparison
-
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
@@ -9,8 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
-import '../../../../_core/service/logger_service.dart';
 import '../../../controllers/ticket_controller.dart';
 
 class SearchTicketsScreen extends StatefulWidget {
@@ -141,8 +138,7 @@ class _SearchTicketsScreenState extends State<SearchTicketsScreen> {
                                 "ticketDate": ticketDate,
                                 "passenger": passengerCount,
                               };
-                              logger.d(
-                                  'ID Ticket: $ticketId \nID Flight: $flightId \nTicket Date: $ticketDate \nPassenger: $passengerCount');
+                              // logger.d('ID Ticket: $ticketId \nID Flight: $flightId \nTicket Date: $ticketDate \nPassenger: $passengerCount');
                               Get.toNamed(Routes.TICKETBOOKINGSTEP1, arguments: argument);
                             },
                           ),

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/component/icons/icons_library.dart';
 import 'package:e_porter/_core/constants/colors.dart';
@@ -49,6 +51,7 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
   String? departureTime;
   String? arrivalTime;
 
+  double totalPrice = 0.0;
   double totalPriceService = 0.0;
   PorterServiceModel? selectedDepartureService;
   PorterServiceModel? selectedArrivalService;
@@ -190,7 +193,7 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
 
   @override
   Widget build(BuildContext context) {
-    double totalPrice = calculateTotalPrice(flightData?.price.toDouble() ?? 0.0, passenger);
+    totalPrice = calculateTotalPrice(flightData?.price.toDouble() ?? 0.0, passenger);
     double grandTotal = totalPrice + totalPriceService;
 
     return Scaffold(
@@ -295,16 +298,37 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
             selectedPorterServices['transit'] = selectedTransitService;
           }
           final argument = {
-            'tickedId': ticketId,
+            'ticketId': ticketId,
             'flightId': flightId,
-            'ticketDate': ticketDate,
+            'date': ticketDate,
             'passenger': passenger,
             'selectedPassenger': selectedPassengers,
             'numberSeat': numberSeat,
+            'totalPrice': totalPrice,
             'grandTotal': grandTotal,
             'selectedServiceLabels': selectedServiceLabels,
-            'selectedPorter': selectedPorterServices,
+            'selectedPorterServices': selectedPorterServices,
           };
+          log('Ticket ID: $ticketId');
+          log('Flight ID: $flightId');
+          log('Ticket Date: $ticketDate');
+          log('Opsi Penerbangan: $selectedServiceLabels');
+          log('Layanan Porter: $selectedPorterServices');
+
+          // final Map<String, dynamic> debugPorterServices = {};
+          // selectedPorterServices.forEach((key, value) {
+          //   if (value != null) {
+          //     debugPorterServices[key] = {
+          //       'id': value.id,
+          //       'name': value.name,
+          //       'price': value.price,
+          //     };
+          //   } else {
+          //     debugPorterServices[key] = null;
+          //   }
+          // });
+          // log('Layanan Porter: $debugPorterServices');
+
           Get.toNamed(Routes.TICKETBOOKINGSTEP4, arguments: argument);
         },
       ),

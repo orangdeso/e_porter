@@ -1,7 +1,6 @@
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/constants/colors.dart';
-import 'package:e_porter/_core/service/logger_service.dart';
 import 'package:e_porter/domain/models/user_entity.dart';
 import 'package:e_porter/presentation/controllers/ticket_controller.dart';
 import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
@@ -63,7 +62,7 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
     selectedPassengers = args['selectedPassenger'] ?? [];
     selectedSeatNumbers = args['selectedSeatNumbers'] ?? List.filled(passenger, '');
 
-    logger.d('Ticket ID: $ticketId \nFlight ID: $flightId');
+    // logger.d('Ticket ID: $ticketId \nFlight ID: $flightId');
   }
 
   @override
@@ -152,7 +151,7 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
                       'selectedPassenger': selectedPassengers,
                       'numberSeat': selectedSeatNumbers
                     };
-                    logger.d('Number Seat: $selectedSeatNumbers \n Passenger: $selectedPassengers');
+                    // logger.d('Number Seat: $selectedSeatNumbers \n Passenger: $selectedPassengers');
                     Get.toNamed(Routes.TICKETBOOKINGSTEP3, arguments: argument);
                   },
           ),

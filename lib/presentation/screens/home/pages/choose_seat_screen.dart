@@ -1,5 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison
 
+import 'dart:developer';
+
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/component/icons/icons_library.dart';
@@ -253,7 +255,7 @@ class _ChooseSeatScreenState extends State<ChooseSeatScreen> {
               if (selectedSeatNumbers.any((seat) => seat.isEmpty)) {
                 return;
               }
-              logger.d('Kursi: $selectedSeatNumbers');
+              log('Nomor Kursi: $selectedSeatNumbers');
               Get.back(result: selectedSeatNumbers);
             },
           ),

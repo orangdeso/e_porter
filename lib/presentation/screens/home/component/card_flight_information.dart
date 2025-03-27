@@ -18,6 +18,9 @@ class CardFlightInformation extends StatelessWidget {
   final String passenger;
   final String? transiAirplane;
   final String? stop;
+  final String? departurePorter;
+  final String? arrivalPorter;
+  final String? transitPorter;
 
   const CardFlightInformation({
     Key? key,
@@ -31,6 +34,9 @@ class CardFlightInformation extends StatelessWidget {
     required this.passenger,
     this.transiAirplane,
     this.stop,
+    this.departurePorter,
+    this.arrivalPorter,
+    this.transitPorter,
   });
 
   @override
@@ -85,12 +91,23 @@ class CardFlightInformation extends StatelessWidget {
               servicePorter != null ? _buildText(context, text: servicePorter!) : SizedBox.shrink(),
             ],
           ),
+          if (departurePorter != null && departurePorter!.isNotEmpty) ... [
+          SizedBox(height: 4.h),
+          TypographyStyles.small(departurePorter!, color: GrayColors.gray600, fontWeight: FontWeight.w400),
+          ],
+          if (arrivalPorter != null && arrivalPorter!.isNotEmpty) ... [
+          SizedBox(height: 4.h),
+          TypographyStyles.small(arrivalPorter!, color: GrayColors.gray600, fontWeight: FontWeight.w400),
+          ],
+          if (transitPorter != null && transitPorter!.isNotEmpty) ... [
+          SizedBox(height: 4.h),
+          TypographyStyles.small(transitPorter!, color: GrayColors.gray600, fontWeight: FontWeight.w400),
+          ],
           SizedBox(height: 4.h),
           TypographyStyles.small(
             '$passenger Dewasa',
             color: GrayColors.gray600,
             fontWeight: FontWeight.w400,
-            letterSpacing: 0.2,
           )
         ],
       ),

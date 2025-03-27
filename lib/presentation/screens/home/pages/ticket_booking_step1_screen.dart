@@ -7,7 +7,6 @@ import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/component/icons/icons_library.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
-import 'package:e_porter/_core/service/logger_service.dart';
 import 'package:e_porter/_core/service/preferences_service.dart';
 import 'package:e_porter/_core/utils/snackbar/snackbar_helper.dart';
 import 'package:e_porter/domain/models/ticket_model.dart';
@@ -90,7 +89,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
     }
     final userId = userData.uid;
     await profilController.fetchPassangerById(userId);
-    logger.d('User ID: $userId');
+    // logger.d('User ID: $userId');
   }
 
   bool isAllPassengersFilled() {
@@ -176,7 +175,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
           textColor: Colors.white,
           backgroundColor: isAllPassengersFilled() ? PrimaryColors.primary800 : GrayColors.gray400,
           onTap: () {
-            logger.d('Selected Passengers: $selectedPassengers');
+            // logger.d('Selected Passengers: $selectedPassengers');
             if (selectedPassengers.any((p) => p == null)) {
               SnackbarHelper.showError('Error', 'Harap lengkapi slot penumpang');
             } else {
@@ -216,7 +215,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
         } else if (snapshot.hasData && snapshot.data != null) {
           final user = snapshot.data!;
           _loggedUser = user;
-          logger.d('Data user: ${user.noId}');
+          // logger.d('Data user: ${user.noId}');
           return CustomeShadowCotainner(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,7 +375,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                                       shrinkWrap: true,
                                       itemBuilder: (context, index) {
                                         final passenger = profilController.passengerList[index];
-                                        logger.d("Passenger Models : ${passenger.noId}");
+                                        // logger.d("Passenger Models : ${passenger.noId}");
                                         return Padding(
                                           padding: EdgeInsets.only(top: 16.h),
                                           child: _buildAddPassenger(
@@ -574,7 +573,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                   itemBuilder: (context, pIndex) {
                     final passenger = profilController.passengerList[pIndex];
                     final isUsed = usedNoIds.contains(passenger.noId);
-                    logger.d("Passenger Models : ${passenger.noId}");
+                    // logger.d("Passenger Models : ${passenger.noId}");
                     return Padding(
                       padding: EdgeInsets.only(top: 16.h),
                       child: _buildAddPassenger(
