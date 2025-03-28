@@ -36,6 +36,7 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
 
   double? totalPrice;
   double? grandTotal;
+  final double serviceCharge = 10000.0;
 
   final TicketController ticketController = Get.find<TicketController>();
   FlightModel? flightData;
@@ -107,6 +108,10 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
       }
     }
     return '0';
+  }
+
+  double totalAll() {
+    return (grandTotal ?? 0.0) + serviceCharge;
   }
 
   @override
@@ -187,8 +192,11 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
                               fontWeight: FontWeight.w400,
                             ),
                             SizedBox(width: 8.w),
-                            TypographyStyles.small("x ${passenger}",
-                                color: GrayColors.gray600, fontWeight: FontWeight.w400)
+                            TypographyStyles.small(
+                              "x ${passenger}",
+                              color: GrayColors.gray600,
+                              fontWeight: FontWeight.w400,
+                            )
                           ],
                         ),
                         Padding(
@@ -213,7 +221,11 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
                         SizedBox(height: 2.h),
                         _buildTextService(),
                         SizedBox(height: 2.h),
-                        _buildRowText(context, text: "Biaya layanan", valueText: "10.000"),
+                        _buildRowText(
+                          context,
+                          text: "Biaya layanan",
+                          valueText: "Rp ${NumberFormat.decimalPattern('id_ID').format(serviceCharge)}",
+                        ),
                       ],
                     ))
               ],
@@ -222,11 +234,23 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
         )),
         bottomNavigationBar: FooterPrice(
           labelText: "Pembayaran",
-          price: "Rp ${NumberFormat.decimalPattern('id_ID').format(grandTotal)}",
+          price: "Rp ${NumberFormat.decimalPattern('id_ID').format(totalAll())}",
           labelButton: "Buat Pesanan",
           iconButton: CustomeIcons.ProtectOutline(color: Colors.white),
           onTap: () {
-            Get.toNamed(Routes.PAYMENT);
+            final argument = {
+              'ticketId': ticketId,
+              'flightId': flightId,
+              'date': ticketDate,
+              'passenger': passenger,
+              'selectedPassenger': selectedPassengers,
+              'numberSeat': numberSeat,
+              'totalPrice': totalPrice,
+              'grandTotal': grandTotal,
+              'selectedServiceLabels': selectedServiceLabels,
+              'selectedPorterServices': selectedPorterServices,
+            };
+            Get.toNamed(Routes.PAYMENT, arguments: argument);
           },
         ));
   }
@@ -323,7 +347,7 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
           fontWeight: FontWeight.w400,
         ),
         TypographyStyles.caption(
-          "Rp ${valueText}",
+          valueText,
           color: GrayColors.gray600,
           fontWeight: FontWeight.w400,
         ),

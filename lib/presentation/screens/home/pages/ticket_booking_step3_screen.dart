@@ -183,14 +183,6 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
     });
   }
 
-  List<String> _getSelectedServices() {
-    List<String> selectedServices = [];
-    if (_isChecked1) selectedServices.add("Keberangkatan: Fast Track");
-    if (_isChecked2) selectedServices.add("Kedatangan: Porter VIP");
-    if (_isChecked3) selectedServices.add("Transit: Transit");
-    return selectedServices;
-  }
-
   @override
   Widget build(BuildContext context) {
     totalPrice = calculateTotalPrice(flightData?.price.toDouble() ?? 0.0, passenger);

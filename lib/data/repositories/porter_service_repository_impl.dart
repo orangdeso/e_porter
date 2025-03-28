@@ -1,15 +1,12 @@
-// data/repositories/porter_service_repository_impl.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/models/porter_service_model.dart';
 import '../../domain/repositories/porter_service_repository.dart';
 
 class PorterServiceRepositoryImpl implements PorterServiceRepository {
   final FirebaseFirestore _firestore;
-  final String _collectionName = 'PorterServices';
+  final String _collectionName = 'porterServices';
 
-  PorterServiceRepositoryImpl({FirebaseFirestore? firestore}) 
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  PorterServiceRepositoryImpl({FirebaseFirestore? firestore}) : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Future<List<PorterServiceModel>> getAllServices() async {
@@ -28,12 +25,9 @@ class PorterServiceRepositoryImpl implements PorterServiceRepository {
   @override
   Future<List<PorterServiceModel>> getServicesByType(String type) async {
     try {
-      final snapshot = await _firestore
-          .collection(_collectionName)
-          .where('availableFor', arrayContains: type)
-          .orderBy('sort')
-          .get();
-      
+      final snapshot =
+          await _firestore.collection(_collectionName).where('availableFor', arrayContains: type).orderBy('sort').get();
+
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         return PorterServiceModel.fromJson(data, doc.id);

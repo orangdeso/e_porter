@@ -1,13 +1,14 @@
 {
   "project_info": {
-    "project_number": "500904629253",
-    "project_id": "e-porter-95934",
-    "storage_bucket": "e-porter-95934.firebasestorage.app"
+    "project_number": "263537612753",
+    "firebase_url": "https://tomatify-b02d2-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "tomatify-b02d2",
+    "storage_bucket": "tomatify-b02d2.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:500904629253:android:605ea4c7c68257ee0ab86c",
+        "mobilesdk_app_id": "1:263537612753:android:55032afbca267c984f72f0",
         "android_client_info": {
           "package_name": "com.example.e_porter"
         }
@@ -15,7 +16,26 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC0wuDunsKoDmB8H8dCX6ZDmvGH93rlwYE"
+          "current_key": "AIzaSyAIY5iiaWO08YrhxFoxkQHYUOUKrl7kZRs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:263537612753:android:ff16ddcf74fc8dd34f72f0",
+        "android_client_info": {
+          "package_name": "com.example.tomato"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIY5iiaWO08YrhxFoxkQHYUOUKrl7kZRs"
         }
       ],
       "services": {

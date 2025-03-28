@@ -138,7 +138,6 @@ class _SearchTicketsScreenState extends State<SearchTicketsScreen> {
                                 "ticketDate": ticketDate,
                                 "passenger": passengerCount,
                               };
-                              // logger.d('ID Ticket: $ticketId \nID Flight: $flightId \nTicket Date: $ticketDate \nPassenger: $passengerCount');
                               Get.toNamed(Routes.TICKETBOOKINGSTEP1, arguments: argument);
                             },
                           ),
