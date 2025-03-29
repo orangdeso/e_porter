@@ -49,6 +49,7 @@ class FlightModel {
   final String transitAirplane;
   final String stop;
   final int price;
+  final String airlineLogo;
   final Map<String, SeatInfo> seat;
 
   FlightModel({
@@ -66,6 +67,7 @@ class FlightModel {
     required this.transitAirplane,
     required this.stop,
     required this.price,
+    required this.airlineLogo,
     required this.seat,
   });
 
@@ -100,6 +102,7 @@ class FlightModel {
       transitAirplane: data['transitAirplane'] ?? '',
       stop: data['stop'] ?? '',
       price: data['price'] ?? 0,
+      airlineLogo: data['airlineLogo'] ?? '',
       seat: seatMap, // masukkan Map<String, SeatInfo>
     );
   }
@@ -119,7 +122,7 @@ class FlightModel {
       'transitAirplane': transitAirplane,
       'stop': stop,
       'price': price,
-      // Konversi Map<String, SeatInfo> jadi Map<String, Map<String,dynamic>>
+      'airlineLogo': airlineLogo,
       'seat': seat.map((key, value) => MapEntry(key, value.toMap())),
     };
   }

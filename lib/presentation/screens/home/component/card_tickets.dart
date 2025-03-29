@@ -7,6 +7,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
+const bool DEBUG_LOGO = false;
+
 class CardTickets extends StatelessWidget {
   final String departureCity;
   final String date;
@@ -21,6 +23,7 @@ class CardTickets extends StatelessWidget {
   final VoidCallback? onTap;
   final bool withContainer;
   final bool showFooter;
+  final String? airlineLogo;
 
   const CardTickets({
     Key? key,
@@ -37,6 +40,7 @@ class CardTickets extends StatelessWidget {
     this.onTap,
     this.withContainer = true,
     this.showFooter = true,
+    this.airlineLogo,
   });
 
   @override
@@ -44,7 +48,29 @@ class CardTickets extends StatelessWidget {
     Widget content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SvgPicture.asset('assets/images/citilink.svg', width: 40.w, height: 10.h),
+        airlineLogo != null && airlineLogo!.isNotEmpty
+            ? Image.network(
+                airlineLogo!,
+                width: 40.w,
+                height: 26.h,
+                errorBuilder: (context, error, stackTrace) {
+                  print("Error loading image: $error");
+                  return Container(
+                    width: 40.w,
+                    height: 10.h,
+                    child: Center(child: Icon(Icons.error)),
+                  );
+                },
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                    width: 40.w,
+                    height: 10.h,
+                    child: Center(child: CircularProgressIndicator(strokeWidth: 1.0)),
+                  );
+                },
+              )
+            : SvgPicture.asset('assets/images/citilink.svg', width: 40.w, height: 26.h),
         SizedBox(height: 10.h),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -111,6 +111,7 @@ class _ChooseSeatScreenState extends State<ChooseSeatScreen> {
           final codeArrival = flight.codeArrival;
           final codeTransit = flight.codeTransit;
           final flightClass = flight.flightClass;
+          final airlineLogo = flight.airlineLogo;
           cityDeparture = flight.cityDeparture;
           cityArrival = flight.cityArrival;
 
@@ -177,7 +178,14 @@ class _ChooseSeatScreenState extends State<ChooseSeatScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildCardFlight(codeDeparture, codeTransit, codeArrival, flightClass, finalDuration),
+                          _buildCardFlight(
+                            departureCode: codeDeparture,
+                            transitCode: codeTransit,
+                            arrivalCode: codeArrival,
+                            kelas: flightClass,
+                            duration: finalDuration,
+                            airlineLogo: airlineLogo,
+                          ),
                           SizedBox(height: 20.h),
                           SizedBox(
                             height: 84.h,
@@ -264,13 +272,42 @@ class _ChooseSeatScreenState extends State<ChooseSeatScreen> {
     );
   }
 
-  Widget _buildCardFlight(String departureCode, String transitCode, String arrivalCode, String kelas, String duration) {
+  Widget _buildCardFlight({
+    required String departureCode,
+    required String transitCode,
+    required String arrivalCode,
+    required String kelas,
+    required String duration,
+    String? airlineLogo,
+  }) {
     return Padding(
       padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 20.h),
       child: CustomeShadowCotainner(
         child: Row(
           children: [
-            SvgPicture.asset('assets/images/citilink.svg', width: 40.w, height: 10.h),
+            airlineLogo != null && airlineLogo.isNotEmpty
+                ? Image.network(
+                    airlineLogo,
+                    width: 40.w,
+                    height: 26.h,
+                    errorBuilder: (context, error, stackTrace) {
+                      print("Error loading image: $error");
+                      return Container(
+                        width: 40.w,
+                        height: 10.h,
+                        child: Center(child: Icon(Icons.error)),
+                      );
+                    },
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        width: 40.w,
+                        height: 10.h,
+                        child: Center(child: CircularProgressIndicator(strokeWidth: 1.0)),
+                      );
+                    },
+                  )
+                : SvgPicture.asset('assets/images/citilink.svg', width: 40.w, height: 10.h),
             SizedBox(width: 16.w),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -373,35 +410,6 @@ class _ChooseSeatScreenState extends State<ChooseSeatScreen> {
       ],
     );
   }
-
-  // Widget _buildCardSeat(
-  //   BuildContext context, {
-  //   required label,
-  // }) {
-  //   return Expanded(
-  //     child: Column(
-  //       children: [
-  //         Container(
-  //           width: 32.w,
-  //           height: 32.h,
-  //           child: TypographyStyles.body(label, color: GrayColors.gray800, fontWeight: FontWeight.w500),
-  //         ),
-  //         SizedBox(height: 6.h),
-  //         ListView.builder(
-  //           itemCount: 20,
-  //           shrinkWrap: true,
-  //           physics: NeverScrollableScrollPhysics(),
-  //           itemBuilder: (context, index) {
-  //             return Padding(
-  //               padding: EdgeInsets.symmetric(vertical: 6.h),
-  //               child: CardSeat(),
-  //             );
-  //           },
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _buildSeatColumn(String column, List<bool> seatList, int totalSeat) {
     return Expanded(

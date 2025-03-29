@@ -21,6 +21,7 @@ class CardFlightInformation extends StatelessWidget {
   final String? departurePorter;
   final String? arrivalPorter;
   final String? transitPorter;
+  final String? airlineLogo;
 
   const CardFlightInformation({
     Key? key,
@@ -37,6 +38,7 @@ class CardFlightInformation extends StatelessWidget {
     this.departurePorter,
     this.arrivalPorter,
     this.transitPorter,
+    this.airlineLogo,
   });
 
   @override
@@ -45,7 +47,29 @@ class CardFlightInformation extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SvgPicture.asset('assets/images/citilink.svg', width: 40.w, height: 10.h),
+          airlineLogo != null && airlineLogo!.isNotEmpty
+              ? Image.network(
+                  airlineLogo!,
+                  width: 40.w,
+                  height: 26.h,
+                  errorBuilder: (context, error, stackTrace) {
+                    print("Error loading image: $error");
+                    return Container(
+                      width: 40.w,
+                      height: 10.h,
+                      child: Center(child: Icon(Icons.error)),
+                    );
+                  },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      width: 40.w,
+                      height: 10.h,
+                      child: Center(child: CircularProgressIndicator(strokeWidth: 1.0)),
+                    );
+                  },
+                )
+              : SvgPicture.asset('assets/images/citilink.svg', width: 40.w, height: 10.h),
           SizedBox(height: 10.h),
           Row(
             children: [
@@ -91,17 +115,17 @@ class CardFlightInformation extends StatelessWidget {
               servicePorter != null ? _buildText(context, text: servicePorter!) : SizedBox.shrink(),
             ],
           ),
-          if (departurePorter != null && departurePorter!.isNotEmpty) ... [
-          SizedBox(height: 4.h),
-          TypographyStyles.small(departurePorter!, color: GrayColors.gray600, fontWeight: FontWeight.w400),
+          if (departurePorter != null && departurePorter!.isNotEmpty) ...[
+            SizedBox(height: 4.h),
+            TypographyStyles.small(departurePorter!, color: GrayColors.gray600, fontWeight: FontWeight.w400),
           ],
-          if (arrivalPorter != null && arrivalPorter!.isNotEmpty) ... [
-          SizedBox(height: 4.h),
-          TypographyStyles.small(arrivalPorter!, color: GrayColors.gray600, fontWeight: FontWeight.w400),
+          if (arrivalPorter != null && arrivalPorter!.isNotEmpty) ...[
+            SizedBox(height: 4.h),
+            TypographyStyles.small(arrivalPorter!, color: GrayColors.gray600, fontWeight: FontWeight.w400),
           ],
-          if (transitPorter != null && transitPorter!.isNotEmpty) ... [
-          SizedBox(height: 4.h),
-          TypographyStyles.small(transitPorter!, color: GrayColors.gray600, fontWeight: FontWeight.w400),
+          if (transitPorter != null && transitPorter!.isNotEmpty) ...[
+            SizedBox(height: 4.h),
+            TypographyStyles.small(transitPorter!, color: GrayColors.gray600, fontWeight: FontWeight.w400),
           ],
           SizedBox(height: 4.h),
           TypographyStyles.small(

@@ -131,6 +131,7 @@ class _SearchTicketsScreenState extends State<SearchTicketsScreen> {
                             duration: finalDuration,
                             seatClass: flight.flightClass,
                             price: formattedPrice,
+                            airlineLogo: flight.airlineLogo,
                             onTap: () {
                               final argument = {
                                 "ticketId": ticketId,

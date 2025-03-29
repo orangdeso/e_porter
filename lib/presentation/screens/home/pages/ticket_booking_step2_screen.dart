@@ -36,6 +36,7 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
   String? stop;
   String? codeDeparture;
   String? codeArrival;
+  String? airlineLogo;
   late final int passenger;
   late final List<PassengerModel?> selectedPassengers;
   late List<String> selectedSeatNumbers;
@@ -58,6 +59,7 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
     stop = args['stop'];
     codeDeparture = args['codeDeparture'];
     codeArrival = args['codeArrival'];
+    airlineLogo = args['airlineLogo'] ?? '';
     passenger = args['passenger'];
     selectedPassengers = args['selectedPassenger'] ?? [];
     selectedSeatNumbers = args['selectedSeatNumbers'] ?? List.filled(passenger, '');
@@ -93,6 +95,7 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
                   passenger: '$passenger',
                   transiAirplane: '$transitAirplane',
                   stop: '$stop',
+                  airlineLogo: airlineLogo,
                 ),
                 SizedBox(height: 32.h),
                 TypographyStyles.h6('Pilih Kursi', color: GrayColors.gray800),

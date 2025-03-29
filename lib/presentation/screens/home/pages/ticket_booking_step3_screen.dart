@@ -214,6 +214,7 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
                   passenger: "$passenger",
                   stop: "${flightData?.stop}",
                   transiAirplane: "${flightData?.transitAirplane}",
+                  airlineLogo: "${flightData?.airlineLogo}",
                 ),
                 SizedBox(height: 32.h),
                 TypographyStyles.h6("Layanan Porter", color: GrayColors.gray800),

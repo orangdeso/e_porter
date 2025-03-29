@@ -58,21 +58,6 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
     selectedServiceLabels = args['selectedServiceLabels'] ?? [];
     selectedPorterServices = args['selectedPorterServices'] ?? {};
 
-    // log('Ticket ID Step 4: $ticketId');
-    // log('Opsi Penerbangan Step 4: $selectedServiceLabels');
-
-    // if (selectedServiceLabels.isNotEmpty) {
-    //   log('Opsi Penerbangan Step 4: ${selectedServiceLabels.join(", ")}');
-    // } else {
-    //   log('Tidak ada opsi penerbangan yang dipilih');
-    // }
-
-    // selectedPorterServices.forEach((key, value) {
-    //   if (value != null) {
-    //     log('Porter $key: ${value.name} - Rp ${value.price}');
-    //   }
-    // });
-
     fetchDataFlight();
   }
 
@@ -152,6 +137,7 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
                     arrivalPorter: hasArrivalPorter ? "Kedatangan (${getPorterInfo('arrival')})" : null,
                     transitPorter: hasTransitPorter ? "Transit (${getPorterInfo('transit')})" : null,
                     stop: "${flightData?.stop}",
+                    airlineLogo: "${flightData?.airlineLogo}",
                   ),
                 ),
                 SizedBox(height: 32.h),
@@ -165,16 +151,9 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
                     height: MediaQuery.of(context).size.height * 0.4,
                     child: Column(
                       children: [
-                        Row(
-                          children: [
-                            TypographyStyles.body(
-                              "${flightData?.airLines} (${flightData?.code})",
-                              color: GrayColors.gray800,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            SizedBox(width: 10.w),
-                            SvgPicture.asset('assets/images/citilink.svg', width: 40.w, height: 10.h),
-                          ],
+                        _buildAirline(
+                          text: '${flightData?.airLines} (${flightData?.code})',
+                          airlineLogo: '${flightData?.airlineLogo}',
                         ),
                         SizedBox(height: 2.h),
                         _buildRowPorterWithClass(
@@ -294,6 +273,43 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
           SizedBox(width: 10.h),
         ],
         TypographyStyles.small(detailSeatClass, color: GrayColors.gray600, fontWeight: FontWeight.w400),
+      ],
+    );
+  }
+
+  Widget _buildAirline({required String text, String? airlineLogo}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        TypographyStyles.body(
+          text,
+          color: GrayColors.gray800,
+          fontWeight: FontWeight.w500,
+        ),
+        SizedBox(width: 10.w),
+        airlineLogo != null && airlineLogo.isNotEmpty
+            ? Image.network(
+                airlineLogo,
+                width: 40.w,
+                height: 26.h,
+                errorBuilder: (context, error, stackTrace) {
+                  print("Error loading image: $error");
+                  return Container(
+                    width: 40.w,
+                    height: 10.h,
+                    child: Center(child: Icon(Icons.error)),
+                  );
+                },
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                    width: 40.w,
+                    height: 10.h,
+                    child: Center(child: CircularProgressIndicator(strokeWidth: 1.0)),
+                  );
+                },
+              )
+            : SvgPicture.asset('assets/images/citilink.svg', width: 40.w, height: 10.h),
       ],
     );
   }

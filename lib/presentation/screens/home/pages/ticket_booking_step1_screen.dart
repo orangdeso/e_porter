@@ -55,6 +55,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
   String? stop;
   String? codeDeparture;
   String? codeArrival;
+  String? airlineLogo;
 
   @override
   void initState() {
@@ -134,6 +135,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
           stop = flight.stop;
           codeDeparture = flight.codeDeparture;
           codeArrival = flight.codeArrival;
+          airlineLogo = flight.airlineLogo;
 
           return SafeArea(
             child: Padding(
@@ -152,6 +154,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                       passenger: '$passenger',
                       transiAirplane: '$transitAirplane',
                       stop: '$stop',
+                      airlineLogo: airlineLogo,
                     ),
                     SizedBox(height: 32.h),
                     TypographyStyles.h6('Detail Pemesanan', color: GrayColors.gray800),
@@ -194,6 +197,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                 'stop': stop,
                 'codeDeparture': codeDeparture,
                 'codeArrival': codeArrival,
+                'airlineLogo': airlineLogo,
                 'passenger': passenger,
                 'selectedPassenger': selectedPassengers,
               };
