@@ -22,6 +22,7 @@ import 'package:e_porter/presentation/screens/home/pages/ticket_booking_step1_sc
 import 'package:e_porter/presentation/screens/home/pages/ticket_booking_step2_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/ticket_booking_step3_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/ticket_booking_step4_screen.dart';
+import 'package:e_porter/presentation/screens/home/pages/upload_file_screen.dart';
 import 'package:e_porter/presentation/screens/navigation/main_navigation.dart';
 import 'package:e_porter/presentation/screens/onboarding/onboarding_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/profile_screen.dart';
@@ -121,6 +122,10 @@ class AppRoutes {
       page: () => PaymentScreen(),
     ),
     GetPage(
+      name: Routes.UPLOADFILE,
+      page: () => UploadFileScreen(),
+    ),
+    GetPage(
       name: Routes.TRANSACTIONHISTORY,
       page: () => transactionHistory(),
     ),
@@ -161,6 +166,7 @@ class Routes {
   static const TICKETBOOKINGSTEP4 = '/ticket_booking_step4';
   static const CHOOSECHAIR = '/choose_chair';
   static const PAYMENT = '/payment';
+  static const UPLOADFILE = '/upload_file';
   static const TRANSACTIONHISTORY = '/transaction_history';
   static const DETAILTICKET = '/detail_ticket';
   static const PRINTBOARDINGPASS = '/print_boarding_pass';

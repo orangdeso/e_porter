@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
@@ -217,6 +219,10 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
           labelButton: "Buat Pesanan",
           iconButton: CustomeIcons.ProtectOutline(color: Colors.white),
           onTap: () {
+            final DateTime currentTime = DateTime.now();
+            final DateTime expiryTime = currentTime.add(Duration(hours: 1));
+            final String formattedExpiryTime =
+                "${DateFormat('dd MMMM yyyy', 'en_US').format(expiryTime)}, ${DateFormat.Hm().format(expiryTime)}";
             final argument = {
               'ticketId': ticketId,
               'flightId': flightId,
@@ -228,6 +234,8 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
               'grandTotal': grandTotal,
               'selectedServiceLabels': selectedServiceLabels,
               'selectedPorterServices': selectedPorterServices,
+              'totalAll': totalAll(),
+              'expiryTime': formattedExpiryTime,
             };
             Get.toNamed(Routes.PAYMENT, arguments: argument);
           },
@@ -293,7 +301,7 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
                 width: 40.w,
                 height: 26.h,
                 errorBuilder: (context, error, stackTrace) {
-                  print("Error loading image: $error");
+                  log("Error loading image: $error");
                   return Container(
                     width: 40.w,
                     height: 10.h,

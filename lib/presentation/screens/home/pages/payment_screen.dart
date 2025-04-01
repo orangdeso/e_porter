@@ -6,9 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:zoom_tap_animation/zoom_tap_animation.dart';
-
+import 'package:intl/intl.dart';
 import '../../../../_core/component/button/button_fill.dart';
+import '../../../../_core/service/logger_service.dart';
+import '../../../../domain/models/porter_service_model.dart';
+import '../../../../domain/models/ticket_model.dart';
+import '../../../../domain/models/user_entity.dart';
+import '../../../controllers/ticket_controller.dart';
+import '../../routes/app_rountes.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});
@@ -18,6 +23,55 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
+  late final String ticketId;
+  late final String flightId;
+  late String? ticketDate;
+  late final int passenger;
+  late final List<PassengerModel?> selectedPassengers;
+  late List<String> numberSeat;
+  late List<String> selectedServiceLabels;
+  late Map<String, PorterServiceModel?> selectedPorterServices;
+  late double totalPrice;
+  late double grandTotal;
+  late double totalAll;
+  late String expiryTime;
+
+  final TicketController ticketController = Get.find<TicketController>();
+  FlightModel? flightData;
+  String? departureTime;
+  String? arrivalTime;
+
+  @override
+  void initState() {
+    super.initState();
+    final args = Get.arguments as Map<String, dynamic>;
+    ticketId = args['ticketId'] ?? '';
+    flightId = args['flightId'] ?? '';
+    ticketDate = args['date'];
+    passenger = args['passenger'] ?? 0;
+    selectedPassengers = args['selectedPassenger'] ?? [];
+    numberSeat = args['numberSeat'] ?? '';
+    totalPrice = args['totalPrice'] ?? 0.0;
+    grandTotal = args['grandTotal'] ?? 0.0;
+    totalAll = args['totalAll'] ?? 0.0;
+    selectedServiceLabels = args['selectedServiceLabels'] ?? [];
+    selectedPorterServices = args['selectedPorterServices'] ?? {};
+    expiryTime = args['expiryTime'] ?? '';
+
+    fetchDataFlight();
+  }
+
+  Future<void> fetchDataFlight() async {
+    try {
+      FlightModel flight = await ticketController.getFlightById(ticketId: ticketId, flightId: flightId);
+      setState(() {
+        flightData = flight;
+      });
+    } catch (e) {
+      logger.e('Terjadi kesalahan: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,14 +96,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 children: [
                   TypographyStyles.h5("E-Porter", color: GrayColors.gray800),
                   SizedBox(height: 10.h),
-                  TypographyStyles.body("Citilink (103)", color: GrayColors.gray800, fontWeight: FontWeight.w400),
+                  TypographyStyles.body(
+                    "${flightData?.airLines} (${flightData?.code})",
+                    color: GrayColors.gray800,
+                    fontWeight: FontWeight.w400,
+                  ),
                   SizedBox(height: 16.h),
-                  TypographyStyles.h5("Rp 2.460.000", color: GrayColors.gray800),
+                  TypographyStyles.h5(
+                    "Rp ${NumberFormat.decimalPattern('id_ID').format(totalAll)}",
+                    color: GrayColors.gray800,
+                  ),
                   SizedBox(height: 32.h),
                   SvgPicture.asset('assets/images/qris.svg'),
                   SizedBox(height: 20.h),
                   TypographyStyles.small(
-                    "Berlaku hingga : 28 Januari 2025, 16:40",
+                    "Berlaku hingga : $expiryTime",
                     color: GrayColors.gray600,
                     fontWeight: FontWeight.w400,
                   )
@@ -60,14 +121,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       ),
       bottomNavigationBar: CustomeShadowCotainner(
-        child: ZoomTapAnimation(
-          child: ButtonFill(
-            text: 'Lanjutkan',
-            textColor: Colors.white,
-            onTap: () {
-              // Get.toNamed(Routes.TICKETBOOKINGSTEP2);
-            },
-          ),
+        child: ButtonFill(
+          text: 'Lanjutkan',
+          textColor: Colors.white,
+          onTap: () {
+            Get.toNamed(Routes.UPLOADFILE);
+          },
         ),
       ),
     );

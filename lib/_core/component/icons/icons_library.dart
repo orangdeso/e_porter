@@ -51,6 +51,7 @@ class CustomeIcons {
   static SvgPicture AddUserFemaleOutline({double? size, Color? color}) => getIcon('ic_add_user_female', color: color);
   static SvgPicture LogoutOutline({double? size, Color? color}) => getIcon('ic_logout', color: color);
   static SvgPicture RemoveOutline({double? size, Color? color}) => getIcon('ic_remove', color: color);
+  static SvgPicture UploadOutline({double? size, Color? color}) => getIcon('ic_upload', color: color);
 
   static SvgPicture FlightSeatFilled({double? size, Color? color}) => getIcon('ic_flight_seat_filled', color: color);
   static SvgPicture PlaneRightFilled({double? size, Color? color}) => getIcon('ic_plane_filled', color: color);
