@@ -4,6 +4,7 @@ import 'package:e_porter/domain/bindings/porter_service_binding.dart';
 import 'package:e_porter/domain/bindings/profil_binding.dart';
 import 'package:e_porter/domain/bindings/search_flight_binding.dart';
 import 'package:e_porter/domain/bindings/ticket_binding.dart';
+import 'package:e_porter/domain/bindings/transaction_binding.dart';
 import 'package:e_porter/presentation/screens/auth/pages/forget_password_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/login_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/register_screen.dart';
@@ -112,6 +113,7 @@ class AppRoutes {
     GetPage(
       name: Routes.TICKETBOOKINGSTEP4,
       page: () => TicketBookingStep4Screen(),
+      binding: TransactionBinding(),
     ),
     GetPage(
       name: Routes.CHOOSECHAIR,

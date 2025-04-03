@@ -47,6 +47,8 @@ dependencies:
   cloud_firestore: ^5.6.4
   firebase_auth: ^5.5.1
   firebase_storage: ^12.4.4
+  uuid: ^4.5.1
+  firebase_database: ^11.3.5
   shared_preferences: ^2.4.6
   logger: ^2.5.0
   dropdown_button2: ^2.3.9

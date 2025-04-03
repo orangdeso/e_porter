@@ -13,10 +13,13 @@ import 'package:intl/intl.dart';
 import '../../../../_core/component/appbar/appbar_component.dart';
 import '../../../../_core/component/icons/icons_library.dart';
 import '../../../../_core/service/logger_service.dart';
+import '../../../../_core/service/preferences_service.dart';
+import '../../../../_core/utils/snackbar/snackbar_helper.dart';
 import '../../../../domain/models/porter_service_model.dart';
 import '../../../../domain/models/ticket_model.dart';
 import '../../../../domain/models/user_entity.dart';
 import '../../../controllers/ticket_controller.dart';
+import '../../../controllers/transaction_controller.dart';
 import '../component/card_flight_information.dart';
 
 class TicketBookingStep4Screen extends StatefulWidget {
@@ -41,6 +44,7 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
   final double serviceCharge = 10000.0;
 
   final TicketController ticketController = Get.find<TicketController>();
+  final TransactionController transactionController = Get.find<TransactionController>();
   FlightModel? flightData;
   String? departureTime;
   String? arrivalTime;
@@ -218,26 +222,137 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
           price: "Rp ${NumberFormat.decimalPattern('id_ID').format(totalAll())}",
           labelButton: "Buat Pesanan",
           iconButton: CustomeIcons.ProtectOutline(color: Colors.white),
-          onTap: () {
-            final DateTime currentTime = DateTime.now();
-            final DateTime expiryTime = currentTime.add(Duration(hours: 1));
-            final String formattedExpiryTime =
-                "${DateFormat('dd MMMM yyyy', 'en_US').format(expiryTime)}, ${DateFormat.Hm().format(expiryTime)}";
-            final argument = {
-              'ticketId': ticketId,
-              'flightId': flightId,
-              'date': ticketDate,
-              'passenger': passenger,
-              'selectedPassenger': selectedPassengers,
-              'numberSeat': numberSeat,
-              'totalPrice': totalPrice,
-              'grandTotal': grandTotal,
-              'selectedServiceLabels': selectedServiceLabels,
-              'selectedPorterServices': selectedPorterServices,
-              'totalAll': totalAll(),
-              'expiryTime': formattedExpiryTime,
-            };
-            Get.toNamed(Routes.PAYMENT, arguments: argument);
+          onTap: () async {
+            try {
+              Get.dialog(
+                Center(child: CircularProgressIndicator()),
+                barrierDismissible: false,
+              );
+
+              final userData = await PreferencesService.getUserData();
+              if (userData == null) {
+                Get.back(); // close dialog
+                SnackbarHelper.showError('Error', 'Data pengguna tidak ditemukan');
+                return;
+              }
+
+              // Persiapkan data expiry time
+              final DateTime currentTime = DateTime.now();
+              final DateTime expiryTime = currentTime.add(Duration(seconds: 5));
+
+              // Persiapkan data bandara
+              final bandaraData = {
+                'departure': {
+                  'code': flightData?.codeDeparture,
+                  'city': flightData?.cityDeparture,
+                },
+                'arrival': {
+                  'code': flightData?.codeArrival,
+                  'city': flightData?.cityArrival,
+                },
+              };
+
+              // Persiapkan data flight
+              final flightDataMap = {
+                'airLines': flightData?.airLines,
+                'code': flightData?.code,
+                'cityDeparture': flightData?.cityDeparture,
+                'cityArrival': flightData?.cityArrival,
+                'codeDeparture': flightData?.codeDeparture,
+                'codeArrival': flightData?.codeArrival,
+                'departureTime': departureTime,
+                'arrivalTime': arrivalTime,
+                'flightClass': flightData?.flightClass,
+                'transitAirplane': flightData?.transitAirplane,
+                'stop': flightData?.stop,
+                'airlineLogo': flightData?.airlineLogo,
+                'price': flightData?.price,
+              };
+
+              // Persiapkan data porter service jika ada
+              Map<String, dynamic>? porterServiceData;
+              if (selectedPorterServices.isNotEmpty) {
+                porterServiceData = {};
+                selectedPorterServices.forEach((key, value) {
+                  if (value != null) {
+                    porterServiceData![key] = {
+                      'name': value.name,
+                      'price': value.price,
+                      'description': value.description,
+                    };
+                  }
+                });
+              }
+
+              // Persiapkan data user
+              final userDetailData = {
+                'uid': userData.uid,
+                'name': userData.name,
+                'email': userData.email,
+                'phone': userData.phone,
+              };
+
+              final List<Map<String, dynamic>> passengerDetailsList = [];
+              for (var passenger in selectedPassengers) {
+                if (passenger != null) {
+                  passengerDetailsList.add({
+                    'name': passenger.name,
+                    'typeId': passenger.typeId,
+                    'noId': passenger.noId,
+                    'gender': passenger.gender,
+                  });
+                }
+              }
+
+              // Buat transaksi
+              final transactionId = await transactionController.createTransaction(
+                ticketId: ticketId,
+                flightId: flightId,
+                amount: totalAll(),
+                method: 'QRIS',
+                expiryTime: expiryTime,
+                flightDetails: flightDataMap,
+                bandaraDetails: bandaraData,
+                porterServiceDetails: porterServiceData,
+                userDetails: userDetailData,
+                passenger: passenger,
+                passengerDetails: passengerDetailsList,
+                numberSeat: numberSeat,
+              );
+
+              // Tutup dialog loading
+              Get.back();
+
+              // Format expiry time untuk tampilan
+              final formattedExpiryTime =
+                  "${DateFormat('dd MMMM yyyy', 'en_US').format(expiryTime)}, ${DateFormat.Hm().format(expiryTime)}";
+
+              // Navigasi ke halaman pembayaran
+              final argument = {
+                'ticketId': ticketId,
+                'flightId': flightId,
+                'transactionId': transactionId,
+                'date': ticketDate,
+                'passenger': passenger,
+                'selectedPassenger': selectedPassengers,
+                'numberSeat': numberSeat,
+                'totalPrice': totalPrice,
+                'grandTotal': grandTotal,
+                'selectedServiceLabels': selectedServiceLabels,
+                'selectedPorterServices': selectedPorterServices,
+                'totalAll': totalAll(),
+                'expiryTime': formattedExpiryTime,
+              };
+
+              Get.toNamed(Routes.PAYMENT, arguments: argument);
+            } catch (e) {
+              // Tutup dialog loading jika terjadi error
+              if (Get.isDialogOpen ?? false) {
+                Get.back();
+              }
+
+              SnackbarHelper.showError('Error', 'Gagal membuat pesanan: $e');
+            }
           },
         ));
   }
