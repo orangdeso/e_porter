@@ -65,6 +65,7 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
     selectedPorterServices = args['selectedPorterServices'] ?? {};
 
     fetchDataFlight();
+    transactionController.checkExpiredTransactions();
   }
 
   Future<void> fetchDataFlight() async {
@@ -238,7 +239,7 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
 
               // Persiapkan data expiry time
               final DateTime currentTime = DateTime.now();
-              final DateTime expiryTime = currentTime.add(Duration(seconds: 5));
+              final DateTime expiryTime = currentTime.add(Duration(days: 1));
 
               // Persiapkan data bandara
               final bandaraData = {

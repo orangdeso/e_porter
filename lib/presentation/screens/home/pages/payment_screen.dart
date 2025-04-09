@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/constants/colors.dart';
@@ -125,7 +127,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
           text: 'Lanjutkan',
           textColor: Colors.white,
           onTap: () {
-            Get.toNamed(Routes.UPLOADFILE);
+            final argument = {
+              'ticketId': ticketId,
+              'transactionId': Get.arguments['transactionId'], // Ambil dari argumen yang diteruskan
+              'flightData': flightData,
+              'totalAll': totalAll,
+            };
+            log('Transaction ID: $argument');
+            Get.toNamed(Routes.UPLOADFILE, arguments: argument);
           },
         ),
       ),

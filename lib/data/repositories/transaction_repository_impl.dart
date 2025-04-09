@@ -73,54 +73,43 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       if (seatData.exists) {
         Map<String, dynamic>? data = seatData.data() as Map<String, dynamic>?;
-
-        // Fungsi untuk mendapatkan kelas seat dari nomor kursi (misalnya "A2" -> "a")
         String getSeatClass(String seatNumber) {
-          // Ambil huruf pertama dan ubah ke lowercase
           if (seatNumber.isNotEmpty) {
             return seatNumber[0].toLowerCase();
           }
-          return "a"; // Default ke "a" jika format tidak sesuai
+          return "a";
         }
 
-        // Fungsi untuk mendapatkan indeks seat dari nomor kursi (misalnya "A2" -> 2)
         int getSeatIndex(String seatNumber) {
           if (seatNumber.length > 1) {
             try {
-              return int.parse(seatNumber.substring(1)) - 1; // Konversi ke berbasis-0
+              return int.parse(seatNumber.substring(1)) - 1;
             } catch (e) {
               log("Error parsing seat index: $e");
             }
           }
-          return 0; // Default ke 0 jika format tidak sesuai
+          return 0;
         }
 
-        // Perbarui status kursi untuk setiap seat yang dipilih
         for (String seatNumber in numberSeat) {
           String seatClass = getSeatClass(seatNumber);
           int seatIndex = getSeatIndex(seatNumber);
-
           log("Processing seat: $seatNumber, class: $seatClass, index: $seatIndex");
 
-          // Pastikan struktur data seat tersedia
           if (data != null && data.containsKey('seat')) {
             Map<String, dynamic> seatData = Map<String, dynamic>.from(data['seat']);
 
-            // Pastikan kelas kursi (a-f) tersedia
             if (seatData.containsKey(seatClass)) {
               Map<String, dynamic> classSeatData = Map<String, dynamic>.from(seatData[seatClass]);
 
-              // Pastikan array isTaken tersedia
               if (classSeatData.containsKey('isTaken')) {
                 List<dynamic> isTaken = List<dynamic>.from(classSeatData['isTaken'] ?? []);
 
-                // Perbarui array isTaken
                 while (isTaken.length <= seatIndex) {
-                  isTaken.add(false); // Tambahkan seat yang belum ada dengan false
+                  isTaken.add(false);
                 }
-                isTaken[seatIndex] = true; // Set kursi yang dipilih sebagai 'taken'
+                isTaken[seatIndex] = true;
 
-                // Update Firestore untuk kelas kursi tertentu
                 await _firestore
                     .collection('tickets')
                     .doc(ticketId)
@@ -130,7 +119,6 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
                 log("Successfully updated seat $seatNumber in class $seatClass at index $seatIndex");
               } else {
-                // Jika 'isTaken' tidak ada, buat array baru
                 List<dynamic> isTaken = List.filled(seatIndex + 1, false);
                 isTaken[seatIndex] = true;
 
@@ -144,7 +132,6 @@ class TransactionRepositoryImpl implements TransactionRepository {
                 log("Created new isTaken array for seat $seatNumber in class $seatClass");
               }
             } else {
-              // Jika kelas kursi tidak ada, buat struktur baru
               List<dynamic> isTaken = List.filled(seatIndex + 1, false);
               isTaken[seatIndex] = true;
 
@@ -155,7 +142,6 @@ class TransactionRepositoryImpl implements TransactionRepository {
               log("Created new seat class $seatClass for seat $seatNumber");
             }
           } else {
-            // Jika struktur 'seat' tidak ada, buat struktur lengkap
             List<dynamic> isTaken = List.filled(seatIndex + 1, false);
             isTaken[seatIndex] = true;
 
@@ -221,13 +207,6 @@ class TransactionRepositoryImpl implements TransactionRepository {
         'updatedAt': now,
       });
 
-      // Update status dokumen tiket utama
-      await _firestore.collection('tickets').doc(ticketId).update({
-        'status': status == 'paid' ? 'awaiting_verification' : status,
-        'lastUpdated': now,
-      });
-
-      // Update status di Realtime Database
       final databaseRef = FirebaseDatabase.instance.ref();
       await databaseRef.child('transactions/$userId/$ticketId/$transactionId/payment').update({
         'status': status,
@@ -239,36 +218,38 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
-  Future<void> uploadPaymentProof(
-      {required String ticketId, required String transactionId, required File proofImage}) async {
+  Future<void> uploadPaymentProof({
+    required String ticketId,
+    required String transactionId,
+    required File proofImage,
+    required String userId,
+  }) async {
     try {
       final fileName =
           'payment_proof_${transactionId}_${DateTime.now().millisecondsSinceEpoch}${path.extension(proofImage.path)}';
       final storageRef = _storage.ref().child('payment/$fileName');
 
-      // Upload file ke Firebase Storage
-      final uploadTask = await storageRef.putFile(proofImage);
-      final downloadUrl = await uploadTask.ref.getDownloadURL();
+      // Tambahkan listener untuk progress upload
+      final uploadTask = storageRef.putFile(proofImage);
 
-      // Update di Firestore dengan URL bukti pembayaran
+      // Upload file ke Firebase Storage
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+      final now = DateTime.now();
+
+      // Update Firestore
       await _firestore.collection('tickets').doc(ticketId).collection('payments').doc(transactionId).update({
         'proofUrl': downloadUrl,
-        'status': 'paid',
-        'paidAt': DateTime.now(),
+        'status': 'active',
+        'paidAt': now,
       });
 
-      // Update status dokumen tiket utama
-      await _firestore.collection('tickets').doc(ticketId).update({
-        'status': 'awaiting_verification',
-        'lastUpdated': DateTime.now(),
-      });
-
-      // Update di Realtime Database
+      // Update Realtime Database
       final databaseRef = FirebaseDatabase.instance.ref();
-      await databaseRef.child('transactions/$ticketId/payment').update({
+      await databaseRef.child('transactions/$userId/$ticketId/$transactionId/payment').update({
         'proofUrl': downloadUrl,
-        'status': 'paid',
-        'paidAt': DateTime.now().millisecondsSinceEpoch,
+        'status': 'active',
+        'paidAt': now.millisecondsSinceEpoch,
       });
     } catch (e) {
       throw Exception('Failed to upload payment proof: $e');
@@ -278,12 +259,9 @@ class TransactionRepositoryImpl implements TransactionRepository {
   @override
   Future<List<TransactionModel>> getTransactionsByUserId(String userId) async {
     try {
-      // Mencari tiket berdasarkan userId
       final ticketQuerySnapshot = await _firestore.collection('tickets').where('userId', isEqualTo: userId).get();
-
       final List<TransactionModel> transactions = [];
 
-      // Untuk setiap tiket, ambil data payment
       for (var ticketDoc in ticketQuerySnapshot.docs) {
         final ticketId = ticketDoc.id;
         final paymentsSnapshot = await _firestore.collection('tickets').doc(ticketId).collection('payments').get();
@@ -368,40 +346,194 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   Future<void> checkAndCancelExpiredTransactions() async {
     try {
+      log('[TransactionRepository] Mulai memeriksa transaksi kedaluwarsa');
       final now = DateTime.now();
-      final pendingTransactionsSnapshot =
-          await _firestore.collectionGroup('payments').where('status', isEqualTo: 'pending').get();
 
-      for (var doc in pendingTransactionsSnapshot.docs) {
-        final data = doc.data();
-        final expiryTime = (data['expiryTime'] as Timestamp).toDate();
+      final ticketsCheck = await _firestore.collection('tickets').limit(1).get();
+      if (ticketsCheck.docs.isEmpty) {
+        log('[TransactionRepository] Tidak ada tiket untuk diperiksa, melewati pengecekan');
+        return;
+      }
 
-        if (expiryTime.isBefore(now)) {
-          final ticketId = data['ticketId'];
-          final transactionId = doc.id;
-          final userId = data['userDetails']['uid'];
+      try {
+        final pendingTransactionsSnapshot = await _firestore
+            .collectionGroup('payments')
+            .where('status', isEqualTo: 'pending')
+            .orderBy('createdAt', descending: false)
+            .get();
 
-          await _firestore.collection('tickets').doc(ticketId).collection('payments').doc(transactionId).update({
-            'status': 'cancelled',
-            'updatedAt': now,
-          });
+        for (var doc in pendingTransactionsSnapshot.docs) {
+          final data = doc.data();
+          final expiryTime = (data['expiryTime'] as Timestamp).toDate();
 
-          await _firestore.collection('tickets').doc(ticketId).update({
-            'status': 'cancelled',
-            'lastUpdated': now,
-          });
+          // Jika sudah melewati waktu pembayaran
+          if (expiryTime.isBefore(now)) {
+            final ticketId = data['ticketId'];
+            final transactionId = doc.id;
+            final userId = data['userDetails']['uid'];
+            final flightId = data['flightId'];
+            final numberSeat = (data['numberSeat'] as List).map((e) => e.toString()).toList();
 
-          final databaseRef = FirebaseDatabase.instance.ref();
-          await databaseRef.child('transactions/$userId/$ticketId/$transactionId/payment').update({
-            'status': 'cancelled',
-            'updatedAt': now.millisecondsSinceEpoch,
-          });
+            // Update status di Firestore
+            await _firestore.collection('tickets').doc(ticketId).collection('payments').doc(transactionId).update({
+              'status': 'cancelled',
+              'updatedAt': now,
+            });
 
-          log('Transaction $transactionId cancelled due to expiry');
+            // Reset status kursi
+            await _resetSeatStatus(ticketId, flightId, numberSeat);
+
+            // Update status di Realtime Database
+            final databaseRef = FirebaseDatabase.instance.ref();
+            await databaseRef.child('transactions/$userId/$ticketId/$transactionId/payment').update({
+              'status': 'cancelled',
+              'updatedAt': now.millisecondsSinceEpoch,
+            });
+
+            log('Transaksi $transactionId dibatalkan karena kedaluwarsa');
+          }
+        }
+      } catch (e) {
+        if (e.toString().contains('failed-precondition') || e.toString().contains('requires an index')) {
+          log('[TransactionRepository] Indeks belum tersedia. Menggunakan metode alternatif.');
+          // Gunakan metode alternatif yang tidak memerlukan indeks khusus
+          await checkAndCancelExpiredTransactionsAlternative();
+        } else {
+          rethrow;
         }
       }
     } catch (e) {
-      log('Error checking expired transactions: $e');
+      log('[TransactionRepository] Error memeriksa transaksi kedaluwarsa: $e');
+      rethrow;
+    }
+  }
+
+  // Metode helper untuk mereset status kursi
+  Future<void> _resetSeatStatus(String ticketId, String flightId, List<String> numberSeat) async {
+    try {
+      DocumentSnapshot seatData =
+          await _firestore.collection('tickets').doc(ticketId).collection('flights').doc(flightId).get();
+
+      if (seatData.exists) {
+        Map<String, dynamic>? data = seatData.data() as Map<String, dynamic>?;
+
+        for (String seatNumber in numberSeat) {
+          String seatClass = getSeatClass(seatNumber);
+          int seatIndex = getSeatIndex(seatNumber);
+
+          if (data != null && data.containsKey('seat')) {
+            Map<String, dynamic> seatData = Map<String, dynamic>.from(data['seat']);
+
+            if (seatData.containsKey(seatClass)) {
+              Map<String, dynamic> classSeatData = Map<String, dynamic>.from(seatData[seatClass]);
+
+              if (classSeatData.containsKey('isTaken')) {
+                List<dynamic> isTaken = List<dynamic>.from(classSeatData['isTaken'] ?? []);
+
+                if (seatIndex < isTaken.length) {
+                  isTaken[seatIndex] = false; // Reset status kursi
+
+                  await _firestore
+                      .collection('tickets')
+                      .doc(ticketId)
+                      .collection('flights')
+                      .doc(flightId)
+                      .update({'seat.$seatClass.isTaken': isTaken});
+
+                  log("Reset kursi $seatNumber di kelas $seatClass pada indeks $seatIndex");
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      log("Error mereset status kursi: $e");
+    }
+  }
+
+  String getSeatClass(String seatNumber) {
+    if (seatNumber.isNotEmpty) {
+      return seatNumber[0].toLowerCase();
+    }
+    return "a";
+  }
+
+  int getSeatIndex(String seatNumber) {
+    if (seatNumber.length > 1) {
+      try {
+        return int.parse(seatNumber.substring(1)) - 1;
+      } catch (e) {
+        log("Error parsing seat index: $e");
+      }
+    }
+    return 0;
+  }
+
+  Future<void> checkAndCancelExpiredTransactionsAlternative() async {
+    try {
+      final now = DateTime.now();
+      log('[TransactionRepository] Menggunakan metode alternatif untuk memeriksa transaksi');
+
+      final ticketsSnapshot = await _firestore.collection('tickets').get();
+
+      int count = 0;
+      for (var ticketDoc in ticketsSnapshot.docs) {
+        final ticketId = ticketDoc.id;
+
+        final paymentsSnapshot = await _firestore
+            .collection('tickets')
+            .doc(ticketId)
+            .collection('payments')
+            .where('status', isEqualTo: 'pending')
+            .get();
+
+        for (var doc in paymentsSnapshot.docs) {
+          final data = doc.data();
+          if (data.containsKey('expiryTime')) {
+            final expiryTime = (data['expiryTime'] as Timestamp).toDate();
+
+            if (expiryTime.isBefore(now)) {
+              final transactionId = doc.id;
+              final userId = data['userDetails']?['uid'];
+              final flightId = data['flightId'];
+              final List<String> numberSeat = [];
+
+              if (data.containsKey('numberSeat')) {
+                numberSeat.addAll((data['numberSeat'] as List).map((e) => e.toString()));
+              }
+
+              log('[TransactionRepository] Memproses transaksi kedaluwarsa alternatif: $transactionId');
+
+              // Update status transaksi
+              await _firestore.collection('tickets').doc(ticketId).collection('payments').doc(transactionId).update({
+                'status': 'cancelled',
+                'updatedAt': now,
+              });
+
+              // Reset seat status
+              if (numberSeat.isNotEmpty) {
+                await _resetSeatStatus(ticketId, flightId, numberSeat);
+              }
+
+              // Update Realtime Database jika userId tersedia
+              if (userId != null) {
+                final databaseRef = FirebaseDatabase.instance.ref();
+                await databaseRef.child('transactions/$userId/$ticketId/$transactionId/payment').update({
+                  'status': 'cancelled',
+                  'updatedAt': now.millisecondsSinceEpoch,
+                });
+              }
+
+              count++;
+            }
+          }
+        }
+      }
+
+      log('[TransactionRepository] Selesai memeriksa transaksi (metode alternatif), $count transaksi dibatalkan');
+    } catch (e) {
+      log('[TransactionRepository] Error pada metode alternatif: $e');
     }
   }
 }

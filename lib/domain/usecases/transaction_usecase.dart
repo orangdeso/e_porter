@@ -55,11 +55,13 @@ class TransactionUseCase {
     required String ticketId,
     required String transactionId,
     required File proofImage,
+    required String userId,
   }) {
     return _repository.uploadPaymentProof(
       ticketId: ticketId,
       transactionId: transactionId,
       proofImage: proofImage,
+      userId: userId,
     );
   }
 

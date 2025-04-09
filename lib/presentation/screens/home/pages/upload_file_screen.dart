@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/_core/service/permission_service.dart';
@@ -11,7 +13,10 @@ import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 import '../../../../_core/component/appbar/appbar_component.dart';
 import '../../../../_core/component/button/button_fill.dart';
 import '../../../../_core/component/card/custome_shadow_cotainner.dart';
+import '../../../../_core/service/preferences_service.dart';
 import '../../../../domain/models/upload_file_model.dart';
+import '../../../controllers/transaction_controller.dart';
+import '../../routes/app_rountes.dart';
 
 class UploadFileScreen extends StatefulWidget {
   const UploadFileScreen({super.key});
@@ -22,7 +27,99 @@ class UploadFileScreen extends StatefulWidget {
 
 class _UploadFileScreenState extends State<UploadFileScreen> {
   final List<UploadFileModel> uploadedFiles = [];
+  final TransactionController _transactionController = Get.find<TransactionController>();
   bool isUploading = false;
+
+  late String ticketId;
+  late String transactionId;
+  late String userId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    final args = Get.arguments as Map<String, dynamic>;
+    ticketId = args['ticketId'] ?? '';
+    transactionId = args['transactionId'] ?? '';
+
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final userData = await PreferencesService.getUserData();
+    if (userData != null) {
+      setState(() {
+        userId = userData.uid;
+      });
+    }
+  }
+
+  void _uploadToServer() async {
+    try {
+      // Validasi data transaksi
+      if (ticketId.isEmpty || transactionId.isEmpty || userId.isEmpty) {
+        Get.snackbar(
+          'Error',
+          'Data transaksi tidak lengkap',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      if (uploadedFiles.isEmpty || uploadedFiles.first.status != FileUploadStatus.completed) {
+        Get.snackbar(
+          'Error',
+          'Silakan pilih dan selesaikan proses file terlebih dahulu',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      setState(() {
+        isUploading = true;
+      });
+
+      Get.snackbar(
+        'Info',
+        'Mengupload bukti pembayaran...',
+        backgroundColor: PrimaryColors.primary600,
+        colorText: Colors.white,
+      );
+
+      final fileToUpload = uploadedFiles.first;
+      final File proofImage = File(fileToUpload.filePath);
+
+      await _transactionController.uploadPaymentProof(
+        ticketId: ticketId,
+        transactionId: transactionId,
+        proofImage: proofImage,
+        userId: userId,
+      );
+
+      Get.snackbar(
+        'Sukses',
+        'Bukti pembayaran berhasil diupload',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+
+      Get.offAllNamed(Routes.NAVBAR);
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Gagal mengupload bukti pembayaran: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isUploading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -225,52 +322,51 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
   }
 
   Future<void> _pickFile() async {
-  bool permissionGranted = await PermissionHelper.requestStoragePermission();
-  if (!permissionGranted) {
-    Get.snackbar(
-      'Permission Denied',
-      'Storage permission is required to select files.',
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-    );
-    return;
-  }
+    bool permissionGranted = await PermissionHelper.requestStoragePermission();
+    if (!permissionGranted) {
+      Get.snackbar(
+        'Permission Denied',
+        'Storage permission is required to select files.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
 
-  try {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'zip', 'mp4'],
-    );
-
-    if (result != null) {
-      final file = result.files.first;
-      final newFile = UploadFileModel(
-        fileName: file.name,
-        filePath: file.path!,
-        fileSize: file.size,
-        progress: 0,
-        remainingTime: '0',
-        status: FileUploadStatus.pending,
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
       );
 
-      setState(() {
-        uploadedFiles.add(newFile);
-      });
+      if (result != null) {
+        final file = result.files.first;
+        final newFile = UploadFileModel(
+          fileName: file.name,
+          filePath: file.path!,
+          fileSize: file.size,
+          progress: 0,
+          remainingTime: '0',
+          status: FileUploadStatus.pending,
+        );
 
-      // Simulasikan proses loading lokal
-      _simulateLocalLoading(newFile);
+        setState(() {
+          uploadedFiles.add(newFile);
+        });
+
+        // Simulasikan proses loading lokal
+        _simulateLocalLoading(newFile);
+      }
+    } catch (e) {
+      print('Error picking file: $e');
+      Get.snackbar(
+        'Error',
+        'Terjadi kesalahan saat memilih file',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
-  } catch (e) {
-    print('Error picking file: $e');
-    Get.snackbar(
-      'Error',
-      'Terjadi kesalahan saat memilih file',
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-    );
   }
-}
-
 
   void _simulateLocalLoading(UploadFileModel file) {
     setState(() {
@@ -348,32 +444,5 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
     } else {
       _uploadToServer();
     }
-  }
-
-  void _uploadToServer() {
-    // Simulate uploading to server
-    Get.snackbar(
-      'Info',
-      'Mengupload bukti pembayaran...',
-      backgroundColor: PrimaryColors.primary600,
-      colorText: Colors.white,
-    );
-
-    // Here you would actually send the files to your server
-    // For now, let's just simulate a successful upload
-    Future.delayed(Duration(seconds: 2), () {
-      Get.snackbar(
-        'Sukses',
-        'Bukti pembayaran berhasil diupload',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
-
-      // Navigate back or to a success screen
-      Future.delayed(Duration(seconds: 1), () {
-        // Get.offNamed(Routes.SUCCESS_SCREEN);
-        Get.back();
-      });
-    });
   }
 }

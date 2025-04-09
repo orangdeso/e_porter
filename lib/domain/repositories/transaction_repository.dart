@@ -28,6 +28,7 @@ abstract class TransactionRepository {
     required String ticketId,
     required String transactionId,
     required File proofImage,
+    required String userId,
   });
 
   Future<List<TransactionModel>> getTransactionsByUserId(String userId);
