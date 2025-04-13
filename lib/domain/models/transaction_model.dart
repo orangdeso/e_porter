@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TransactionModel {
   final String id;
+  final String idBooking;
   final String ticketId;
   final String flightId;
   final double amount;
@@ -18,6 +19,7 @@ class TransactionModel {
 
   TransactionModel({
     required this.id,
+    required this.idBooking,
     required this.ticketId,
     required this.flightId,
     required this.amount,
@@ -34,16 +36,27 @@ class TransactionModel {
   });
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
+    DateTime getDateTime(dynamic value) {
+      if (value is Timestamp) {
+        return value.toDate();
+      } else if (value is DateTime) {
+        return value;
+      } else {
+        return DateTime.now(); 
+      }
+    }
+
     return TransactionModel(
       id: json['id'] ?? '',
+      idBooking: json['idBooking'] ?? '',
       ticketId: json['ticketId'] ?? '',
       flightId: json['flightId'] ?? '',
       amount: (json['amount'] ?? 0.0).toDouble(),
       method: json['method'] ?? '',
       status: json['status'] ?? 'pending',
       proofUrl: json['proofUrl'],
-      createdAt: (json['createdAt'] as Timestamp).toDate(),
-      expiryTime: (json['expiryTime'] as Timestamp).toDate(),
+      createdAt: getDateTime(json['createdAt']),
+      expiryTime: getDateTime(json['expiryTime']),
       flightDetails: json['flightDetails'] ?? {},
       bandaraDetails: json['bandaraDetails'] ?? {},
       porterServiceDetails: json['porterServiceDetails'],
@@ -55,6 +68,7 @@ class TransactionModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'idBooking': idBooking,
       'ticketId': ticketId,
       'flightId': flightId,
       'amount': amount,

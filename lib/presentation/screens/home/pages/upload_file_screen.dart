@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:e_porter/_core/component/button/button_outline.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/_core/service/permission_service.dart';
@@ -55,7 +56,6 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
 
   void _uploadToServer() async {
     try {
-      // Validasi data transaksi
       if (ticketId.isEmpty || transactionId.isEmpty || userId.isEmpty) {
         Get.snackbar(
           'Error',
@@ -190,21 +190,34 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
         ),
       ),
       bottomNavigationBar: CustomeShadowCotainner(
-        child: ButtonFill(
-          text: 'Upload',
-          textColor: Colors.white,
-          onTap: () {
-            if (uploadedFiles.isNotEmpty) {
-              _submitFiles();
-            } else {
-              Get.snackbar(
-                'Peringatan',
-                'Silahkan pilih file terlebih dahulu',
-                backgroundColor: Colors.red,
-                colorText: Colors.white,
-              );
-            }
-          },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ButtonOutline(
+              text: 'Nanti',
+              textColor: PrimaryColors.primary800,
+              onTap: () {
+                Get.offAllNamed(Routes.NAVBAR);
+              },
+            ),
+            SizedBox(height: 10.h),
+            ButtonFill(
+              text: 'Upload',
+              textColor: Colors.white,
+              onTap: () {
+                if (uploadedFiles.isNotEmpty) {
+                  _submitFiles();
+                } else {
+                  Get.snackbar(
+                    'Peringatan',
+                    'Silahkan pilih file terlebih dahulu',
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                  );
+                }
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -418,7 +431,6 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
   }
 
   void _submitFiles() {
-    // Check if all files are uploaded successfully
     bool allCompleted = uploadedFiles.every((file) => file.status == FileUploadStatus.completed);
 
     if (!allCompleted) {

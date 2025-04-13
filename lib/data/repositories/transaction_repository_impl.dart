@@ -1,5 +1,6 @@
-import 'dart:developer';
 import 'dart:io';
+import 'dart:math' hide log;
+import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -17,11 +18,16 @@ class TransactionRepositoryImpl implements TransactionRepository {
   })  : _firestore = firestore ?? FirebaseFirestore.instance,
         _storage = storage ?? FirebaseStorage.instance;
 
-  // Method untuk generate ID unik
   String _generateUniqueId() {
     return DateTime.now().millisecondsSinceEpoch.toString() +
         '_' +
         (100000 + (DateTime.now().microsecond % 900000)).toString();
+  }
+
+  String _generateBookingId() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final rand = Random();
+    return List.generate(7, (index) => chars[rand.nextInt(chars.length)]).join();
   }
 
   @override
@@ -41,6 +47,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }) async {
     try {
       final transactionId = _generateUniqueId();
+      final idBooking = _generateBookingId();
       final now = DateTime.now();
 
       final transactionData = {
@@ -61,6 +68,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
         'numberSeat': numberSeat,
       };
 
+      // Simpan transaksi di Firestore
       await _firestore
           .collection('tickets')
           .doc(ticketId)
@@ -68,104 +76,87 @@ class TransactionRepositoryImpl implements TransactionRepository {
           .doc(transactionId)
           .set(transactionData);
 
-      DocumentSnapshot seatData =
-          await _firestore.collection('tickets').doc(ticketId).collection('flights').doc(flightId).get();
+      // Update ID booking pada tiket
+      await _firestore.collection('tickets').doc(ticketId).update({
+        'idBooking': idBooking,
+      });
 
-      if (seatData.exists) {
-        Map<String, dynamic>? data = seatData.data() as Map<String, dynamic>?;
-        String getSeatClass(String seatNumber) {
-          if (seatNumber.isNotEmpty) {
-            return seatNumber[0].toLowerCase();
-          }
-          return "a";
+      // Kelompokkan kursi berdasarkan kelas
+      Map<String, List<int>> seatsByClass = {};
+      for (String seatNumber in numberSeat) {
+        String seatClass = getSeatClass(seatNumber);
+        int seatIndex = getSeatIndex(seatNumber);
+
+        if (!seatsByClass.containsKey(seatClass)) {
+          seatsByClass[seatClass] = [];
         }
-
-        int getSeatIndex(String seatNumber) {
-          if (seatNumber.length > 1) {
-            try {
-              return int.parse(seatNumber.substring(1)) - 1;
-            } catch (e) {
-              log("Error parsing seat index: $e");
-            }
-          }
-          return 0;
-        }
-
-        for (String seatNumber in numberSeat) {
-          String seatClass = getSeatClass(seatNumber);
-          int seatIndex = getSeatIndex(seatNumber);
-          log("Processing seat: $seatNumber, class: $seatClass, index: $seatIndex");
-
-          if (data != null && data.containsKey('seat')) {
-            Map<String, dynamic> seatData = Map<String, dynamic>.from(data['seat']);
-
-            if (seatData.containsKey(seatClass)) {
-              Map<String, dynamic> classSeatData = Map<String, dynamic>.from(seatData[seatClass]);
-
-              if (classSeatData.containsKey('isTaken')) {
-                List<dynamic> isTaken = List<dynamic>.from(classSeatData['isTaken'] ?? []);
-
-                while (isTaken.length <= seatIndex) {
-                  isTaken.add(false);
-                }
-                isTaken[seatIndex] = true;
-
-                await _firestore
-                    .collection('tickets')
-                    .doc(ticketId)
-                    .collection('flights')
-                    .doc(flightId)
-                    .update({'seat.$seatClass.isTaken': isTaken});
-
-                log("Successfully updated seat $seatNumber in class $seatClass at index $seatIndex");
-              } else {
-                List<dynamic> isTaken = List.filled(seatIndex + 1, false);
-                isTaken[seatIndex] = true;
-
-                await _firestore
-                    .collection('tickets')
-                    .doc(ticketId)
-                    .collection('flights')
-                    .doc(flightId)
-                    .update({'seat.$seatClass.isTaken': isTaken});
-
-                log("Created new isTaken array for seat $seatNumber in class $seatClass");
-              }
-            } else {
-              List<dynamic> isTaken = List.filled(seatIndex + 1, false);
-              isTaken[seatIndex] = true;
-
-              await _firestore.collection('tickets').doc(ticketId).collection('flights').doc(flightId).update({
-                'seat.$seatClass': {'isTaken': isTaken}
-              });
-
-              log("Created new seat class $seatClass for seat $seatNumber");
-            }
-          } else {
-            List<dynamic> isTaken = List.filled(seatIndex + 1, false);
-            isTaken[seatIndex] = true;
-
-            Map<String, dynamic> newSeatData = {
-              'seat': {
-                seatClass: {'isTaken': isTaken}
-              }
-            };
-
-            await _firestore
-                .collection('tickets')
-                .doc(ticketId)
-                .collection('flights')
-                .doc(flightId)
-                .set(newSeatData, SetOptions(merge: true));
-
-            log("Created complete new seat structure for seat $seatNumber");
-          }
-        }
-      } else {
-        log("Flight document not found");
-        throw Exception("Flight document not found");
+        seatsByClass[seatClass]!.add(seatIndex);
+        log("Mengelompokkan kursi: $seatNumber, kelas: $seatClass, indeks: $seatIndex");
       }
 
+      // Ambil data dokumen penerbangan
+      DocumentSnapshot flightDoc =
+          await _firestore.collection('tickets').doc(ticketId).collection('flights').doc(flightId).get();
+
+      if (!flightDoc.exists) {
+        throw Exception("Dokumen penerbangan tidak ditemukan");
+      }
+
+      Map<String, dynamic> flightData = flightDoc.data() as Map<String, dynamic>;
+
+      // Proses setiap kelas kursi
+      for (var entry in seatsByClass.entries) {
+        String seatClass = entry.key;
+        List<int> indices = entry.value;
+
+        // Tentukan total kursi
+        int totalSeat = 10; // Default jika tidak ditemukan
+
+        // Cek apakah data kursi untuk kelas ini sudah ada
+        List<bool> isTaken = List.filled(totalSeat, false);
+
+        if (flightData.containsKey('seat') && flightData['seat'] is Map && flightData['seat'].containsKey(seatClass)) {
+          var seatClassData = flightData['seat'][seatClass];
+
+          // Ambil totalSeat jika ada
+          if (seatClassData is Map && seatClassData.containsKey('totalSeat')) {
+            totalSeat = seatClassData['totalSeat'];
+          }
+
+          // Ambil array isTaken yang sudah ada (jika ada)
+          if (seatClassData is Map && seatClassData.containsKey('isTaken')) {
+            List<dynamic> existingIsTaken = List<dynamic>.from(seatClassData['isTaken'] ?? []);
+
+            // Salin nilai yang sudah ada ke array baru
+            for (int i = 0; i < existingIsTaken.length && i < totalSeat; i++) {
+              isTaken[i] = existingIsTaken[i] == true;
+            }
+          }
+        }
+
+        // Tandai kursi yang dipilih sebagai terisi (true)
+        for (int index in indices) {
+          if (index < totalSeat) {
+            isTaken[index] = true;
+            log("Menandai kursi di kelas $seatClass indeks $index sebagai terisi");
+          } else {
+            log("Warning: Indeks kursi $index melebihi total kursi $totalSeat pada kelas $seatClass");
+          }
+        }
+
+        // Konversi ke List<dynamic> untuk Firebase
+        List<dynamic> isTakenDynamic = isTaken.map((e) => e).toList();
+
+        // Update dalam satu operasi
+        await _firestore.collection('tickets').doc(ticketId).collection('flights').doc(flightId).update({
+          'seat.$seatClass.isTaken': isTakenDynamic,
+          'seat.$seatClass.totalSeat': totalSeat,
+        });
+
+        log("Berhasil memperbarui status kursi untuk kelas $seatClass");
+      }
+
+      // Simpan ke Realtime Database
       final databaseRef = FirebaseDatabase.instance.ref();
       final userId = userDetails['uid'];
       await databaseRef.child('transactions/$userId/$ticketId/$transactionId').set({
@@ -184,11 +175,13 @@ class TransactionRepositoryImpl implements TransactionRepository {
         'passenger': passenger,
         'passengerDetails': passengerDetails,
         'numberSeat': numberSeat,
+        'idBooking': idBooking,
       });
 
       return transactionId;
     } catch (e) {
-      throw Exception('Failed to create transaction: $e');
+      log('Error dalam createTransaction: $e');
+      throw Exception('Gagal membuat transaksi: $e');
     }
   }
 
@@ -411,39 +404,60 @@ class TransactionRepositoryImpl implements TransactionRepository {
   // Metode helper untuk mereset status kursi
   Future<void> _resetSeatStatus(String ticketId, String flightId, List<String> numberSeat) async {
     try {
+      // Dapatkan data dokumen
       DocumentSnapshot seatData =
           await _firestore.collection('tickets').doc(ticketId).collection('flights').doc(flightId).get();
 
       if (seatData.exists) {
         Map<String, dynamic>? data = seatData.data() as Map<String, dynamic>?;
 
+        // Kelompokkan kursi berdasarkan kelas untuk memproses dalam satu operasi per kelas
+        Map<String, List<int>> seatsByClass = {};
+
         for (String seatNumber in numberSeat) {
           String seatClass = getSeatClass(seatNumber);
           int seatIndex = getSeatIndex(seatNumber);
 
-          if (data != null && data.containsKey('seat')) {
-            Map<String, dynamic> seatData = Map<String, dynamic>.from(data['seat']);
+          if (!seatsByClass.containsKey(seatClass)) {
+            seatsByClass[seatClass] = [];
+          }
+          seatsByClass[seatClass]!.add(seatIndex);
+        }
 
-            if (seatData.containsKey(seatClass)) {
-              Map<String, dynamic> classSeatData = Map<String, dynamic>.from(seatData[seatClass]);
+        // Proses setiap kelas kursi
+        for (var entry in seatsByClass.entries) {
+          String seatClass = entry.key;
+          List<int> indices = entry.value;
 
-              if (classSeatData.containsKey('isTaken')) {
-                List<dynamic> isTaken = List<dynamic>.from(classSeatData['isTaken'] ?? []);
+          if (data != null &&
+              data.containsKey('seat') &&
+              data['seat'].containsKey(seatClass) &&
+              data['seat'][seatClass].containsKey('isTaken') &&
+              data['seat'][seatClass].containsKey('totalSeat')) {
+            int totalSeat = data['seat'][seatClass]['totalSeat'];
+            List<dynamic> isTaken = List<dynamic>.from(data['seat'][seatClass]['isTaken'] ?? []);
 
-                if (seatIndex < isTaken.length) {
-                  isTaken[seatIndex] = false; // Reset status kursi
+            // Pastikan array memiliki panjang yang sama dengan totalSeat
+            if (isTaken.length < totalSeat) {
+              isTaken = List.filled(totalSeat, false);
+            }
 
-                  await _firestore
-                      .collection('tickets')
-                      .doc(ticketId)
-                      .collection('flights')
-                      .doc(flightId)
-                      .update({'seat.$seatClass.isTaken': isTaken});
-
-                  log("Reset kursi $seatNumber di kelas $seatClass pada indeks $seatIndex");
-                }
+            // Reset semua kursi yang dipilih
+            for (int index in indices) {
+              if (index < isTaken.length) {
+                isTaken[index] = false;
               }
             }
+
+            // Update dalam satu operasi
+            await _firestore
+                .collection('tickets')
+                .doc(ticketId)
+                .collection('flights')
+                .doc(flightId)
+                .update({'seat.$seatClass.isTaken': isTaken});
+
+            log("Reset kursi untuk kelas $seatClass: $indices");
           }
         }
       }
@@ -453,6 +467,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   String getSeatClass(String seatNumber) {
+    log("Getting seat class for: $seatNumber");
     if (seatNumber.isNotEmpty) {
       return seatNumber[0].toLowerCase();
     }
@@ -460,9 +475,12 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   int getSeatIndex(String seatNumber) {
+    log("Getting seat index for: $seatNumber");
     if (seatNumber.length > 1) {
       try {
-        return int.parse(seatNumber.substring(1)) - 1;
+        int index = int.parse(seatNumber.substring(1)) - 1;
+        log("Calculated seat index: $index");
+        return index;
       } catch (e) {
         log("Error parsing seat index: $e");
       }
