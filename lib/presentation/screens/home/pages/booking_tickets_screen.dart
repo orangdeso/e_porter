@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/button/button_fill.dart';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
@@ -210,12 +212,16 @@ class _BookingTicketsState extends State<BookingTickets> {
                         onTap: () {
                           if (selectedAirportFrom != null && selectedAirportTo != null) {
                             final searchParams = {
+                              "toId": selectedAirportTo!.id,
+                              "fromId": selectedAirportFrom!.id,
                               "from": '${selectedAirportFrom!.city}',
                               "to": '${selectedAirportTo!.city}',
                               "leavingDate": selectedDate,
                               "flightClass": selectedClass.value,
                               "passengerCount": selectedPassengerCount,
                             };
+                            log('[To ID] : ${selectedAirportTo!.id}');
+                            log('[From ID] : ${selectedAirportFrom!.id}');
                             Get.toNamed(Routes.SEARCHTICKETS, arguments: searchParams);
                           } else {
                             Get.snackbar("Error", "Silakan pilih bandara keberangkatan dan tujuan");

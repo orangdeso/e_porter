@@ -1,6 +1,7 @@
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
 import '../../constants/typography.dart';
 
@@ -26,23 +27,25 @@ class ButtonOutline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: buttonWidth ?? double.infinity,
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(35.r),
+    return ZoomTapAnimation(
+      child: SizedBox(
+        width: buttonWidth ?? double.infinity,
+        child: ElevatedButton(
+          onPressed: onTap,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(35.r),
+            ),
+            side: BorderSide(
+              width: 2.w,
+              color: PrimaryColors.primary800,
+            ),
           ),
-          side: BorderSide(
-            width: 2.w,
-            color: PrimaryColors.primary800,
+          child: Padding(
+            padding: padding ?? EdgeInsets.symmetric(vertical: 14.h),
+            child: isLoading ? _rowLoading() : _buildText(),
           ),
-        ),
-        child: Padding(
-          padding: padding ?? EdgeInsets.symmetric(vertical: 14.h),
-          child: isLoading ? _rowLoading() : _buildText(),
         ),
       ),
     );
