@@ -12,7 +12,7 @@ class AirportRepositoryImpl implements AirportRepository {
   Future<List<Airport>> getAirports() async {
     final snapshot = await firestore.collection('bandara').get();
     return snapshot.docs
-        .map((doc) => Airport.fromMap(doc.data()))
+        .map((doc) => Airport.fromMap(doc.data(), doc.id))
         .toList();
   }
 }
