@@ -129,7 +129,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           onTap: () {
             final argument = {
               'ticketId': ticketId,
-              'transactionId': Get.arguments['transactionId'], // Ambil dari argumen yang diteruskan
+              'transactionId': Get.arguments['transactionId'],
               'flightData': flightData,
               'totalAll': totalAll,
             };

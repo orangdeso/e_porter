@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
+import 'package:e_porter/domain/models/airport.dart';
+import 'package:e_porter/presentation/controllers/search_flight_controller.dart';
 import 'package:e_porter/presentation/screens/home/component/footer_price.dart';
 import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +14,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../_core/component/appbar/appbar_component.dart';
 import '../../../../_core/component/icons/icons_library.dart';
-import '../../../../_core/service/logger_service.dart';
 import '../../../../_core/service/preferences_service.dart';
 import '../../../../_core/utils/snackbar/snackbar_helper.dart';
 import '../../../../domain/models/porter_service_model.dart';
@@ -30,6 +31,8 @@ class TicketBookingStep4Screen extends StatefulWidget {
 }
 
 class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
+  late final String fromId;
+  late final String toId;
   late final String ticketId;
   late final String flightId;
   late String? ticketDate;
@@ -45,14 +48,23 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
 
   final TicketController ticketController = Get.find<TicketController>();
   final TransactionController transactionController = Get.find<TransactionController>();
+  late final SearchFlightController searchFlightController;
+
   FlightModel? flightData;
   String? departureTime;
   String? arrivalTime;
 
+  Airport? departureAirport;
+  Airport? arrivalAirport;
+
   @override
   void initState() {
     super.initState();
+    searchFlightController = Get.find<SearchFlightController>();
+
     final args = Get.arguments as Map<String, dynamic>;
+    fromId = args['fromId'] ?? '';
+    toId = args['toId'] ?? '';
     ticketId = args['ticketId'] ?? '';
     flightId = args['flightId'] ?? '';
     ticketDate = args['date'];
@@ -65,6 +77,7 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
     selectedPorterServices = args['selectedPorterServices'] ?? {};
 
     fetchDataFlight();
+    fetchAirportData();
     transactionController.checkExpiredTransactions();
   }
 
@@ -77,7 +90,21 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
         arrivalTime = DateFormat.jm().format(flightData!.arrivalTime);
       });
     } catch (e) {
-      logger.e('Terjadi kesalahan: $e');
+      log('Terjadi kesalahan: $e');
+    }
+  }
+
+  Future<void> fetchAirportData() async {
+    try {
+      if (fromId.isNotEmpty) {
+        departureAirport = await searchFlightController.getAirportById(fromId);
+      }
+      if (toId.isNotEmpty) {
+        arrivalAirport = await searchFlightController.getAirportById(toId);
+      }
+      setState(() {});
+    } catch (e) {
+      log('Error fetching airport data: $e');
     }
   }
 
@@ -95,7 +122,7 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
       try {
         return NumberFormat.decimalPattern('id_ID').format(porter.price);
       } catch (e) {
-        print("Error formatting porter price: $e");
+        log("Error formatting porter price: $e");
         return '0';
       }
     }
@@ -244,12 +271,16 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
               // Persiapkan data bandara
               final bandaraData = {
                 'departure': {
+                  'id': fromId,
                   'code': flightData?.codeDeparture,
                   'city': flightData?.cityDeparture,
+                  'name': departureAirport?.name ?? '',
                 },
                 'arrival': {
+                  'id': toId,
                   'code': flightData?.codeArrival,
                   'city': flightData?.cityArrival,
+                  'name': arrivalAirport?.name ?? ''
                 },
               };
 

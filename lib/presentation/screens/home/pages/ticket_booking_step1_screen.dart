@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:developer';
+
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/button/button_fill.dart';
 import 'package:e_porter/_core/component/button/switch_button.dart';
@@ -33,14 +35,20 @@ class TicketBookingStep1Screen extends StatefulWidget {
 
 class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
   bool isToggled = false;
+
+  late final String fromId;
+  late final String toId;
   late final String ticketId;
   late final String flightId;
   late final String ticketDate;
   late final int passenger;
+
   late Future<FlightModel> _flightFuture;
   late final TicketController ticketController;
+
   final ProfilController profilController = Get.find<ProfilController>();
   final currencyFormatter = NumberFormat.decimalPattern('id_ID');
+
   dynamic _loggedUser;
   List<PassengerModel?> selectedPassengers = [];
 
@@ -61,7 +69,10 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
   void initState() {
     super.initState();
     _loadPassengers();
+
     final args = Get.arguments as Map<String, dynamic>;
+    fromId = args['fromId'];
+    toId = args['toId'];
     ticketId = args['ticketId'];
     flightId = args['flightId'];
     ticketDate = args['ticketDate'];
@@ -90,7 +101,6 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
     }
     final userId = userData.uid;
     await profilController.fetchPassangerById(userId);
-    // logger.d('User ID: $userId');
   }
 
   bool isAllPassengersFilled() {
@@ -183,6 +193,8 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
               SnackbarHelper.showError('Error', 'Harap lengkapi slot penumpang');
             } else {
               final argument = {
+                "fromId": fromId,
+                "toId": toId,
                 'ticketId': ticketId,
                 'flightId': flightId,
                 'date': ticketDate,
@@ -201,6 +213,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                 'passenger': passenger,
                 'selectedPassenger': selectedPassengers,
               };
+              log('[Ticket Booking Step1] From ID: $fromId');
 
               Get.toNamed(Routes.TICKETBOOKINGSTEP2, arguments: argument);
             }

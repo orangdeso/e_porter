@@ -1,4 +1,5 @@
 import 'package:e_porter/domain/bindings/auth_binding.dart';
+import 'package:e_porter/domain/bindings/history_binding.dart';
 import 'package:e_porter/domain/bindings/navigation_binding.dart';
 import 'package:e_porter/domain/bindings/porter_service_binding.dart';
 import 'package:e_porter/domain/bindings/profil_binding.dart';
@@ -38,7 +39,10 @@ class AppRoutes {
     GetPage(
       name: Routes.NAVBAR,
       page: () => MainNavigation(),
-      binding: MainNavigationBinding(),
+      bindings: [
+        MainNavigationBinding(),
+        HistoryBinding(),
+      ],
     ),
     GetPage(
       name: Routes.SPLASH,
@@ -61,6 +65,7 @@ class AppRoutes {
     GetPage(
       name: Routes.BOARDINGPASS,
       page: () => BoardingPassScreen(),
+      binding: HistoryBinding(),
     ),
     GetPage(
       name: Routes.PROFILE,
@@ -113,7 +118,10 @@ class AppRoutes {
     GetPage(
       name: Routes.TICKETBOOKINGSTEP4,
       page: () => TicketBookingStep4Screen(),
-      binding: TransactionBinding(),
+      bindings: [
+        TransactionBinding(),
+        SearchFlightBinding(),
+      ],
     ),
     GetPage(
       name: Routes.CHOOSECHAIR,

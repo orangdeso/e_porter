@@ -9,4 +9,8 @@ class GetAirports {
   Future<List<Airport>> call() async {
     return await repository.getAirports();
   }
+
+  Future<Airport?> get(String id) async {
+    return await repository.getAirportsById(id);
+  }
 }

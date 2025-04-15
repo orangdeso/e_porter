@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/constants/colors.dart';
@@ -22,6 +24,8 @@ class TicketBookingStep2Screen extends StatefulWidget {
 
 class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
   late final TicketController ticketController;
+  late final String fromId;
+  late final String toId;
   late final String ticketId;
   late final String flightId;
   String? ticketDate;
@@ -45,6 +49,8 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
   void initState() {
     super.initState();
     final args = Get.arguments as Map<String, dynamic>;
+    fromId = args['fromId'];
+    toId = args['toId'];
     ticketId = args['ticketId'];
     flightId = args['flightId'];
     ticketDate = args['date'];
@@ -63,8 +69,6 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
     passenger = args['passenger'];
     selectedPassengers = args['selectedPassenger'] ?? [];
     selectedSeatNumbers = args['selectedSeatNumbers'] ?? List.filled(passenger, '');
-
-    // logger.d('Ticket ID: $ticketId \nFlight ID: $flightId');
   }
 
   @override
@@ -114,11 +118,14 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
                         numberSeat: '${selectedSeatNumbers[index].isEmpty ? '-' : selectedSeatNumbers[index]}',
                         onTap: () async {
                           final argument = {
+                            // "fromId": fromId,
+                            // "toId": toId,
                             'ticketId': ticketId,
                             'flightId': flightId,
                             'passenger': passenger,
                             'selectedPassenger': selectedPassengers,
                           };
+                          // log('[Ticket Booking Step2 in Passing Choose Seat] From ID: $fromId');
                           final result = await Get.toNamed(Routes.CHOOSECHAIR, arguments: argument);
                           if (result != null && result is List<String>) {
                             setState(() {
@@ -147,6 +154,8 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
                 ? null
                 : () {
                     final argument = {
+                      "fromId": fromId,
+                      "toId": toId,
                       'ticketId': ticketId,
                       'flightId': flightId,
                       'date': ticketDate,
@@ -154,7 +163,7 @@ class _TicketBookingStep2ScreenState extends State<TicketBookingStep2Screen> {
                       'selectedPassenger': selectedPassengers,
                       'numberSeat': selectedSeatNumbers
                     };
-                    // logger.d('Number Seat: $selectedSeatNumbers \n Passenger: $selectedPassengers');
+                    log('[Ticket Booking Step2] From ID: $fromId');
                     Get.toNamed(Routes.TICKETBOOKINGSTEP3, arguments: argument);
                   },
           ),

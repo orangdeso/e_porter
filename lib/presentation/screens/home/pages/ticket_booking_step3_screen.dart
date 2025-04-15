@@ -40,6 +40,9 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
 
   late final PorterServiceController _porterController;
   final TicketController ticketController = Get.find<TicketController>();
+
+  late final String fromId;
+  late final String toId;
   late final String ticketId;
   late final String flightId;
   late String? ticketDate;
@@ -61,6 +64,8 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
   void initState() {
     super.initState();
     final args = Get.arguments as Map<String, dynamic>;
+    fromId = args['fromId'];
+    toId = args['toId'];
     ticketId = args['ticketId'];
     flightId = args['flightId'];
     ticketDate = args['date'];
@@ -291,6 +296,8 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
             selectedPorterServices['transit'] = selectedTransitService;
           }
           final argument = {
+            "fromId": fromId,
+            "toId": toId,
             'ticketId': ticketId,
             'flightId': flightId,
             'date': ticketDate,
@@ -302,25 +309,12 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
             'selectedServiceLabels': selectedServiceLabels,
             'selectedPorterServices': selectedPorterServices,
           };
-          log('Ticket ID: $ticketId');
-          log('Flight ID: $flightId');
-          log('Ticket Date: $ticketDate');
-          log('Opsi Penerbangan: $selectedServiceLabels');
-          log('Layanan Porter: $selectedPorterServices');
-
-          // final Map<String, dynamic> debugPorterServices = {};
-          // selectedPorterServices.forEach((key, value) {
-          //   if (value != null) {
-          //     debugPorterServices[key] = {
-          //       'id': value.id,
-          //       'name': value.name,
-          //       'price': value.price,
-          //     };
-          //   } else {
-          //     debugPorterServices[key] = null;
-          //   }
-          // });
-          // log('Layanan Porter: $debugPorterServices');
+          log('[Ticket Booking Step3] From ID: $fromId');
+          log('[Ticket Booking Step3] Ticket ID: $ticketId');
+          log('[Ticket Booking Step3] Flight ID: $flightId');
+          log('[Ticket Booking Step3] Ticket Date: $ticketDate');
+          log('[Ticket Booking Step3] Opsi Penerbangan: $selectedServiceLabels');
+          log('[Ticket Booking Step3] Layanan Porter: $selectedPorterServices');
 
           Get.toNamed(Routes.TICKETBOOKINGSTEP4, arguments: argument);
         },

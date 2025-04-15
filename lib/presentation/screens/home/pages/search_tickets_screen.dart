@@ -1,4 +1,6 @@
 // ignore_for_file: unnecessary_null_comparison
+import 'dart:developer';
+
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
@@ -19,6 +21,8 @@ class SearchTicketsScreen extends StatefulWidget {
 
 class _SearchTicketsScreenState extends State<SearchTicketsScreen> {
   late final TicketController ticketController;
+  late final String fromId;
+  late final String toId;
   late final String from;
   late final String to;
   late final DateTime leavingDate;
@@ -28,9 +32,9 @@ class _SearchTicketsScreenState extends State<SearchTicketsScreen> {
   @override
   void initState() {
     super.initState();
-
-    // Ambil parameter yang dikirim dari BookingTickets
     final args = Get.arguments as Map<String, dynamic>;
+    fromId = args['fromId'];
+    toId = args['toId'];
     from = args['from'];
     to = args['to'];
     leavingDate = args['leavingDate'];
@@ -134,11 +138,15 @@ class _SearchTicketsScreenState extends State<SearchTicketsScreen> {
                             airlineLogo: flight.airlineLogo,
                             onTap: () {
                               final argument = {
+                                "fromId": fromId,
+                                "toId": toId,
                                 "ticketId": ticketId,
                                 "flightId": flightId,
                                 "ticketDate": ticketDate,
                                 "passenger": passengerCount,
                               };
+                              log('[Search Ticket] ID from : $fromId');
+                              log('[Search Ticket] ID to : $toId');
                               Get.toNamed(Routes.TICKETBOOKINGSTEP1, arguments: argument);
                             },
                           ),

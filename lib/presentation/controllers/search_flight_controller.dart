@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:get/get.dart';
 
 import '../../domain/models/airport.dart';
@@ -6,7 +8,7 @@ import '../../domain/usecases/get_airport.dart';
 class SearchFlightController extends GetxController {
   final GetAirports getAirports;
 
-  var airports = <Airport>[].obs; // Gunakan Rx agar bisa reaktif
+  var airports = <Airport>[].obs; 
   var filteredAirports = <Airport>[].obs;
   var searchText = ''.obs;
 
@@ -37,6 +39,15 @@ class SearchFlightController extends GetxController {
               airport.city!.toLowerCase().contains(lowerCaseQuery) ||
               airport.code!.toLowerCase().contains(lowerCaseQuery))
           .toList());
+    }
+  }
+
+  Future<Airport?> getAirportById(String id) async {
+    try {
+      return await getAirports.get(id);
+    } catch (e) {
+      log('Error fetching airport by ID: $e');
+      return null;
     }
   }
 }
