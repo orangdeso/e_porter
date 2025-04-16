@@ -266,7 +266,7 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
 
               // Persiapkan data expiry time
               final DateTime currentTime = DateTime.now();
-              final DateTime expiryTime = currentTime.add(Duration(days: 1));
+              final DateTime expiryTime = currentTime.add(Duration(seconds: 20));
 
               // Persiapkan data bandara
               final bandaraData = {
@@ -292,8 +292,8 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
                 'cityArrival': flightData?.cityArrival,
                 'codeDeparture': flightData?.codeDeparture,
                 'codeArrival': flightData?.codeArrival,
-                'departureTime': departureTime,
-                'arrivalTime': arrivalTime,
+                'departureTime': flightData?.departureTime.millisecondsSinceEpoch,
+                'arrivalTime': flightData?.arrivalTime.millisecondsSinceEpoch,
                 'flightClass': flightData?.flightClass,
                 'transitAirplane': flightData?.transitAirplane,
                 'stop': flightData?.stop,
