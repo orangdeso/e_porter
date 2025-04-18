@@ -1,6 +1,7 @@
 import 'package:e_porter/domain/bindings/auth_binding.dart';
 import 'package:e_porter/domain/bindings/history_binding.dart';
 import 'package:e_porter/domain/bindings/navigation_binding.dart';
+import 'package:e_porter/domain/bindings/porter_queue_binding.dart';
 import 'package:e_porter/domain/bindings/porter_service_binding.dart';
 import 'package:e_porter/domain/bindings/profil_binding.dart';
 import 'package:e_porter/domain/bindings/search_flight_binding.dart';
@@ -42,6 +43,7 @@ class AppRoutes {
       bindings: [
         MainNavigationBinding(),
         HistoryBinding(),
+        PorterQueueBinding(),
       ],
     ),
     GetPage(

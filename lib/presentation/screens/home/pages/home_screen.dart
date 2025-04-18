@@ -7,6 +7,7 @@ import 'package:e_porter/_core/component/icons/icons_library.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/_core/service/preferences_service.dart';
+import 'package:e_porter/presentation/controllers/porter_queue_controller.dart';
 import 'package:e_porter/presentation/screens/home/component/card_service_porter.dart';
 import 'package:e_porter/presentation/screens/home/component/profile_avatar.dart';
 import 'package:e_porter/presentation/screens/home/component/summary_card.dart';
@@ -18,6 +19,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
+import '../../../../_core/utils/snackbar/snackbar_helper.dart';
 import '../../../../domain/models/user_entity.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -31,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _current = 0;
   late final String role;
   late Future<UserData?> _userDataFuture;
+  late PorterQueueController _porterQueueController;
   final CarouselSliderController _carouselController = CarouselSliderController();
 
   final List<Widget> imageList = [
@@ -51,6 +54,106 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     role = Get.arguments ?? 'penumpang';
     _userDataFuture = PreferencesService.getUserData();
+
+    if (role == 'porter') {
+      _porterQueueController = Get.find<PorterQueueController>();
+    }
+  }
+
+  Future<void> _handlePorterQueueCreation() async {
+    try {
+      final userData = await PreferencesService.getUserData();
+      if (userData?.uid == null) {
+        SnackbarHelper.showError(
+          'Gagal',
+          'User ID tidak ditemukan. Silakan login kembali.',
+        );
+        return;
+      }
+
+      if (Get.isSnackbarOpen) {
+        Get.closeAllSnackbars();
+      }
+
+      _showLoadingDialog();
+
+      await _porterQueueController.createPorterQueue(userData!.uid);
+
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
+      SnackbarHelper.showSuccess(
+        'Berhasil',
+        'Anda telah masuk dalam antrian porter',
+      );
+
+      setState(() {});
+    } catch (e) {
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
+      SnackbarHelper.showError(
+        'Gagal',
+        'Gagal masuk antrian porter: ${e.toString()}',
+      );
+    }
+  }
+
+  Future<void> _handleStopPorterQueue() async {
+    try {
+      final userData = await PreferencesService.getUserData();
+      final validUserId = await _porterQueueController.validateAndGetUserId(userData?.uid);
+      if (validUserId == null) {
+        SnackbarHelper.showError(
+          'Gagal',
+          _porterQueueController.error.value,
+        );
+        return;
+      }
+
+      if (!_porterQueueController.validatePorterQueueForDeletion()) {
+        SnackbarHelper.showError(
+          'Gagal',
+          'Tidak ada antrian porter yang aktif.',
+        );
+        return;
+      }
+      final confirm = await _showStopConfirmationDialog();
+
+      if (!confirm) return;
+      _showLoadingDialog();
+
+      final porterId = _porterQueueController.currentPorter.value!.id!;
+      final success = await _porterQueueController.deletePorterQueue(porterId);
+
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
+      if (success) {
+        SnackbarHelper.showSuccess(
+          'Berhasil',
+          'Anda telah berhenti dari antrian porter',
+        );
+        setState(() {});
+      } else {
+        SnackbarHelper.showError(
+          'Gagal',
+          'Gagal menghentikan antrian porter: ${_porterQueueController.error.value}',
+        );
+      }
+    } catch (e) {
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
+      SnackbarHelper.showError(
+        'Gagal',
+        'Gagal menghentikan antrian porter: ${e.toString()}',
+      );
+    }
   }
 
   @override
@@ -250,10 +353,16 @@ class _HomeScreenState extends State<HomeScreen> {
           future: _userDataFuture,
           builder: (context, snapshot) {
             String userPorter = "Guest";
+            String userId = '';
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasData && snapshot.data?.name != null) {
               userPorter = snapshot.data!.name!;
+
+              if (snapshot.data?.uid != null) {
+                userId = snapshot.data!.uid;
+                _porterQueueController.loadCurrentPorter(userId);
+              }
             }
             return SafeArea(
               child: Column(
@@ -306,25 +415,47 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             SizedBox(height: 32.w),
                             CustomeShadowCotainner(
-                              child: Column(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-                                    decoration: BoxDecoration(
-                                      color: PrimaryColors.primary200,
-                                      borderRadius: BorderRadius.circular(10.r),
-                                    ),
-                                    child: SvgPicture.asset(
-                                      'assets/icons/ic_account.svg',
-                                      width: 32.w,
-                                      height: 32.h,
-                                    ),
+                              child: ZoomTapAnimation(
+                                child: GestureDetector(
+                                  onTap: () => _porterQueueController.currentPorter.value != null
+                                      ? _handleStopPorterQueue()
+                                      : _handlePorterQueueCreation(),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                                        decoration: BoxDecoration(
+                                          color: _porterQueueController.currentPorter.value != null
+                                              ? RedColors.red100
+                                              : PrimaryColors.primary200,
+                                          borderRadius: BorderRadius.circular(10.r),
+                                        ),
+                                        child: Obx(() => _porterQueueController.currentPorter.value != null
+                                            ? Icon(
+                                                Icons.power_settings_new,
+                                                color: Colors.red,
+                                                size: 32.w,
+                                              )
+                                            : SvgPicture.asset(
+                                                'assets/icons/ic_account.svg',
+                                                width: 32.w,
+                                                height: 32.h,
+                                              )),
+                                      ),
+                                      SizedBox(height: 10.h),
+                                      Obx(
+                                        () => _porterQueueController.currentPorter.value != null
+                                            ? TypographyStyles.body(
+                                                'Stop',
+                                                color: GrayColors.gray800,
+                                              )
+                                            : TypographyStyles.body(
+                                                'Mulai Antrian',
+                                              ),
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(height: 10.h),
-                                  TypographyStyles.body(
-                                    'Mulai Antrian',
-                                  ),
-                                ],
+                                ),
                               ),
                             )
                           ],
@@ -338,42 +469,137 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ));
   }
-}
 
-Widget _buildAppbar(
-  BuildContext context, {
-  required String nameAvatar,
-  required String nameUser,
-  required String subTitle,
-  VoidCallback? onTap,
-}) {
-  return CustomeShadowCotainner(
-    sizeRadius: 0.r,
-    child: Row(
-      children: [
-        ProfileAvatar(fullName: nameAvatar),
-        SizedBox(width: 16.w),
-        Expanded(
+  Future<bool> _showStopConfirmationDialog() async {
+    return await Get.dialog<bool>(
+          Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TypographyStyles.h6(
+                    'Konfirmasi',
+                    color: GrayColors.gray800,
+                  ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    'Apakah Anda yakin ingin menghentikan layanan porter?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: GrayColors.gray600,
+                    ),
+                  ),
+                  SizedBox(height: 24.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Get.back(result: false),
+                          style: TextButton.styleFrom(
+                            foregroundColor: GrayColors.gray600,
+                          ),
+                          child: Text('Batal'),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => Get.back(result: true),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: RedColors.red500,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: Text('Berhenti'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ) ??
+        false;
+  }
+
+  void _showLoadingDialog() {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: EdgeInsets.all(16.w),
+          width: 80.w,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10.r),
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              TypographyStyles.h6(nameUser, color: GrayColors.gray800),
-              SizedBox(height: 4.h),
-              TypographyStyles.caption(
-                subTitle,
-                color: GrayColors.gray600,
-                fontWeight: FontWeight.w400,
+              CircularProgressIndicator(
+                color: PrimaryColors.primary800,
+              ),
+              SizedBox(height: 12.h),
+              Text(
+                'Memproses...',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: GrayColors.gray600,
+                ),
               ),
             ],
           ),
         ),
-        ZoomTapAnimation(
-          child: IconButton(
-            onPressed: onTap,
-            icon: CustomeIcons.NotificationOutline(),
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  Widget _buildAppbar(
+    BuildContext context, {
+    required String nameAvatar,
+    required String nameUser,
+    required String subTitle,
+    VoidCallback? onTap,
+  }) {
+    return CustomeShadowCotainner(
+      sizeRadius: 0.r,
+      child: Row(
+        children: [
+          ProfileAvatar(fullName: nameAvatar),
+          SizedBox(width: 16.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TypographyStyles.h6(nameUser, color: GrayColors.gray800),
+                SizedBox(height: 4.h),
+                TypographyStyles.caption(
+                  subTitle,
+                  color: GrayColors.gray600,
+                  fontWeight: FontWeight.w400,
+                ),
+              ],
+            ),
           ),
-        )
-      ],
-    ),
-  );
+          ZoomTapAnimation(
+            child: IconButton(
+              onPressed: onTap,
+              icon: CustomeIcons.NotificationOutline(),
+            ),
+          )
+        ],
+      ),
+    );
+  }
 }
