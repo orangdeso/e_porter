@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:get/get.dart';
+
 import '../../data/repositories/transaction_repository_impl.dart';
+import '../../presentation/controllers/history_controller.dart';
 
 class TransactionExpiryService {
   static final TransactionExpiryService _instance = TransactionExpiryService._internal();
@@ -37,6 +40,15 @@ class TransactionExpiryService {
     log('[TransactionExpiryService] Memulai pengecekan transaksi kedaluwarsa...');
     try {
       await _repository.checkAndCancelExpiredTransactions();
+      
+      try {
+        final historyController = Get.find<HistoryController>();
+        historyController.checkExpiredPendingTransactions();
+      } catch (e) {
+        // HistoryController mungkin belum ter-inject, itu normal
+        log('[TransactionExpiryService] HistoryController belum tersedia: $e');
+      }
+      
       log('[TransactionExpiryService] Pengecekan transaksi kedaluwarsa selesai');
     } catch (e) {
       log('[TransactionExpiryService] Error saat memeriksa transaksi kedaluwarsa: $e');
