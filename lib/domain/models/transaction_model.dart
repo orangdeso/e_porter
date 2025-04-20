@@ -11,11 +11,13 @@ class TransactionModel {
   final String? proofUrl;
   final DateTime createdAt;
   final DateTime expiryTime;
+  final int passenger;
   final Map<String, dynamic> flightDetails;
   final Map<String, dynamic> bandaraDetails;
   final Map<String, dynamic>? porterServiceDetails;
   final Map<String, dynamic> userDetails;
-  final int passenger;
+  final List<Map<String, dynamic>> passengerDetails;
+  final List<String> numberSeat;
 
   TransactionModel({
     required this.id,
@@ -28,11 +30,13 @@ class TransactionModel {
     this.proofUrl,
     required this.createdAt,
     required this.expiryTime,
+    required this.passenger,
     required this.flightDetails,
     required this.bandaraDetails,
     this.porterServiceDetails,
     required this.userDetails,
-    required this.passenger,
+    required this.passengerDetails,
+    required this.numberSeat,
   });
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
@@ -42,8 +46,29 @@ class TransactionModel {
       } else if (value is DateTime) {
         return value;
       } else {
-        return DateTime.now(); 
+        return DateTime.now();
       }
+    }
+
+    List<Map<String, dynamic>> convertToMapList(dynamic list) {
+      if (list == null) return [];
+      if (list is List) {
+        return list.map((item) {
+          if (item is Map) {
+            return Map<String, dynamic>.from(item);
+          }
+          return <String, dynamic>{};
+        }).toList();
+      }
+      return [];
+    }
+
+    List<String> convertToStringList(dynamic list) {
+      if (list == null) return [];
+      if (list is List) {
+        return list.map((item) => item.toString()).toList();
+      }
+      return [];
     }
 
     return TransactionModel(
@@ -57,11 +82,13 @@ class TransactionModel {
       proofUrl: json['proofUrl'],
       createdAt: getDateTime(json['createdAt']),
       expiryTime: getDateTime(json['expiryTime']),
+      passenger: json['passenger'] ?? 0,
       flightDetails: json['flightDetails'] ?? {},
       bandaraDetails: json['bandaraDetails'] ?? {},
       porterServiceDetails: json['porterServiceDetails'],
       userDetails: json['userDetails'] ?? {},
-      passenger: json['passenger'] ?? 0,
+      passengerDetails: convertToMapList(json['passengerDetails']),
+      numberSeat: convertToStringList(json['numberSeat']),
     );
   }
 
@@ -77,11 +104,13 @@ class TransactionModel {
       'proofUrl': proofUrl,
       'createdAt': createdAt,
       'expiryTime': expiryTime,
+      'passenger': passenger,
       'flightDetails': flightDetails,
       'bandaraDetails': bandaraDetails,
       'porterServiceDetails': porterServiceDetails,
       'userDetails': userDetails,
-      'passenger': passenger,
+      'passengerDetails': passengerDetails,
+      'numberSeat': numberSeat,
     };
   }
 }

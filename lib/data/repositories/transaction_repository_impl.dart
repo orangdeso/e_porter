@@ -6,7 +6,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:e_porter/domain/models/transaction_model.dart';
 import 'package:e_porter/domain/repositories/transaction_repository.dart';
+import 'package:get/get.dart';
 import 'package:path/path.dart' as path;
+
+import '../../presentation/controllers/history_controller.dart';
 
 class TransactionRepositoryImpl implements TransactionRepository {
   final FirebaseFirestore _firestore;
@@ -52,6 +55,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       final transactionData = {
         'id': transactionId,
+        'idBooking': idBooking,
         'ticketId': ticketId,
         'flightId': flightId,
         'amount': amount,
@@ -355,11 +359,12 @@ class TransactionRepositoryImpl implements TransactionRepository {
             .orderBy('createdAt', descending: false)
             .get();
 
+        bool anyTransactionCancelled = false;
+
         for (var doc in pendingTransactionsSnapshot.docs) {
           final data = doc.data();
           final expiryTime = (data['expiryTime'] as Timestamp).toDate();
 
-          // Jika sudah melewati waktu pembayaran
           if (expiryTime.isBefore(now)) {
             final ticketId = data['ticketId'];
             final transactionId = doc.id;
@@ -367,24 +372,26 @@ class TransactionRepositoryImpl implements TransactionRepository {
             final flightId = data['flightId'];
             final numberSeat = (data['numberSeat'] as List).map((e) => e.toString()).toList();
 
-            // Update status di Firestore
             await _firestore.collection('tickets').doc(ticketId).collection('payments').doc(transactionId).update({
               'status': 'cancelled',
               'updatedAt': now,
             });
 
-            // Reset status kursi
             await _resetSeatStatus(ticketId, flightId, numberSeat);
 
-            // Update status di Realtime Database
             final databaseRef = FirebaseDatabase.instance.ref();
             await databaseRef.child('transactions/$userId/$ticketId/$transactionId/payment').update({
               'status': 'cancelled',
               'updatedAt': now.millisecondsSinceEpoch,
             });
 
+            anyTransactionCancelled = true;
             log('Transaksi $transactionId dibatalkan karena kedaluwarsa');
           }
+        }
+
+        if (anyTransactionCancelled) {
+          await notifyTransactionUpdate();
         }
       } catch (e) {
         if (e.toString().contains('failed-precondition') || e.toString().contains('requires an index')) {
@@ -496,6 +503,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
       final ticketsSnapshot = await _firestore.collection('tickets').get();
 
       int count = 0;
+      bool anyTransactionCancelled = false;
+
       for (var ticketDoc in ticketsSnapshot.docs) {
         final ticketId = ticketDoc.id;
 
@@ -543,15 +552,42 @@ class TransactionRepositoryImpl implements TransactionRepository {
                 });
               }
 
+              anyTransactionCancelled = true;
               count++;
             }
           }
         }
       }
 
+      if (anyTransactionCancelled) {
+        await notifyTransactionUpdate();
+      }
+
       log('[TransactionRepository] Selesai memeriksa transaksi (metode alternatif), $count transaksi dibatalkan');
     } catch (e) {
       log('[TransactionRepository] Error pada metode alternatif: $e');
+    }
+  }
+
+  Future<void> notifyTransactionUpdate() async {
+    try {
+      final historyController = Get.find<HistoryController>();
+      final userId = historyController.getUserId();
+
+      if (userId.isNotEmpty) {
+        // Jeda sedikit untuk memastikan database sudah diupdate
+        await Future.delayed(Duration(milliseconds: 500));
+
+        // Refresh data
+        await historyController.refreshTransactions(userId);
+
+        // Pastikan UI menampilkan pembaruan
+        historyController.isCheckingExpiry.value = true;
+        await Future.delayed(Duration(seconds: 1));
+        historyController.isCheckingExpiry.value = false;
+      }
+    } catch (e) {
+      log('[TransactionRepository] HistoryController tidak tersedia: $e');
     }
   }
 }
