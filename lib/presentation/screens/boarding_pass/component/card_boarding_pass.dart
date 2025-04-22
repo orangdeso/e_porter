@@ -1,3 +1,5 @@
+import 'dart:developer';
+import 'package:e_porter/presentation/screens/boarding_pass/component/payment_count_down_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -9,9 +11,61 @@ import '../../../../_core/constants/typography.dart';
 
 class CardBoardingPass extends StatelessWidget {
   final bool isActive;
+  final String idBooking;
+  final String? opsiFlight;
+  final DateTime? expiryTime;
+  final String? airlines;
+  final String? codeAirlines;
+  final String? logo;
+  final List<String>? servicePorter;
+  final String? flightClass;
+  final int? passenger;
+  final String? departureCity;
+  final String? arrivalCity;
+  final String? departureCode;
+  final String? arrivalCode;
+  final String? departurePlane;
+  final String? arrivalPlane;
+  final String? transitPlane;
+  final String? transitStartDate;
+  final String? transitEndDate;
+  final String? departureTime;
+  final String? arrivalTime;
+  final String? departureDate;
+  final String? arrivalDate;
+  final String? duration;
+  final String? stop;
   final VoidCallback? onTap;
 
-  const CardBoardingPass({Key? key, required this.isActive, this.onTap});
+  const CardBoardingPass({
+    Key? key,
+    required this.isActive,
+    required this.idBooking,
+    this.opsiFlight,
+    this.expiryTime,
+    this.airlines,
+    this.codeAirlines,
+    this.logo,
+    this.servicePorter,
+    this.flightClass,
+    this.passenger,
+    this.departureCity,
+    this.arrivalCity,
+    this.departureCode,
+    this.arrivalCode,
+    this.departurePlane,
+    this.arrivalPlane,
+    this.transitPlane,
+    this.transitStartDate,
+    this.transitEndDate,
+    this.departureTime,
+    this.arrivalTime,
+    this.departureDate,
+    this.arrivalDate,
+    this.duration,
+    this.stop,
+    this.onTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +74,7 @@ class CardBoardingPass extends StatelessWidget {
         onTap: onTap,
         child: Column(
           children: [
-            _buildHeaderStatus(),
+            _buildHeaderStatus(idBooking: idBooking, opsiFlight: opsiFlight),
             CustomeShadowCotainner(
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(10.r),
@@ -38,57 +92,61 @@ class CardBoardingPass extends StatelessWidget {
                             TypographyStyles.body('Kode Booking',
                                 color: GrayColors.gray600, fontWeight: FontWeight.w400),
                             SizedBox(width: 20.w),
-                            TypographyStyles.body('I2L8JRL', color: GrayColors.gray800),
+                            TypographyStyles.body(idBooking, color: GrayColors.gray800),
                           ],
                         ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-                          decoration: BoxDecoration(
-                            color: GrayColors.gray100,
-                            borderRadius: BorderRadius.circular(8.r),
-                            border: Border.all(width: 1.w, color: GrayColors.gray200),
-                          ),
-                          child: TypographyStyles.caption('Keberangkatan', color: GrayColors.gray800),
-                        ),
+                        if (opsiFlight != null && opsiFlight!.isNotEmpty)
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                            decoration: BoxDecoration(
+                              color: GrayColors.gray100,
+                              borderRadius: BorderRadius.circular(8.r),
+                              border: Border.all(width: 1.w, color: GrayColors.gray200),
+                            ),
+                            child: TypographyStyles.caption(opsiFlight!, color: GrayColors.gray800),
+                          )
+                        else
+                          SizedBox.shrink(),
                       ],
                     ),
-                  if (!isActive)
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                      decoration: BoxDecoration(
-                        color: RedColors.red200,
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TypographyStyles.caption("Batas Pembayaran",
-                              color: RedColors.red600, fontWeight: FontWeight.w400),
-                          TypographyStyles.caption("01:07:12", color: RedColors.red600)
-                        ],
-                      ),
-                    ),
+                  if (!isActive) PaymentCountdownTimer(expiryTime: expiryTime!),
                   SizedBox(height: 22.h),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      TypographyStyles.caption("Citilink (103)", color: GrayColors.gray800),
+                      TypographyStyles.caption("${airlines} (${codeAirlines})", color: GrayColors.gray800),
                       SizedBox(width: 10.w),
-                      SvgPicture.asset('assets/images/citilink.svg', width: 40.w, height: 10.h),
+                      logo != null && logo!.isNotEmpty
+                          ? Image.network(
+                              logo!,
+                              width: 40.w,
+                              height: 26.h,
+                              errorBuilder: (context, error, stackTrace) {
+                                log("Error loading image: $error");
+                                return Container(
+                                  width: 40.w,
+                                  height: 10.h,
+                                  child: Center(child: Icon(Icons.error)),
+                                );
+                              },
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  width: 40.w,
+                                  height: 10.h,
+                                  child: Center(child: CircularProgressIndicator(strokeWidth: 1.0)),
+                                );
+                              },
+                            )
+                          : SvgPicture.asset('assets/images/citilink.svg', width: 10.w, height: 10.h),
                     ],
                   ),
                   SizedBox(height: 4.w),
-                  Row(
-                    children: [
-                      TypographyStyles.small(
-                        'Fast Track (FT)',
-                        color: GrayColors.gray600,
-                        letterSpacing: 0.2,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      _buildText(context, text: 'Economy'),
-                      _buildText(context, text: '2 Dewasa'),
-                    ],
+                  Wrap(
+                    spacing: 4.w,
+                    runSpacing: 4.h,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: _buildInfoItems(),
                   ),
                   SizedBox(height: 20.h),
                   SvgPicture.asset('assets/images/divider_custome.svg', width: 348.w),
@@ -98,13 +156,13 @@ class CardBoardingPass extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TypographyStyles.caption("12:20", color: GrayColors.gray800),
-                          TypographyStyles.small("Sen, 27 Jan", color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                          TypographyStyles.caption("$departureTime", color: GrayColors.gray800),
+                          TypographyStyles.small("$departureDate", color: GrayColors.gray600, fontWeight: FontWeight.w400),
                           SizedBox(height: 20.h),
-                          TypographyStyles.small("5j 40m", color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                          TypographyStyles.small("$duration", color: GrayColors.gray600, fontWeight: FontWeight.w400),
                           SizedBox(height: 20.h),
-                          TypographyStyles.caption("12:20", color: GrayColors.gray800),
-                          TypographyStyles.small("Sen, 27 Jan", color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                          TypographyStyles.caption("$arrivalTime", color: GrayColors.gray800),
+                          TypographyStyles.small("$arrivalDate", color: GrayColors.gray600, fontWeight: FontWeight.w400),
                         ],
                       ),
                       SizedBox(width: 20.w),
@@ -114,18 +172,18 @@ class CardBoardingPass extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            TypographyStyles.caption("Yogyakarta (YIA)", color: GrayColors.gray800),
+                            TypographyStyles.caption("$departureCity ($departureCode)", color: GrayColors.gray800),
                             TypographyStyles.caption(
-                              "Bandar YIA, Terminal Domestic",
+                              "$departurePlane",
                               color: GrayColors.gray600,
                               fontWeight: FontWeight.w400,
                               maxlines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                             SizedBox(height: 58.h),
-                            TypographyStyles.caption("Yogyakarta (YIA)", color: GrayColors.gray800),
+                            TypographyStyles.caption("$arrivalCity ($arrivalCode)", color: GrayColors.gray800),
                             TypographyStyles.caption(
-                              "Bandar Zainuddin Abdul Madjid, Terminal Domestic",
+                              "$arrivalPlane",
                               color: GrayColors.gray600,
                               fontWeight: FontWeight.w400,
                               maxlines: 2,
@@ -145,7 +203,7 @@ class CardBoardingPass extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderStatus() {
+  Widget _buildHeaderStatus({required String idBooking, required String? opsiFlight}) {
     final Color headerColor = isActive ? GreenColors.green100 : GrayColors.gray500;
     if (isActive) {
       return Container(
@@ -173,35 +231,62 @@ class CardBoardingPass extends StatelessWidget {
             children: [
               TypographyStyles.body('Kode Booking', color: Colors.white, fontWeight: FontWeight.w400),
               SizedBox(width: 20.w),
-              TypographyStyles.body('I2L8JRL', color: Colors.white),
+              TypographyStyles.body(idBooking, color: Colors.white),
             ],
           ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
-            child: TypographyStyles.caption('Keberangkatan', color: GrayColors.gray800),
-          )
+          if (opsiFlight != null && opsiFlight.isNotEmpty)
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
+              child: TypographyStyles.caption(opsiFlight, color: GrayColors.gray800),
+            )
+          else
+            SizedBox.shrink()
         ],
       ),
     );
   }
 
-  Widget _buildText(
-    BuildContext context, {
-    required String text,
-  }) {
-    return Row(
-      children: [
-        SizedBox(width: 10.w),
-        CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)),
-        SizedBox(width: 10.w),
-        TypographyStyles.small(
-          text,
+  List<Widget> _buildInfoItems() {
+    List<Widget> items = [];
+
+    if (servicePorter != null && servicePorter!.isNotEmpty) {
+      for (int i = 0; i < servicePorter!.length; i++) {
+        items.add(TypographyStyles.small(
+          servicePorter![i],
           color: GrayColors.gray600,
           letterSpacing: 0.2,
           fontWeight: FontWeight.w400,
-        ),
-      ],
-    );
+        ));
+
+        if (i < servicePorter!.length - 1 || flightClass != null) {
+          items.add(SizedBox(width: 5.w));
+          items.add(CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)));
+          items.add(SizedBox(width: 5.w));
+        }
+      }
+    }
+
+    if (flightClass != null && flightClass!.isNotEmpty) {
+      items.add(TypographyStyles.small(
+        flightClass!,
+        color: GrayColors.gray600,
+        letterSpacing: 0.2,
+        fontWeight: FontWeight.w400,
+      ));
+
+      items.add(SizedBox(width: 5.w));
+      items.add(CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)));
+      items.add(SizedBox(width: 5.w));
+    }
+
+    items.add(TypographyStyles.small(
+      "${passenger ?? 1} Dewasa",
+      color: GrayColors.gray600,
+      letterSpacing: 0.2,
+      fontWeight: FontWeight.w400,
+    ));
+
+    return items;
   }
 }
