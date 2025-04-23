@@ -4,6 +4,7 @@ import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/button/button_list_tile.dart';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/component/icons/icons_library.dart';
+import 'package:e_porter/_core/component/text_field/text_input/text_field_component.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/_core/service/preferences_service.dart';
@@ -35,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<UserData?> _userDataFuture;
   late PorterQueueController _porterQueueController;
   final CarouselSliderController _carouselController = CarouselSliderController();
+  final TextEditingController _locationController = TextEditingController();
 
   final List<Widget> imageList = [
     Container(
@@ -61,6 +63,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _handlePorterQueueCreation() async {
+    final lokasiPorter = await _showLocationInputDialog();
+    if (lokasiPorter == null || lokasiPorter.trim().isEmpty) return;
+
     try {
       final userData = await PreferencesService.getUserData();
       if (userData?.uid == null) {
@@ -77,7 +82,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
       _showLoadingDialog();
 
-      await _porterQueueController.createPorterQueue(userData!.uid);
+      await _porterQueueController.createPorterQueue(
+        userData!.uid,
+        lokasiPorter,
+      );
 
       if (Get.isDialogOpen == true) {
         Get.back();
@@ -93,7 +101,6 @@ class _HomeScreenState extends State<HomeScreen> {
       if (Get.isDialogOpen == true) {
         Get.back();
       }
-
       SnackbarHelper.showError(
         'Gagal',
         'Gagal masuk antrian porter: ${e.toString()}',
@@ -526,6 +533,52 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ) ??
         false;
+  }
+
+  Future<String?> _showLocationInputDialog() async {
+    _locationController.clear();
+
+    return await Get.dialog<String>(
+      Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TypographyStyles.h6('Masukkan lokasi Anda!', color: GrayColors.gray800),
+              SizedBox(height: 20.h),
+              TextFieldComponent(
+                controller: _locationController,
+                hintText: 'Contoh: Gate Pintu Masuk',
+                textInputType: TextInputType.text,
+              ),
+              SizedBox(height: 16),
+              ZoomTapAnimation(
+                child: GestureDetector(
+                  onTap: () {
+                    final lokasi = _locationController.text.trim();
+                    Get.back(result: lokasi);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    decoration: BoxDecoration(
+                      color: PrimaryColors.primary800,
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    child: Center(child: TypographyStyles.caption('Ok', color: Colors.white)),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
   }
 
   void _showLoadingDialog() {
