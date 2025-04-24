@@ -120,19 +120,25 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      if (!_porterQueueController.validatePorterQueueForDeletion()) {
+      if (_porterQueueController.currentPorter.value == null) {
         SnackbarHelper.showError(
           'Gagal',
           'Tidak ada antrian porter yang aktif.',
         );
         return;
       }
-      final confirm = await _showStopConfirmationDialog();
+      final porterId = _porterQueueController.currentPorter.value!.id!;
+      final canProceed = await _porterQueueController.checkConditionForPorter(porterId);
 
+      if (!canProceed) {
+        return;
+      }
+
+      final confirm = await _showStopConfirmationDialog();
       if (!confirm) return;
+
       _showLoadingDialog();
 
-      final porterId = _porterQueueController.currentPorter.value!.id!;
       final success = await _porterQueueController.deletePorterQueue(porterId);
 
       if (Get.isDialogOpen == true) {
@@ -145,20 +151,14 @@ class _HomeScreenState extends State<HomeScreen> {
           'Anda telah berhenti dari antrian porter',
         );
         setState(() {});
-      } else {
-        SnackbarHelper.showError(
-          'Gagal',
-          'Gagal menghentikan antrian porter: ${_porterQueueController.error.value}',
-        );
       }
     } catch (e) {
       if (Get.isDialogOpen == true) {
         Get.back();
       }
-
       SnackbarHelper.showError(
         'Gagal',
-        'Gagal menghentikan antrian porter: ${e.toString()}',
+        'Gagal menghentikan antrian porter.',
       );
     }
   }
@@ -422,49 +422,44 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             SizedBox(height: 32.w),
                             CustomeShadowCotainner(
-                              child: ZoomTapAnimation(
-                                child: GestureDetector(
-                                  onTap: () => _porterQueueController.currentPorter.value != null
-                                      ? _handleStopPorterQueue()
-                                      : _handlePorterQueueCreation(),
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-                                        decoration: BoxDecoration(
-                                          color: _porterQueueController.currentPorter.value != null
-                                              ? RedColors.red100
-                                              : PrimaryColors.primary200,
-                                          borderRadius: BorderRadius.circular(10.r),
+                              child: Obx(() {
+                                final hasPorter = _porterQueueController.currentPorter.value != null;
+                                return ZoomTapAnimation(
+                                  child: GestureDetector(
+                                    onTap: hasPorter
+                                        ? _handleStopPorterQueue // sekarang benar-benar terpilih saat Obx rebuild
+                                        : _handlePorterQueueCreation,
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                                          decoration: BoxDecoration(
+                                            color: hasPorter ? RedColors.red100 : PrimaryColors.primary200,
+                                            borderRadius: BorderRadius.circular(10.r),
+                                          ),
+                                          child: hasPorter
+                                              ? Icon(
+                                                  Icons.power_settings_new,
+                                                  color: Colors.red,
+                                                  size: 32.w,
+                                                )
+                                              : SvgPicture.asset(
+                                                  'assets/icons/ic_account.svg',
+                                                  width: 32.w,
+                                                  height: 32.h,
+                                                ),
                                         ),
-                                        child: Obx(() => _porterQueueController.currentPorter.value != null
-                                            ? Icon(
-                                                Icons.power_settings_new,
-                                                color: Colors.red,
-                                                size: 32.w,
-                                              )
-                                            : SvgPicture.asset(
-                                                'assets/icons/ic_account.svg',
-                                                width: 32.w,
-                                                height: 32.h,
-                                              )),
-                                      ),
-                                      SizedBox(height: 10.h),
-                                      Obx(
-                                        () => _porterQueueController.currentPorter.value != null
-                                            ? TypographyStyles.body(
-                                                'Stop',
-                                                color: GrayColors.gray800,
-                                              )
-                                            : TypographyStyles.body(
-                                                'Mulai Antrian',
-                                              ),
-                                      ),
-                                    ],
+                                        SizedBox(height: 10.h),
+                                        TypographyStyles.body(
+                                          hasPorter ? 'Stop' : 'Mulai Antrian',
+                                          color: GrayColors.gray800,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ),
-                            )
+                                );
+                              }),
+                            ),
                           ],
                         ),
                       ),

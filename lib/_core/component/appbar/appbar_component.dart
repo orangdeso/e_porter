@@ -330,14 +330,16 @@ class SimpleAppbarComponent extends StatelessWidget implements PreferredSizeWidg
           ],
         ),
       ),
-      actions: [
-        ZoomTapAnimation(
-          child: IconButton(
-            onPressed: onTab,
-            icon: CustomeIcons.OrderHistoryOutline(),
-          ),
-        )
-      ],
+      actions: onTab != null
+          ? [
+              ZoomTapAnimation(
+                child: IconButton(
+                  onPressed: onTab,
+                  icon: CustomeIcons.OrderHistoryOutline(),
+                ),
+              )
+            ]
+          : null,
     );
   }
 

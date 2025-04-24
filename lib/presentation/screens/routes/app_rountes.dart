@@ -7,13 +7,17 @@ import 'package:e_porter/domain/bindings/profil_binding.dart';
 import 'package:e_porter/domain/bindings/search_flight_binding.dart';
 import 'package:e_porter/domain/bindings/ticket_binding.dart';
 import 'package:e_porter/domain/bindings/transaction_binding.dart';
+import 'package:e_porter/domain/bindings/transaction_porter_binding.dart';
 import 'package:e_porter/presentation/screens/auth/pages/forget_password_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/login_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/register_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/state_succes_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/boarding_pass_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/detail_ticket_screen.dart';
+import 'package:e_porter/presentation/screens/boarding_pass/pages/history_porter_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/print_boarding_pass_screen.dart';
+import 'package:e_porter/presentation/screens/boarding_pass/pages/search_porter_screen.dart';
+import 'package:e_porter/presentation/screens/boarding_pass/pages/scan_qr_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/transaction_history.dart';
 import 'package:e_porter/presentation/screens/home/pages/booking_tickets_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/choose_seat_screen.dart';
@@ -44,6 +48,7 @@ class AppRoutes {
         MainNavigationBinding(),
         HistoryBinding(),
         PorterQueueBinding(),
+        TransactionPorterBinding(),
       ],
     ),
     GetPage(
@@ -150,6 +155,22 @@ class AppRoutes {
       page: () => PrintBoardingPassScreen(),
     ),
     GetPage(
+      name: Routes.SCANQR,
+      page: () => ScanQRScreen(),
+      bindings: [
+        PorterQueueBinding(),
+        TransactionBinding(),
+      ],
+    ),
+    GetPage(
+      name: Routes.PROCESSING,
+      page: () => ProcessingPorterScreen(),
+    ),
+    GetPage(
+      name: Routes.HISTORYPORTER,
+      page: () => HistoryPorterScreen(),
+    ),
+    GetPage(
       name: Routes.ADDPASSENGER,
       page: () => AddPassengerScreen(),
       binding: ProfilBinding(),
@@ -182,6 +203,9 @@ class Routes {
   static const TRANSACTIONHISTORY = '/transaction_history';
   static const DETAILTICKET = '/detail_ticket';
   static const PRINTBOARDINGPASS = '/print_boarding_pass';
+  static const SCANQR = '/scan_qr';
+  static const PROCESSING = '/processing';
+  static const HISTORYPORTER = '/history_porter';
 
   static const ADDPASSENGER = '/add_passenger';
 }

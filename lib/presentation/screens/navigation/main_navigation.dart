@@ -1,4 +1,5 @@
 import 'package:e_porter/_core/constants/colors.dart';
+import 'package:e_porter/presentation/screens/boarding_pass/pages/history_porter_screen.dart';
 import 'package:e_porter/presentation/screens/home/pages/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,7 +12,6 @@ import '../../controllers/navigation_controller.dart';
 import '../boarding_pass/pages/boarding_pass_screen.dart';
 import '../profile/pages/profile_screen.dart';
 
-
 class MainNavigation extends StatefulWidget {
   final int initialTabIndex;
 
@@ -23,67 +23,77 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   final NavigationController navigationController = Get.find<NavigationController>();
+  late final String role;
+  late final List<Widget> pages;
 
   @override
   void initState() {
     super.initState();
+    role = Get.arguments as String? ?? 'penumpang';
     navigationController.currentPage.value = widget.initialTabIndex;
+
+    pages = [
+      HomeScreen(),
+      if (role == 'penumpang') BoardingPassScreen() else HistoryPorterScreen(),
+      ProfileScreen(),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isPassenger = role == 'penumpang';
+
     return Scaffold(
       body: Stack(
         children: [
           Obx(() {
-            final List<Widget> pages = [
-              HomeScreen(),
-              BoardingPassScreen(),
-              ProfileScreen(),
-            ];
+            // Dapatkan nilai dari currentPage
+            int pageIndex = navigationController.currentPage.value;
+
+            // Pastikan nilai valid
+            if (pageIndex < 0 || pageIndex >= pages.length) {
+              pageIndex = 0;
+            }
+
             return IndexedStack(
-              index: navigationController.currentPage.value,
+              index: pageIndex,
               children: pages,
             );
-          }),
+          })
         ],
       ),
       bottomNavigationBar: Obx(() {
+        // final current = navigationController.currentPage.value;
+        int current = navigationController.currentPage.value;
+
         return BottomAppBar(
           color: Colors.white,
           child: Container(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: _bottomAppBarItem(
-                    context,
-                    iconPath: navigationController.currentPage.value == 0
-                        ? 'assets/icons/ic_home_filled.svg'
-                        : 'assets/icons/ic_home.svg',
-                    page: 0,
-                    label: 'Home',
-                  ),
+                _buildNavItem(
+                  iconActive: 'assets/icons/ic_home_filled.svg',
+                  iconInactive: 'assets/icons/ic_home.svg',
+                  label: 'Home',
+                  page: 0,
+                  current: current,
                 ),
-                Expanded(
-                  child: _bottomAppBarItem(
-                    context,
-                    iconPath: navigationController.currentPage.value == 1
-                        ? 'assets/icons/ic_boarding_pass_filled.svg'
-                        : 'assets/icons/ic_boarding_pass.svg',
-                    page: 1,
-                    label: 'Boarding Pass',
-                  ),
+                _buildNavItem(
+                  iconActive:
+                      isPassenger ? 'assets/icons/ic_boarding_pass_filled.svg' : 'assets/icons/ic_scroll_filled.svg',
+                  iconInactive:
+                      isPassenger ? 'assets/icons/ic_boarding_pass.svg' : 'assets/icons/ic_scroll_outline.svg',
+                  label: isPassenger ? 'Boarding Pass' : 'Riwayat',
+                  page: 1,
+                  current: current,
                 ),
-                Expanded(
-                  child: _bottomAppBarItem(
-                    context,
-                    iconPath: navigationController.currentPage.value == 2
-                        ? 'assets/icons/ic_profile_filled.svg'
-                        : 'assets/icons/ic_profile.svg',
-                    page: 2,
-                    label: 'Profil',
-                  ),
+                _buildNavItem(
+                  iconActive: 'assets/icons/ic_profile_filled.svg',
+                  iconInactive: 'assets/icons/ic_profile.svg',
+                  label: 'Profil',
+                  page: 2,
+                  current: current,
                 ),
               ],
             ),
@@ -93,24 +103,22 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 
-  Widget _bottomAppBarItem(
-    BuildContext context, {
-    required String iconPath,
-    required int page,
+  Widget _buildNavItem({
+    required String iconActive,
+    required String iconInactive,
     required String label,
+    required int page,
+    required int current,
   }) {
-    final controller = Get.find<NavigationController>();
-    final isActive = controller.currentPage.value == page;
-
-    return ZoomTapAnimation(
-      onTap: () => controller.goToTab(page),
-      child: Container(
-        color: Colors.transparent,
+    final isActive = current == page;
+    return Expanded(
+      child: ZoomTapAnimation(
+        onTap: () => navigationController.goToTab(page),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SvgPicture.asset(
-              iconPath,
+              isActive ? iconActive : iconInactive,
               width: 24.w,
               height: 24.h,
             ),
@@ -118,7 +126,6 @@ class _MainNavigationState extends State<MainNavigation> {
             TypographyStyles.caption(
               label,
               color: isActive ? PrimaryColors.primary800 : GrayColors.gray400,
-              letterSpacing: 0.2,
               fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
             ),
           ],
