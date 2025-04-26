@@ -80,11 +80,6 @@ class TransactionRepositoryImpl implements TransactionRepository {
           .doc(transactionId)
           .set(transactionData);
 
-      // Update ID booking pada tiket
-      await _firestore.collection('tickets').doc(ticketId).update({
-        'idBooking': idBooking,
-      });
-
       // Kelompokkan kursi berdasarkan kelas
       Map<String, List<int>> seatsByClass = {};
       for (String seatNumber in numberSeat) {
