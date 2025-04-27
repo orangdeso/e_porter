@@ -13,6 +13,7 @@ import 'package:e_porter/presentation/screens/auth/pages/login_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/register_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/state_succes_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/boarding_pass_screen.dart';
+import 'package:e_porter/presentation/screens/boarding_pass/pages/detail_history_porter_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/detail_ticket_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/history_porter_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/print_boarding_pass_screen.dart';
@@ -171,6 +172,11 @@ class AppRoutes {
       page: () => HistoryPorterScreen(),
     ),
     GetPage(
+      name: Routes.DETAILHISTORYPORTER,
+      page: () => DetailHistoryPorterScreen(),
+      binding: TransactionPorterBinding()
+    ),
+    GetPage(
       name: Routes.ADDPASSENGER,
       page: () => AddPassengerScreen(),
       binding: ProfilBinding(),
@@ -206,6 +212,7 @@ class Routes {
   static const SCANQR = '/scan_qr';
   static const PROCESSING = '/processing';
   static const HISTORYPORTER = '/history_porter';
+  static const DETAILHISTORYPORTER = '/detail_history_porter';
 
   static const ADDPASSENGER = '/add_passenger';
 }
