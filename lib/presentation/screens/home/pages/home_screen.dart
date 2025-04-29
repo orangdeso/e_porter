@@ -120,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
+      // Periksa apakah ada porterOnline yang aktif
       if (_porterQueueController.currentPorter.value == null) {
         SnackbarHelper.showError(
           'Gagal',
@@ -127,9 +128,15 @@ class _HomeScreenState extends State<HomeScreen> {
         );
         return;
       }
-      final porterId = _porterQueueController.currentPorter.value!.id!;
-      final canProceed = await _porterQueueController.checkConditionForPorter(porterId);
 
+      // Dapatkan ID porter saat ini
+      final porterId = _porterQueueController.currentPorter.value!.id!;
+
+      // Muat ulang data porter sebelum melakukan pengecekan (optional)
+      await _porterQueueController.loadCurrentPorter(validUserId);
+
+      // Gunakan metode cek kondisi yang diperbaiki
+      final canProceed = await _porterQueueController.checkConditionForPorter(porterId);
       if (!canProceed) {
         return;
       }
@@ -158,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       SnackbarHelper.showError(
         'Gagal',
-        'Gagal menghentikan antrian porter.',
+        'Gagal menghentikan antrian porter: ${e.toString()}',
       );
     }
   }
