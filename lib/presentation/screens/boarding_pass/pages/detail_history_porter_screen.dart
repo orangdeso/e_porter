@@ -27,16 +27,14 @@ class DetailHistoryPorterScreen extends StatefulWidget {
 class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
   final TransactionPorterController _porterController = Get.find<TransactionPorterController>();
   final HistoryController _historyController = Get.find<HistoryController>();
-  final RxBool _isLoadingTicket = false.obs;
 
   PorterTransactionModel? porterTransaction;
 
   late final String porterTransactionId;
 
-  // Formatters
+  final RxBool _isLoadingTicket = false.obs;
   final DateFormat _dateFormat = DateFormat('dd MMMM yyyy', 'en_US');
   final DateFormat _timeFormat = DateFormat.jm();
-  //  final NumberFormat _priceFormatter = NumberFormat.decimalPattern('id_ID');
 
   @override
   void initState() {
@@ -114,6 +112,10 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
                   _buildLocationPassenger(porterTransaction),
                   SizedBox(height: 20.h),
                   _buildDetailsOrder(ticketTransaction),
+                  if (porterTransaction.normalizedStatus == 'rejected') ...[
+                    SizedBox(height: 20.h),
+                    _buildRejectionInfo(porterTransaction),
+                  ],
                 ],
               ),
             ),
@@ -128,15 +130,32 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
         switch (transaction.normalizedStatus) {
           case 'pending':
             return CustomeShadowCotainner(
-              child: ButtonFill(
-                text: 'Terima Orderan',
-                textColor: Colors.white,
-                onTap: () {
-                  _porterController.updateTransactionStatus(
-                    transactionId: porterTransactionId,
-                    status: 'proses',
-                  );
-                },
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ButtonFill(
+                      text: 'Tolak',
+                      textColor: Colors.white,
+                      backgroundColor: RedColors.red500,
+                      onTap: () {
+                        _porterController.showRejectionDialog(porterTransactionId, context);
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: ButtonFill(
+                      text: 'Terima',
+                      textColor: Colors.white,
+                      onTap: () {
+                        _porterController.updateTransactionStatus(
+                          transactionId: porterTransactionId,
+                          status: 'proses',
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             );
 
@@ -154,6 +173,7 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
             );
 
           case 'selesai':
+          case 'rejected':
             return const SizedBox.shrink();
 
           default:
@@ -282,6 +302,59 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
     );
   }
 
+  Widget _buildRejectionInfo(PorterTransactionModel transaction) {
+    // Tampilkan info penolakan jika tersedia
+    if (transaction.rejectionInfo == null) {
+      return CustomeShadowCotainner(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _componentHeaderText(
+              text: 'Informasi Penolakan',
+              svgIcon: 'assets/icons/ic_info.svg',
+            ),
+            TypographyStyles.body(
+              'Tidak ada informasi penolakan',
+              color: GrayColors.gray500,
+              fontWeight: FontWeight.w600,
+            ),
+          ],
+        ),
+      );
+    }
+
+    final rejectionDate = _dateFormat.format(transaction.rejectionInfo!.timestamp);
+    final rejectionTime = _timeFormat.format(transaction.rejectionInfo!.timestamp);
+
+    return CustomeShadowCotainner(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.info_outline, color: Colors.red, size: 24.sp),
+              SizedBox(width: 10.w),
+              TypographyStyles.body(
+                'Informasi Penolakan',
+                color: Colors.red,
+                fontWeight: FontWeight.w600,
+              ),
+            ],
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 10.h),
+            child: Divider(thickness: 1, color: GrayColors.gray200),
+          ),
+          _componentRowText(label: 'Alasan', value: transaction.rejectionInfo!.reason),
+          SizedBox(height: 6.h),
+          _componentRowText(label: 'Tanggal Penolakan', value: rejectionDate),
+          SizedBox(height: 6.h),
+          _componentRowText(label: 'Waktu Penolakan', value: rejectionTime),
+        ],
+      ),
+    );
+  }
+
   Widget _componentHeaderText({required String text, required String svgIcon}) {
     return Column(
       children: [
@@ -328,7 +401,21 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
     );
   }
 
-  // Helper untuk warna status
+  String _getStatusText(PorterTransactionModel transaction) {
+    switch (transaction.normalizedStatus) {
+      case 'pending':
+        return 'Menunggu';
+      case 'proses':
+        return 'Dalam Proses';
+      case 'selesai':
+        return 'Selesai';
+      case 'rejected':
+        return 'Ditolak';
+      default:
+        return transaction.status;
+    }
+  }
+
   Color _getStatusColor(PorterTransactionModel? transaction) {
     if (transaction == null) return GrayColors.gray400;
 
@@ -339,12 +426,13 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
         return PrimaryColors.primary800;
       case 'selesai':
         return Colors.green;
+      case 'rejected':
+        return Colors.red;
       default:
         return GrayColors.gray400;
     }
   }
 
-  // Helper untuk icon status
   IconData _getStatusIcon(PorterTransactionModel? transaction) {
     if (transaction == null) return Icons.info_outline;
 
@@ -355,6 +443,8 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
         return Icons.directions_run;
       case 'selesai':
         return Icons.check_circle_outline;
+      case 'rejected':
+        return Icons.cancel_outlined;
       default:
         return Icons.info_outline;
     }

@@ -5,19 +5,29 @@ abstract class TransactionPorterRepository {
 
   Stream<PorterTransactionModel?> watchTransactionById(String transactionId);
 
+  Future<Map<String, dynamic>?> getPorterTransactionById(String transactionId);
+
   Future<PorterTransactionModel?> getTransactionById(String transactionId);
 
   Future<List<String>> getPorterTransactionIds(String porterId);
-
-  Future<Map<String, dynamic>?> getPorterTransactionById(String transactionId);
 
   Future<void> updateTransactionStatus({
     required String transactionId,
     required String status,
   });
 
+  Future<void> rejectTransaction({
+    required String transactionId,
+    required String reason,
+  });
+
   Future<void> completePorterTransaction({
     required String transactionId,
     required String porterOnlineId,
+  });
+
+  Future<String?> reassignRejectedTransaction({
+    required String transactionId,
+    String? newPorterId,
   });
 }

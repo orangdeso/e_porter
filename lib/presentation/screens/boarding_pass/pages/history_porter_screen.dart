@@ -33,30 +33,6 @@ class _HistoryPorterScreenState extends State<HistoryPorterScreen> {
     decimalDigits: 0,
   );
 
-  // Future<List<PorterTransactionModel>> _loadPorterTransactionHistory() async {
-  //   try {
-  //     if (_userId.isEmpty) return [];
-
-  //     // Dapatkan ID semua transaksi porter
-  //     final transactionIds = await _porterController.getPorterTransactionIds(_userId);
-
-  //     // Muat data untuk setiap ID transaksi
-  //     final transactions = <PorterTransactionModel>[];
-
-  //     for (final id in transactionIds) {
-  //       final txData = await _porterController.getPorterTransactionById(id);
-  //       if (txData != null) {
-  //         transactions.add(PorterTransactionModel.fromJson(txData, id));
-  //       }
-  //     }
-
-  //     return transactions;
-  //   } catch (e) {
-  //     log('Error loading porter transaction history: $e');
-  //     return [];
-  //   }
-  // }
-
   Future<TransactionModel?> _loadTicketTransaction(String ticketId, String transactionId) async {
     final cacheKey = "$ticketId-$transactionId";
     if (_ticketTransactionCache.containsKey(cacheKey)) {
@@ -84,7 +60,7 @@ class _HistoryPorterScreenState extends State<HistoryPorterScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         backgroundColor: GrayColors.gray50,
         appBar: SimpleAppbarComponent(
@@ -102,6 +78,7 @@ class _HistoryPorterScreenState extends State<HistoryPorterScreen> {
                   _buildTransactionList('pending'),
                   _buildTransactionList('proses'),
                   _buildTransactionList('selesai'),
+                  _buildTransactionList('rejected'),
                 ],
               ),
             ),
@@ -129,11 +106,12 @@ class _HistoryPorterScreenState extends State<HistoryPorterScreen> {
         labelColor: PrimaryColors.primary800,
         unselectedLabelColor: GrayColors.gray400,
         indicatorColor: PrimaryColors.primary800,
-        indicatorWeight: 3,
+        indicatorWeight: 4,
         tabs: const [
           Tab(text: 'Pending'),
           Tab(text: 'Proses'),
           Tab(text: 'Selesai'),
+          Tab(text: 'Ditolak'),
         ],
       ),
     );
@@ -184,7 +162,7 @@ class _HistoryPorterScreenState extends State<HistoryPorterScreen> {
         ),
         child: Row(
           children: [
-            Icon(Icons.error_outline, color: Colors.red, size: 20.w),
+            Icon(Icons.error_outline, color: RedColors.red500, size: 20.w),
             SizedBox(width: 8.w),
             Expanded(
               child: Text(
@@ -215,29 +193,55 @@ class _HistoryPorterScreenState extends State<HistoryPorterScreen> {
       // Log untuk debug
       log('Semua transaksi: ${allTransactions.length}');
 
-      // Filter berdasarkan status
-      final filteredTransactions = allTransactions.where((tx) => tx.normalizedStatus == statusFilter).toList();
+      // Filter berdasarkan status dengan logika yang diperbaiki
+      final filteredTransactions = allTransactions.where((tx) {
+        // Cek apakah transaksi memiliki rejectionInfo
+        final hasRejectionInfo = tx.rejectionInfo != null;
+
+        // Transaksi yang memiliki rejectionInfo harus masuk ke tab "rejected" saja
+        if (hasRejectionInfo && statusFilter != 'rejected') {
+          return false;
+        }
+
+        // Transaksi yang tidak memiliki rejectionInfo tapi statusnya "rejected"
+        // juga harus masuk ke tab "rejected" saja
+        if (!hasRejectionInfo && tx.normalizedStatus == 'rejected' && statusFilter != 'rejected') {
+          return false;
+        }
+
+        // Untuk tab "rejected", tampilkan semua transaksi yang ditolak
+        if (statusFilter == 'rejected') {
+          return hasRejectionInfo || tx.normalizedStatus == 'rejected';
+        }
+
+        // Untuk tab lainnya, gunakan status normal
+        return tx.normalizedStatus == statusFilter;
+      }).toList();
 
       log('Transaksi dengan status $statusFilter: ${filteredTransactions.length}');
 
       // Jika tidak ada transaksi, tampilkan pesan kosong
       if (filteredTransactions.isEmpty) {
         // Jika ada error tapi tidak ada transaksi
-        if (_porterController.error.value.contains('Porter tidak ditemukan') && statusFilter == 'selesai') {
+        if (_porterController.error.value.contains('Porter tidak ditemukan') &&
+            (statusFilter == 'selesai' || statusFilter == 'rejected')) {
           // Tampilkan pesan yang lebih positif
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.history, size: 48.h, color: Colors.grey[400]),
+                Icon(statusFilter == 'rejected' ? Icons.block_outlined : Icons.history,
+                    size: 48.h, color: Colors.grey[400]),
                 SizedBox(height: 16.h),
                 TypographyStyles.body(
-                  'Tidak ada riwayat transaksi selesai',
+                  'Tidak ada riwayat transaksi ${statusFilter == 'rejected' ? 'ditolak' : 'selesai'}',
                   color: GrayColors.gray600,
                 ),
                 SizedBox(height: 8.h),
                 TypographyStyles.caption(
-                  'Riwayat akan muncul setelah Anda menyelesaikan transaksi',
+                  statusFilter == 'rejected'
+                      ? 'Riwayat akan muncul ketika Anda menolak permintaan porter'
+                      : 'Riwayat akan muncul setelah Anda menyelesaikan transaksi',
                   color: GrayColors.gray500,
                 ),
                 SizedBox(height: 16.h),
@@ -273,17 +277,22 @@ class _HistoryPorterScreenState extends State<HistoryPorterScreen> {
 
   // Pesan tidak ada transaksi
   Widget _buildEmptyTransactionMessage(String statusFilter) {
+    // Ubah teks pesan sesuai dengan status filter
+    String statusText = statusFilter;
+    if (statusFilter == 'rejected') {
+      statusText = 'ditolak';
+    }
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TypographyStyles.body(
-            'Tidak ada transaksi ${statusFilter.capitalizeFirst}',
+            'Tidak ada transaksi ${statusText.capitalizeFirst}',
             color: GrayColors.gray600,
           ),
           SizedBox(height: 16.h),
           ElevatedButton.icon(
-            // Perbaiki ini untuk memanggil refreshTransactions di controller
             onPressed: () => _porterController.refreshTransactions(),
             icon: Icon(Icons.refresh, size: 16.h),
             label: const Text('Refresh'),
@@ -342,18 +351,24 @@ class _HistoryPorterScreenState extends State<HistoryPorterScreen> {
           }
         }
 
+        // Modifikasi tampilan status untuk "rejected"
+        String displayStatus = transaction.normalizedStatus.capitalizeFirst!;
+        if (transaction.normalizedStatus == 'rejected' || transaction.rejectionInfo != null) {
+          displayStatus = 'Ditolak';
+        }
+
         return CardHistoryPorter(
           namePassenger: passengerName,
           tlpnPassenger: passengerPhone,
           lokasiPassenger: transaction.locationPassenger,
-          status: transaction.normalizedStatus.capitalizeFirst!,
+          status: displayStatus,
           date: _dateFormat.format(transaction.createdAt),
           time: _timeFormat.format(transaction.createdAt),
           porter1: porter1,
           porter2: porter2,
           porter3: porter3,
           price: _priceFormatter.format(price),
-          statusColor: _getStatusColor(transaction.normalizedStatus),
+          statusColor: _getStatusColor(transaction.rejectionInfo != null ? 'rejected' : transaction.normalizedStatus),
           onTap: () {
             log('ID Transaction Porter: ${transaction.id}');
             Get.toNamed(Routes.DETAILHISTORYPORTER, arguments: {
@@ -376,6 +391,8 @@ class _HistoryPorterScreenState extends State<HistoryPorterScreen> {
         return PrimaryColors.primary800;
       case 'selesai':
         return Colors.green;
+      case 'rejected':
+        return RedColors.red500;
       default:
         return GrayColors.gray400;
     }

@@ -4,6 +4,7 @@ import 'package:e_porter/_core/service/preferences_service.dart';
 import 'package:e_porter/_core/utils/snackbar/snackbar_helper.dart';
 import 'package:e_porter/domain/models/porter_queue_model.dart';
 import 'package:e_porter/presentation/controllers/porter_queue_controller.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../domain/models/transaction_porter_model.dart';
 import '../../domain/usecases/transaction_porter_usecase.dart';
@@ -19,6 +20,8 @@ class TransactionPorterController extends GetxController {
   final RxString currentPorterId = ''.obs;
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
+
+  final TextEditingController rejectionReasonController = TextEditingController();
 
   StreamSubscription<List<PorterTransactionModel>>? _subscription;
   StreamSubscription<PorterQueueModel?>? _porterSubscription;
@@ -290,6 +293,68 @@ class TransactionPorterController extends GetxController {
     }
   }
 
+  Future<void> rejectTransaction({
+    required String transactionId,
+    required String reason,
+  }) async {
+    try {
+      isLoading.value = true;
+      error.value = '';
+
+      log('Menolak transaksi: $transactionId dengan alasan: $reason');
+
+      // Proses penolakan transaksi
+      await _useCase.rejectTransaction(
+        transactionId: transactionId,
+        reason: reason.isEmpty ? 'Tidak ada alasan' : reason,
+      );
+
+      // Segera coba reassign ke porter lain
+      try {
+        log('Mencoba mengalihkan transaksi yang ditolak ke porter baru...');
+        final newTransactionId = await _useCase.reassignRejectedTransaction(
+          transactionId: transactionId,
+        );
+
+        if (newTransactionId != null) {
+          log('Transaksi berhasil dialihkan ke ID baru: $newTransactionId');
+          SnackbarHelper.showSuccess('Berhasil', 'Transaksi dialihkan ke porter lain');
+        } else {
+          // Jika tidak ada porter tersedia saat ini, service di background akan mencoba lagi nanti
+          log('Tidak ada porter tersedia saat ini, akan dicoba lagi nanti oleh service');
+        }
+      } catch (reassignError) {
+        log('Error saat mencoba mengalihkan transaksi: $reassignError');
+        // Tidak perlu menampilkan error ke user, service akan mencoba lagi nanti
+      }
+
+      // Dapatkan transaksi yang diperbarui
+      final updatedTransaction = await getTransactionById(transactionId);
+
+      // Update list transaksi yang ada dengan yang baru
+      if (updatedTransaction != null) {
+        final index = transactions.indexWhere((tx) => tx.id == transactionId);
+        if (index >= 0) {
+          transactions[index] = updatedTransaction;
+          log('Transaksi di daftar utama diperbarui menjadi ditolak: $transactionId');
+        } else {
+          refreshTransactions();
+        }
+      }
+
+      // Reset controller alasan
+      rejectionReasonController.clear();
+
+      SnackbarHelper.showSuccess('Berhasil', 'Transaksi berhasil ditolak');
+    } catch (e) {
+      log('Error menolak transaksi: $e');
+      error.value = 'Gagal menolak transaksi: $e';
+      SnackbarHelper.showError('Terjadi Kesalahan', 'Gagal menolak transaksi');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
 // Metode serupa untuk completePorterTransaction
   Future<void> completePorterTransaction({
     required String transactionId,
@@ -365,6 +430,7 @@ class TransactionPorterController extends GetxController {
 
   @override
   void onClose() {
+    rejectionReasonController.dispose();
     _porterSubscription?.cancel();
     _subscription?.cancel();
     for (var subscription in _transactionWatchers.values) {
@@ -372,5 +438,52 @@ class TransactionPorterController extends GetxController {
     }
     _transactionWatchers.clear();
     super.onClose();
+  }
+
+  void showRejectionDialog(String transactionId, BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Tolak Permintaan Porter'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Masukkan alasan penolakan:'),
+              const SizedBox(height: 10),
+              TextField(
+                controller: rejectionReasonController,
+                decoration: const InputDecoration(
+                  hintText: 'Contoh: Sedang melayani penumpang lain',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                rejectionReasonController.clear();
+              },
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () {
+                final reason = rejectionReasonController.text.trim();
+                Navigator.of(context).pop();
+                rejectTransaction(
+                  transactionId: transactionId,
+                  reason: reason,
+                );
+              },
+              child: const Text('Tolak'),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

@@ -13,6 +13,10 @@ class TransactionPorterUsecase {
     return _repository.watchTransactionById(transactionId);
   }
 
+  Future<Map<String, dynamic>?> getPorterTransactionById(String transactionId) {
+    return _repository.getPorterTransactionById(transactionId);
+  }
+
   Future<PorterTransactionModel?> getTransactionById(String transactionId) {
     return _repository.getTransactionById(transactionId);
   }
@@ -21,31 +25,43 @@ class TransactionPorterUsecase {
     return _repository.getPorterTransactionIds(porterId);
   }
 
-  Future<Map<String, dynamic>?> getPorterTransactionById(String transactionId) {
-    return _repository.getPorterTransactionById(transactionId);
-  }
-
   Future<void> updateTransactionStatus({
-    // required String ticketId,
     required String transactionId,
     required String status,
   }) {
     return _repository.updateTransactionStatus(
-      // ticketId: ticketId,
       transactionId: transactionId,
       status: status,
     );
   }
 
+  Future<void> rejectTransaction({
+    required String transactionId,
+    required String reason,
+  }) {
+    return _repository.rejectTransaction(
+      transactionId: transactionId,
+      reason: reason,
+    );
+  }
+
   Future<void> completePorterTransaction({
-    // required String ticketId,
     required String transactionId,
     required String porterOnlineId,
   }) {
     return _repository.completePorterTransaction(
-      // ticketId: ticketId,
       transactionId: transactionId,
       porterOnlineId: porterOnlineId,
+    );
+  }
+
+  Future<String?> reassignRejectedTransaction({
+    required String transactionId,
+    String? newPorterId,
+  }) {
+    return _repository.reassignRejectedTransaction(
+      transactionId: transactionId,
+      newPorterId: newPorterId,
     );
   }
 }
