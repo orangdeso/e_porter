@@ -160,135 +160,115 @@ class PorterQueueRepositoryImpl implements PorterQueueRepository {
     }
   }
 
-  @override
-  Future<void> createPorterTransaction(
-      {required String porterTransactionId,
-      required String porterId,
-      required String passengerId,
-      required String ticketId,
-      required String transactionId,
-      required String locationPassenger,
-      required String locationPorter}) async {
+  Future<void> createPorterTransaction({
+    required String porterTransactionId,
+    required String porterId,
+    required String passengerId,
+    required String ticketId,
+    required String transactionId,
+    required String locationPassenger,
+    required String locationPorter,
+  }) async {
     try {
       log('[PorterRepository] Membuat transaksi porter: $porterTransactionId');
 
-      final now = DateTime.now().millisecondsSinceEpoch;
+      final now = DateTime.now();
       final kodePorter = _generateId();
 
-      // Dapatkan userId porter dari dokumen porterOnline
+      // Dapatkan data porter lengkap dari dokumen porterOnline
       final porterDoc = await _firestore.collection('porterOnline').doc(porterId).get();
-      String porterUserId = '';
-
-      if (porterDoc.exists && porterDoc.data() != null) {
-        porterUserId = porterDoc.data()!['userId'] ?? '';
-        log('[PorterRepository] Mendapatkan userId porter: $porterUserId');
+      if (!porterDoc.exists || porterDoc.data() == null) {
+        throw Exception('Porter tidak ditemukan');
       }
+
+      final porterData = porterDoc.data()!;
+      final porterUserId = porterData['userId'] ?? '';
+      final currentLocationPorter = porterData['locationPorter'] ?? locationPorter;
 
       if (porterUserId.isEmpty) {
-        log('[PorterRepository] PERINGATAN: userId porter tidak ditemukan, menggunakan porterId: $porterId');
-        porterUserId = porterId; // Fallback ke porterId jika userId tidak ditemukan
+        throw Exception('userId porter tidak ditemukan');
       }
 
-      final data = {
-        'kodePorter': kodePorter,
-        'porterOnlineId': porterId,
-        'porterUserId': porterUserId, // Tambahkan porterUserId dalam data transaksi
-        'idPassenger': passengerId,
-        'ticketId': ticketId,
-        'transactionId': transactionId,
-        'status': 'pending',
-        'locationPassenger': locationPassenger,
-        'locationPorter': locationPorter,
-        'createdAt': now,
-      };
+      log('[PorterRepository] Menggunakan porterUserId: $porterUserId');
 
-      // 1. Update Firestore
-      final batch = _firestore.batch();
-      final porterDocId = _firestore.collection('porterOnline').doc(porterId);
-      final txDoc = _firestore.collection('porterTransactions').doc(porterTransactionId);
+      // Gunakan Firestore Transaction untuk memastikan operasi atomic
+      await _firestore.runTransaction((transaction) async {
+        // Periksa ulang apakah porter sudah diklaim untuk transaksi ini
+        final freshPorterDoc = await transaction.get(_firestore.collection('porterOnline').doc(porterId));
 
-      batch.update(porterDocId, {
-        'isAvailable': false,
-        'idUser': passengerId,
-        'idTransaction': porterTransactionId,
-        'locationPorter': locationPorter,
-      });
-      batch.set(txDoc, data);
+        // Cek apakah porter masih ada
+        if (!freshPorterDoc.exists) {
+          throw Exception('Porter tidak ditemukan');
+        }
 
-      await batch.commit();
-      log('[PorterRepository] Dokumen Firestore berhasil diperbarui');
+        final freshPorterData = freshPorterDoc.data();
+        if (freshPorterData == null) {
+          throw Exception('Data porter tidak valid');
+        }
 
-      // 2. Simpan transaksi di Realtime Database
-      final rtdb = FirebaseDatabase.instance.ref();
+        // Kondisi valid: porter tersedia ATAU porter diklaim oleh transaksi yang sama
+        final isAvailable = freshPorterData['isAvailable'] == true;
+        final isAssignedToSameTransaction = freshPorterData['idTransaction'] == porterTransactionId ||
+            freshPorterData['idTransaction'] == transactionId;
 
-      // 2.1 Data transaksi utama
-      await rtdb.child('porterTransactions/$porterTransactionId').set(data);
-      log('[PorterRepository] Data transaksi utama disimpan di RTDB');
+        if (!isAvailable && !isAssignedToSameTransaction) {
+          throw Exception('Porter tidak tersedia atau sudah ditugaskan ke transaksi lain');
+        }
 
-      // 2.2 Simpan referensi di porterHistory berdasarkan porterId (untuk kompatibilitas mundur)
-      await rtdb.child('porterHistory/$porterId/$porterTransactionId').set({
-        'timestamp': now,
-        'transactionId': porterTransactionId,
-      });
-      log('[PorterRepository] Referensi disimpan di porterHistory/$porterId');
+        // Update status porter di Firestore
+        if (isAvailable) {
+          final porterDocRef = _firestore.collection('porterOnline').doc(porterId);
+          transaction.update(porterDocRef, {
+            'isAvailable': false,
+            'idUser': passengerId,
+            'idTransaction': porterTransactionId,
+            'locationPorter': currentLocationPorter,
+          });
+        }
 
-      // 2.3 Simpan referensi di porterHistory berdasarkan userId porter (baru)
-      if (porterUserId != porterId && porterUserId.isNotEmpty) {
-        await rtdb.child('porterHistory/$porterUserId/$porterTransactionId').set({
-          'timestamp': now,
+        // Simpan data transaksi utama di porterTransactions
+        final firestoreTransactionData = {
+          'id': porterTransactionId,
+          'kodePorter': kodePorter,
+          'porterOnlineId': porterId,
+          'porterUserId': porterUserId,
+          'idPassenger': passengerId,
+          'ticketId': ticketId,
+          'transactionId': transactionId,
+          'status': 'pending',
+          'locationPassenger': locationPassenger,
+          'locationPorter': currentLocationPorter,
+          'createdAt': Timestamp.fromDate(now),
+          'updatedAt': Timestamp.fromDate(now),
+        };
+
+        final transactionDocRef = _firestore.collection('porterTransactions').doc(porterTransactionId);
+        transaction.set(transactionDocRef, firestoreTransactionData);
+
+        // PERUBAHAN: Buat entri di porterTransactionsByUser sebagai dokumen di Firestore
+        // Simpan di porterTransactionsByUser/{porterUserId}/transactions/{transactionId}
+        final indexDocRef = _firestore
+            .collection('porterTransactionsByUser')
+            .doc(porterUserId)
+            .collection('transactions')
+            .doc(porterTransactionId);
+
+        transaction.set(indexDocRef, {
           'transactionId': porterTransactionId,
+          'createdAt': Timestamp.fromDate(now),
+          'updatedAt': Timestamp.fromDate(now),
+          'status': 'pending',
+          'type': 'original',
+          'passengerId': passengerId,
         });
-        log('[PorterRepository] Referensi disimpan di porterHistory/$porterUserId');
-      }
-
-      // 2.4 Simpan referensi di passengerHistory
-      await rtdb.child('passengerHistory/$passengerId/$porterTransactionId').set({
-        'timestamp': now,
-        'transactionId': porterTransactionId,
       });
-      log('[PorterRepository] Referensi disimpan di passengerHistory/$passengerId');
 
-      log('[PorterRepository] Transaksi porter berhasil dibuat');
+      log('[PorterRepository] Transaksi porter berhasil dibuat di Firestore');
     } catch (e) {
       log('[PorterRepository] Error membuat transaksi porter: $e');
       throw Exception('Gagal membuat transaksi porter: $e');
     }
   }
-
-  // @override
-  // Future<List<String>> getPorterTransactionIds(String porterId) async {
-  //   try {
-  //     final rtdb = FirebaseDatabase.instance.ref();
-  //     final snapshot = await rtdb.child('porterHistory/$porterId').get();
-
-  //     if (snapshot.exists && snapshot.value != null) {
-  //       final Map<dynamic, dynamic> data = snapshot.value as Map<dynamic, dynamic>;
-  //       return data.keys.map((key) => key.toString()).toList();
-  //     }
-
-  //     return [];
-  //   } catch (e) {
-  //     log('[PorterRepository] Error getting porter transaction IDs: $e');
-  //     return [];
-  //   }
-  // }
-
-  // @override
-  // Future<Map<String, dynamic>?> getPorterTransactionById(String transactionId) async {
-  //   try {
-  //     final rtdb = FirebaseDatabase.instance.ref();
-  //     final snapshot = await rtdb.child('porterTransactions/$transactionId').get();
-
-  //     if (snapshot.exists && snapshot.value != null) {
-  //       return Map<String, dynamic>.from(snapshot.value as Map);
-  //     }
-
-  //     return null;
-  //   } catch (e) {
-  //     log('[PorterRepository] Error getting porter transaction: $e');
-  //     return null;
-  //   }
-  // }
 
   @override
   Future<void> completePorterAssignment(String porterId) async {
@@ -328,68 +308,6 @@ class PorterQueueRepositoryImpl implements PorterQueueRepository {
       throw Exception('Gagal menyelesaikan tugas porter: $e');
     }
   }
-
-  // @override
-  // Future<void> createPorterTransaction(
-  //     {required String porterTransactionId,
-  //     required String porterId,
-  //     required String passengerId,
-  //     required String ticketId,
-  //     required String transactionId,
-  //     required String locationPassenger,
-  //     required String locationPorter}) async {
-  //   final now = FieldValue.serverTimestamp();
-  //   final kodePorter = _generateId();
-
-  //   final data = {
-  //     'kodePorter': kodePorter,
-  //     'porterOnlineId': porterId,
-  //     'idPassenger': passengerId,
-  //     'ticketId': ticketId,
-  //     'transactionId': transactionId,
-  //     'status': 'pending',
-  //     'locationPassenger': locationPassenger,
-  //     'locationPorter': locationPorter,
-  //     'createdAt': now,
-  //   };
-
-  //   final batch = _firestore.batch();
-  //   final porterDoc = _firestore.collection('porterOnline').doc(porterId);
-  //   final txDoc = _firestore.collection('porterTransactions').doc(porterTransactionId);
-
-  //   batch.update(porterDoc, {
-  //     'isAvailable': false,
-  //     'idUser': passengerId,
-  //     'idTransaction': porterTransactionId,
-  //     'locationPorter': locationPorter,
-  //   });
-  //   batch.set(txDoc, data);
-
-  //   await batch.commit();
-
-  //   // tulis juga ke Realtime Database agar porter bisa listen secara real-time
-  //   final rtdb = FirebaseDatabase.instance.ref();
-  //   await rtdb.child('porterTransactions/$porterId/$porterTransactionId').set({
-  //     ...data,
-  //     'createdAt': DateTime.now().millisecondsSinceEpoch,
-  //   });
-  // }
-
-  // @override
-  // Future<void> completePorterAssignment(String porterId) async {
-  //   try {
-  //     await _firestore.collection('porterOnline').doc(porterId).update({
-  //       'isAvailable': true,
-  //       'idUser': null,
-  //       'idTransaction': null,
-  //     });
-
-  //     log('[PorterRepository] Tugas porter selesai, status diperbarui');
-  //   } catch (e) {
-  //     log('[PorterRepository] Error menyelesaikan tugas porter: $e');
-  //     throw Exception('Gagal menyelesaikan tugas porter: $e');
-  //   }
-  // }
 
   @override
   Future<PorterQueueModel?> getPorterById(String porterId) async {
