@@ -52,8 +52,32 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
 
   Future<void> _fetchTransactioPorterById() async {
     try {
-      await _porterController.getTransactionById(porterTransactionId);
-      log('[Detail History Porter] Transaction fetched: ${_porterController.currentTransaction.value}');
+      final args = Get.arguments as Map<String, dynamic>;
+      final fromRejected = args['fromRejected'] ?? false;
+
+      if (fromRejected) {
+        log('[Detail History Porter] Mencari transaksi di porterRejections...');
+        final rejectedTransaction = await _porterController.getRejectedTransactionById(porterTransactionId);
+
+        if (rejectedTransaction != null) {
+          log('[Detail History Porter] Transaksi found di porterRejections');
+          log('[Detail History Porter] Status: ${rejectedTransaction.status}, Norm: ${rejectedTransaction.normalizedStatus}');
+        } else {
+          log('[Detail History Porter] Transaksi tidak ditemukan di porterRejections');
+        }
+      } else {
+        await _porterController.getTransactionById(porterTransactionId);
+        final transaction = _porterController.currentTransaction.value;
+
+        if (transaction == null) {
+          log('[Detail History Porter] Transaksi tidak ditemukan di transactions, mengecek porterRejections...');
+          final rejectedTransaction = await _porterController.getRejectedTransactionById(porterTransactionId);
+
+          if (rejectedTransaction != null) {
+            log('[Detail History Porter] Transaksi ditemukan di porterRejections');
+          }
+        }
+      }
     } catch (e) {
       log('[Detail History Porter] Error getTransaction $e');
     }
@@ -61,12 +85,18 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
 
   Future<void> _fetchTransactionData() async {
     try {
-      await _porterController.getTransactionById(porterTransactionId);
       final porterTransaction = _porterController.currentTransaction.value;
 
       if (porterTransaction != null && porterTransaction.ticketId != null && porterTransaction.transactionId != null) {
-        await _historyController.getTransactionFromFirestore(
-            porterTransaction.ticketId, porterTransaction.transactionId);
+        if (porterTransaction.ticketId.isNotEmpty && porterTransaction.transactionId.isNotEmpty) {
+          await _historyController.getTransactionFromFirestore(
+              porterTransaction.ticketId, porterTransaction.transactionId);
+
+          log('[Detail History Porter] Berhasil mengambil ticket transaction');
+        } else {
+          log('[Detail History Porter] ticketId atau transactionId kosong');
+          _historyController.selectedTransaction.value = null;
+        }
       }
     } catch (e) {
       log('[Detail History Porter] Error fetching data: $e');
@@ -127,6 +157,22 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
         if (transaction == null || _porterController.isLoading.value) {
           return const SizedBox.shrink();
         }
+
+        if (transaction.normalizedStatus == 'rejected' &&
+            transaction.reassignmentInfo == null &&
+            transaction.rejectionInfo != null) {
+          return CustomeShadowCotainner(
+            child: ButtonFill(
+              text: 'Alihkan ke Porter Lain',
+              textColor: Colors.white,
+              backgroundColor: PrimaryColors.primary700,
+              onTap: () {
+                _porterController.forceReassignTransaction(porterTransactionId);
+              },
+            ),
+          );
+        }
+
         switch (transaction.normalizedStatus) {
           case 'pending':
             return CustomeShadowCotainner(
@@ -174,8 +220,6 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
 
           case 'selesai':
           case 'rejected':
-            return const SizedBox.shrink();
-
           default:
             return const SizedBox.shrink();
         }
@@ -184,6 +228,10 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
   }
 
   Widget _buildStatusCard(PorterTransactionModel porterTransaction) {
+    String displayStatus = porterTransaction.status;
+    if (porterTransaction.status == 'rejected' || porterTransaction.rejectionInfo != null) {
+      displayStatus = 'Ditolak';
+    }
     return CustomeShadowCotainner(
       child: Row(
         children: [
@@ -206,7 +254,7 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
                 fontWeight: FontWeight.w500,
               ),
               TypographyStyles.h5(
-                porterTransaction.status,
+                displayStatus,
                 color: _getStatusColor(porterTransaction),
               ),
             ],
@@ -303,7 +351,6 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
   }
 
   Widget _buildRejectionInfo(PorterTransactionModel transaction) {
-    // Tampilkan info penolakan jika tersedia
     if (transaction.rejectionInfo == null) {
       return CustomeShadowCotainner(
         child: Column(
@@ -350,6 +397,24 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
           _componentRowText(label: 'Tanggal Penolakan', value: rejectionDate),
           SizedBox(height: 6.h),
           _componentRowText(label: 'Waktu Penolakan', value: rejectionTime),
+
+          // Tambahkan informasi reassignment jika transaksi telah dialihkan
+          if (transaction.reassignmentInfo != null) ...[
+            SizedBox(height: 16.h),
+            const Divider(),
+            SizedBox(height: 8.h),
+            TypographyStyles.body(
+              'Transaksi Ini Telah Dialihkan',
+              color: PrimaryColors.primary800,
+              fontWeight: FontWeight.w600,
+            ),
+            SizedBox(height: 8.h),
+            _componentRowText(
+                label: 'Waktu Pengalihan',
+                value: _dateFormat.format(transaction.reassignmentInfo!.timestamp) +
+                    ' ' +
+                    _timeFormat.format(transaction.reassignmentInfo!.timestamp)),
+          ],
         ],
       ),
     );
@@ -399,21 +464,6 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
         ),
       ],
     );
-  }
-
-  String _getStatusText(PorterTransactionModel transaction) {
-    switch (transaction.normalizedStatus) {
-      case 'pending':
-        return 'Menunggu';
-      case 'proses':
-        return 'Dalam Proses';
-      case 'selesai':
-        return 'Selesai';
-      case 'rejected':
-        return 'Ditolak';
-      default:
-        return transaction.status;
-    }
   }
 
   Color _getStatusColor(PorterTransactionModel? transaction) {

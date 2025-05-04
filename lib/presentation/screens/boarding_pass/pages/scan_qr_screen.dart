@@ -229,15 +229,17 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
         'Anda berhasil mendapatkan porter',
       );
 
-      // 4. Sukses: navigasi ke Processing
+      log('[Scan QR] ID Transaction: $transactionId');
+      log('[Scan QR] ID Porter Online: ${result['porterId']}');
+      log('[Scan QR] ID Transaction Porter: ${result['transactionId']}');
       Get.toNamed(
         Routes.PROCESSING,
         arguments: {
           'location': rawLocation,
           'ticketId': ticketId,
           'transactionId': transactionId,
-          'porterId': result['porterId']!,
-          'porterTransactionId': result['transactionId']!,
+          'porterOnlineId': result['porterId']!,
+          'transactionPorterId': result['transactionId']!,
         },
       );
     } on Exception catch (e) {

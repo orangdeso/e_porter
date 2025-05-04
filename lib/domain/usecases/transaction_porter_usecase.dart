@@ -5,6 +5,10 @@ class TransactionPorterUsecase {
   final TransactionPorterRepository _repository;
   TransactionPorterUsecase(this._repository);
 
+  Stream<List<PorterTransactionModel>> watchPorterTransactionsByUserId(String userId) {
+    return _repository.watchPorterTransactionsByUserId(userId);
+  }
+
   Stream<List<PorterTransactionModel>> watchPorterTransactions(String porterId) {
     return _repository.watchPorterTransactions(porterId);
   }
@@ -13,16 +17,12 @@ class TransactionPorterUsecase {
     return _repository.watchTransactionById(transactionId);
   }
 
-  Future<Map<String, dynamic>?> getPorterTransactionById(String transactionId) {
-    return _repository.getPorterTransactionById(transactionId);
-  }
-
   Future<PorterTransactionModel?> getTransactionById(String transactionId) {
     return _repository.getTransactionById(transactionId);
   }
 
-  Future<List<String>> getPorterTransactionIds(String porterId) {
-    return _repository.getPorterTransactionIds(porterId);
+  Stream<List<PorterTransactionModel>> watchRejectedTransactionsByPorter(String porterUserId) {
+    return _repository.watchRejectedTransactionsByPorter(porterUserId);
   }
 
   Future<void> updateTransactionStatus({

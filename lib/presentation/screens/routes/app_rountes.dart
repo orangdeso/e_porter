@@ -166,6 +166,7 @@ class AppRoutes {
     GetPage(
       name: Routes.PROCESSING,
       page: () => ProcessingPorterScreen(),
+      binding: TransactionPorterBinding(),
     ),
     GetPage(
       name: Routes.HISTORYPORTER,

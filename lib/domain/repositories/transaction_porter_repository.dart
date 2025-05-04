@@ -1,15 +1,15 @@
 import '../models/transaction_porter_model.dart';
 
 abstract class TransactionPorterRepository {
+  Stream<List<PorterTransactionModel>> watchPorterTransactionsByUserId(String userId);
+  
   Stream<List<PorterTransactionModel>> watchPorterTransactions(String porterId);
 
   Stream<PorterTransactionModel?> watchTransactionById(String transactionId);
 
-  Future<Map<String, dynamic>?> getPorterTransactionById(String transactionId);
-
   Future<PorterTransactionModel?> getTransactionById(String transactionId);
 
-  Future<List<String>> getPorterTransactionIds(String porterId);
+  Stream<List<PorterTransactionModel>> watchRejectedTransactionsByPorter(String porterUserId);
 
   Future<void> updateTransactionStatus({
     required String transactionId,

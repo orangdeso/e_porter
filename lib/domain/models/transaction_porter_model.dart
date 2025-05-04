@@ -17,6 +17,10 @@ class PorterTransactionModel {
   final DateTime createdAt;
   final DateTime? updatedAt;
   final RejectionInfo? rejectionInfo;
+  final ReassignmentInfo? reassignmentInfo;
+  final String? previousTransactionId;
+  final bool? isRejected;
+  final bool? hasAssignedPorter;
 
   PorterTransactionModel({
     required this.id,
@@ -32,6 +36,10 @@ class PorterTransactionModel {
     required this.createdAt,
     this.updatedAt,
     this.rejectionInfo,
+    this.reassignmentInfo,
+    this.previousTransactionId,
+    this.isRejected,
+    this.hasAssignedPorter,
   }) : normalizedStatus = _normalizeStatus(status, rejectionInfo);
 
   static String _normalizeStatus(String status, RejectionInfo? rejectionInfo) {
@@ -85,6 +93,27 @@ class PorterTransactionModel {
       }
     }
 
+    ReassignmentInfo? reassignmentInfo;
+    if (json.containsKey('reassignmentInfo') && json['reassignmentInfo'] != null) {
+      try {
+        final Map<String, dynamic> reassignmentData;
+        if (json['reassignmentInfo'] is Map<String, dynamic>) {
+          reassignmentData = json['reassignmentInfo'];
+        } else if (json['reassignmentInfo'] is Map) {
+          // Convert dynamic map to string map
+          reassignmentData = {};
+          (json['reassignmentInfo'] as Map).forEach((key, value) {
+            reassignmentData[key.toString()] = value;
+          });
+        } else {
+          reassignmentData = {'reason': 'Format tidak valid', 'timestamp': DateTime.now().millisecondsSinceEpoch};
+        }
+        reassignmentInfo = ReassignmentInfo.fromJson(reassignmentData);
+      } catch (e) {
+        print('Error parsing reassignmentInfo: $e');
+      }
+    }
+
     return PorterTransactionModel(
       id: id,
       kodePorter: json['kodePorter'] ?? '',
@@ -107,6 +136,10 @@ class PorterTransactionModel {
               : (json['updatedAt'] is DateTime ? json['updatedAt'] : null))
           : null,
       rejectionInfo: rejectionInfo,
+      reassignmentInfo: reassignmentInfo,
+      previousTransactionId: json['previousTransactionId'],
+      isRejected: json['isRejected'] as bool? ?? false,
+      hasAssignedPorter: json['hasAssignedPorter'] as bool? ?? false,
     );
   }
 
@@ -123,6 +156,11 @@ class PorterTransactionModel {
       'ticketId': ticketId,
       'transactionId': transactionId,
       'createdAt': createdAt.millisecondsSinceEpoch,
+      'rejectionInfo': rejectionInfo?.toJson(),
+      'reassignmentInfo': reassignmentInfo?.toJson(),
+      'previousTransactionId': previousTransactionId,
+      'isRejected': isRejected,
+      'hasAssignedPorter': hasAssignedPorter,
     };
 
     if (updatedAt != null) {
@@ -136,7 +174,6 @@ class PorterTransactionModel {
     return data;
   }
 
-  // Membuat salinan model dengan nilai baru
   PorterTransactionModel copyWith({
     String? id,
     String? kodePorter,
@@ -192,6 +229,49 @@ class RejectionInfo {
       'reason': reason,
       'timestamp': timestamp.millisecondsSinceEpoch,
       'status': status,
+    };
+  }
+}
+
+class ReassignmentInfo {
+  final String? previousPorterId;
+  final String? rejectionId;
+  final String reason;
+  final DateTime timestamp;
+
+  ReassignmentInfo({
+    this.previousPorterId,
+    this.rejectionId,
+    required this.reason,
+    required this.timestamp,
+  });
+
+  factory ReassignmentInfo.fromJson(Map<String, dynamic> json) {
+    var rawTimestamp = json['timestamp'];
+    DateTime timestamp;
+
+    if (rawTimestamp is Timestamp) {
+      timestamp = rawTimestamp.toDate();
+    } else if (rawTimestamp is int) {
+      timestamp = DateTime.fromMillisecondsSinceEpoch(rawTimestamp);
+    } else {
+      timestamp = DateTime.now(); // Default fallback
+    }
+
+    return ReassignmentInfo(
+      previousPorterId: json['previousPorterId'],
+      rejectionId: json['rejectionId'],
+      reason: json['reason'] ?? 'Dialihkan ke porter baru',
+      timestamp: timestamp,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'previousPorterId': previousPorterId,
+      'rejectionId': rejectionId,
+      'reason': reason,
+      'timestamp': timestamp.millisecondsSinceEpoch,
     };
   }
 }

@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_porter/_core/service/preferences_service.dart';
 import 'package:e_porter/_core/utils/snackbar/snackbar_helper.dart';
 import 'package:e_porter/domain/models/porter_queue_model.dart';
-import 'package:e_porter/presentation/controllers/porter_queue_controller.dart';
+import 'package:e_porter/presentation/screens/boarding_pass/provider/porter_service_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../domain/models/transaction_porter_model.dart';
@@ -15,21 +16,31 @@ class TransactionPorterController extends GetxController {
   TransactionPorterController(this._useCase);
 
   final RxList<PorterTransactionModel> transactions = <PorterTransactionModel>[].obs;
+  final RxList<PorterTransactionModel> rejectedTransactions = <PorterTransactionModel>[].obs;
   final Rx<PorterTransactionModel?> currentTransaction = Rx<PorterTransactionModel?>(null);
   final Map<String, StreamSubscription<PorterTransactionModel?>> _transactionWatchers = {};
   final RxString currentPorterId = ''.obs;
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
 
+  final RxBool isRejectionDialogVisible = false.obs;
+  final RxString rejectionReason = ''.obs;
+  final RxString statusFilter = 'pending'.obs;
+
+  final RxBool isRejecting = false.obs;
+  final RxBool needsRefresh = false.obs;
+
   final TextEditingController rejectionReasonController = TextEditingController();
 
   StreamSubscription<List<PorterTransactionModel>>? _subscription;
   StreamSubscription<PorterQueueModel?>? _porterSubscription;
+  StreamSubscription<List<PorterTransactionModel>>? _rejectedSubscription;
 
   @override
   void onInit() {
     super.onInit();
     _loadPorterData();
+    _watchRejectedTransactions();
   }
 
   Future<void> _loadPorterData() async {
@@ -40,105 +51,63 @@ class TransactionPorterController extends GetxController {
         return;
       }
 
-      // Set userId untuk digunakan nanti
       String userId = userData.uid;
-      final porterCtrl = Get.find<PorterQueueController>();
+      currentPorterId.value = userId; // Langsung gunakan userId
 
-      // Simpan user ID untuk memastikan bisa mengakses history jika porter tidak ditemukan
-      String userIdForHistory = userId;
-
-      // Coba mendapatkan porter aktif
-      _porterSubscription = porterCtrl.watchPorter(userId).listen((porter) {
-        if (porter != null && porter.id != null) {
-          log('Porter aktif ditemukan: ${porter.id}');
-          currentPorterId.value = porter.id!;
-
-          // Gunakan userId untuk memastikan semua transaksi bisa diakses
-          loadTransactionsWithBothIDs(porter.id!, userIdForHistory);
-        } else {
-          // Porter tidak aktif, coba ambil riwayat dari userId
-          log('Porter aktif tidak ditemukan, mencoba ambil riwayat dari userId: $userId');
-          loadTransactionsFromUserId(userId);
-        }
-      }, onError: (e) {
-        log('Error memantau data porter: $e');
-        // Jika error, coba ambil riwayat dari userId
-        loadTransactionsFromUserId(userId);
-      });
+      log('Menggunakan userId dari preferences: $userId');
+      loadTransactionsFromUserId(userId); // Langsung gunakan userId
     } catch (e) {
       error.value = 'Error inisialisasi: $e';
     }
   }
 
-  void loadTransactionsWithBothIDs(String porterId, String userId) {
+  void loadTransactionsFromUserId(String userId) {
+    if (userId.isEmpty) {
+      error.value = 'User ID tidak boleh kosong';
+      return;
+    }
+
     isLoading.value = true;
     error.value = '';
 
     _subscription?.cancel();
-    _subscription = _useCase.watchPorterTransactions(porterId).listen((transactionList) {
-      log('Menerima ${transactionList.length} transaksi dari porterId');
+    _subscription = _useCase.watchPorterTransactionsByUserId(userId).listen(
+      (transactionList) {
+        log('[TransactionPorterController] Menerima ${transactionList.length} transaksi dari userId: $userId');
 
-      // Jika tidak ada transaksi dari porterId, coba dari userId
-      if (transactionList.isEmpty && userId != porterId) {
-        log('Tidak ada transaksi dari porterId, mencoba dari userId: $userId');
-        loadTransactionsFromUserId(userId);
-      } else {
-        transactions.assignAll(transactionList);
+        if (transactionList.isEmpty) {
+          log('[TransactionPorterController] Tidak ada transaksi ditemukan untuk userId: $userId');
+          if (transactions.isNotEmpty) {
+            transactions.clear();
+          }
+        } else {
+          transactions.assignAll(transactionList);
+
+          // Mulai memantau setiap transaksi individual untuk real-time updates
+          for (var transaction in transactionList) {
+            watchTransaction(transaction.id);
+          }
+        }
+
         isLoading.value = false;
-      }
-    }, onError: (e) {
-      log('Error streaming transaksi: $e');
-
-      // Jika terjadi error, coba dari userId sebagai fallback
-      if (userId != porterId) {
-        log('Error dengan porterId, mencoba dari userId: $userId');
-        loadTransactionsFromUserId(userId);
-      } else {
+      },
+      onError: (e) {
+        log('[TransactionPorterController] Error streaming transaksi: $e');
         error.value = 'Gagal memuat transaksi: $e';
         isLoading.value = false;
-      }
-    });
-  }
-
-  void loadTransactionsFromUserId(String userId) {
-    isLoading.value = true;
-    error.value = '';
-
-    log('[TransactionPorterController] Memuat transaksi untuk userId: $userId');
-
-    // Gunakan userId sebagai porterId di porterHistory
-    _useCase.getPorterTransactionIds(userId).then((transactionIds) {
-      log('[TransactionPorterController] Ditemukan ${transactionIds.length} ID transaksi untuk userId: $userId');
-
-      if (transactionIds.isEmpty) {
-        transactions.clear();
-        isLoading.value = false;
-        return;
-      }
-
-      // Ambil dan proses data transaksi
-      _processTransactionData(transactionIds);
-    }).catchError((e) {
-      log('[TransactionPorterController] Error mendapatkan ID transaksi: $e');
-      error.value = 'Gagal memuat riwayat transaksi';
-      isLoading.value = false;
-    });
+      },
+    );
   }
 
   void watchTransaction(String transactionId) {
-    // Batalkan subscription yang ada jika ada
     _transactionWatchers[transactionId]?.cancel();
-
-    // Mulai subscription baru
     _transactionWatchers[transactionId] = _useCase.watchTransactionById(transactionId).listen(
       (updatedTransaction) {
         if (updatedTransaction != null) {
-          // Update current transaction jika itu transaksi yang sedang aktif
           if (currentTransaction.value?.id == transactionId) {
             currentTransaction.value = updatedTransaction;
           }
 
-          // Update transaksi di daftar
           final index = transactions.indexWhere((tx) => tx.id == transactionId);
           if (index >= 0) {
             transactions[index] = updatedTransaction;
@@ -150,30 +119,6 @@ class TransactionPorterController extends GetxController {
         log('Error memantau transaksi: $error');
       },
     );
-  }
-
-  void _processTransactionData(List<String> transactionIds) async {
-    try {
-      List<PorterTransactionModel> txList = [];
-
-      for (var id in transactionIds) {
-        final txData = await _useCase.getPorterTransactionById(id);
-        if (txData != null) {
-          txList.add(PorterTransactionModel.fromJson(txData, id));
-        }
-      }
-
-      // Urutkan berdasarkan tanggal terbaru
-      txList.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-      // Update transactions list
-      transactions.assignAll(txList);
-      isLoading.value = false;
-    } catch (e) {
-      log('Error memproses data transaksi: $e');
-      error.value = 'Gagal memproses data transaksi';
-      isLoading.value = false;
-    }
   }
 
   void loadTransactionsFromPorterId(String porterId) {
@@ -190,7 +135,6 @@ class TransactionPorterController extends GetxController {
       log('Menerima ${transactionList.length} transaksi');
       transactions.assignAll(transactionList);
 
-      // Mulai memantau setiap transaksi individual untuk real-time updates
       for (var transaction in transactionList) {
         watchTransaction(transaction.id);
       }
@@ -203,28 +147,11 @@ class TransactionPorterController extends GetxController {
     });
   }
 
-  Future<Map<String, dynamic>?> getPorterTransactionById(String transactionId) async {
-    try {
-      isLoading.value = true;
-      error.value = '';
-
-      return await _useCase.getPorterTransactionById(transactionId);
-    } catch (e) {
-      log('Error getting transaction data: $e');
-      error.value = 'Gagal mendapatkan data transaksi: $e';
-      return null;
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
   Future<PorterTransactionModel?> getTransactionById(String transactionId) async {
     try {
       log('Getting transaction by ID: $transactionId');
       isLoading.value = true;
       error.value = '';
-
-      // Reset dulu current transaction agar UI bisa merespons ke loading state
       currentTransaction.value = null;
 
       final transaction = await _useCase.getTransactionById(transactionId);
@@ -233,7 +160,6 @@ class TransactionPorterController extends GetxController {
         log('Transaction found and set to current: ${transaction.id}');
         currentTransaction.value = transaction;
 
-        // Mulai memantau transaksi ini
         watchTransaction(transactionId);
       } else {
         log('Transaction not found with ID: $transactionId');
@@ -247,6 +173,109 @@ class TransactionPorterController extends GetxController {
       return null;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  void _watchRejectedTransactions() async {
+    try {
+      final userData = await PreferencesService.getUserData();
+      if (userData == null || userData.uid.isEmpty) {
+        log('[Controller] User data tidak ditemukan untuk watching rejected transactions');
+        return;
+      }
+
+      String porterUserId = userData.uid;
+      log('[Controller] Watching rejected transactions for porterUserId: $porterUserId');
+
+      _rejectedSubscription?.cancel();
+      _rejectedSubscription = _useCase.watchRejectedTransactionsByPorter(porterUserId).listen(
+        (transactions) {
+          log('[Controller] Received ${transactions.length} rejected transactions');
+
+          final uniqueTransactions = <String, PorterTransactionModel>{};
+          for (var tx in transactions) {
+            uniqueTransactions[tx.id] = tx;
+          }
+
+          rejectedTransactions.assignAll(uniqueTransactions.values.toList());
+        },
+        onError: (error) {
+          log('[Controller] Error watching rejected transactions: $error');
+        },
+      );
+    } catch (e) {
+      log('[Controller] Error setting up rejected transactions watcher: $e');
+    }
+  }
+
+  Future<PorterTransactionModel?> getRejectedTransactionById(String transactionId) async {
+    try {
+      log('[TransactionPorterController] Mencari transaksi ditolak dengan ID: $transactionId');
+
+      PorterTransactionModel? rejectedTransaction;
+      try {
+        rejectedTransaction = rejectedTransactions.firstWhere(
+          (tx) => tx.id == transactionId,
+        );
+      } catch (e) {
+        rejectedTransaction = null;
+      }
+
+      if (rejectedTransaction != null) {
+        // log('[TransactionPorterController] Transaksi ditolak ditemukan di cache');
+        currentTransaction.value = rejectedTransaction;
+        return rejectedTransaction;
+      }
+
+      final userData = await PreferencesService.getUserData();
+      if (userData != null && userData.uid.isNotEmpty) {
+        String porterUserId = userData.uid;
+
+        final completer = Completer<PorterTransactionModel?>();
+        final subscription = _useCase.watchRejectedTransactionsByPorter(porterUserId).listen(
+          (transactions) {
+            PorterTransactionModel? foundTransaction;
+            try {
+              foundTransaction = transactions.firstWhere(
+                (tx) => tx.id == transactionId,
+              );
+            } catch (e) {
+              foundTransaction = null;
+            }
+
+            if (foundTransaction != null) {
+              completer.complete(foundTransaction);
+            } else {
+              completer.complete(null);
+            }
+          },
+          onError: (error) {
+            log('[TransactionPorterController] Error mencari transaksi ditolak: $error');
+            completer.complete(null);
+          },
+        );
+
+        final transaction = await completer.future.timeout(
+          Duration(seconds: 3),
+          onTimeout: () => null,
+        );
+
+        subscription.cancel();
+
+        if (transaction != null) {
+          currentTransaction.value = transaction;
+          // log('[TransactionPorterController] Transaksi ditolak ditemukan: ${transaction.id}');
+        } else {
+          // log('[TransactionPorterController] Transaksi ditolak tidak ditemukan: $transactionId');
+        }
+
+        return transaction;
+      }
+
+      return null;
+    } catch (e) {
+      log('[TransactionPorterController] Error mendapatkan transaksi ditolak: $e');
+      return null;
     }
   }
 
@@ -265,19 +294,14 @@ class TransactionPorterController extends GetxController {
         status: status,
       );
 
-      // Dapatkan transaksi yang diperbarui
       final updatedTransaction = await getTransactionById(transactionId);
 
-      // Update list transaksi yang ada dengan yang baru
       if (updatedTransaction != null) {
-        // Cari indeks transaksi dalam list yang ada
         final index = transactions.indexWhere((tx) => tx.id == transactionId);
         if (index >= 0) {
-          // Update transaksi pada indeks yang ditemukan
           transactions[index] = updatedTransaction;
           log('Transaksi di daftar utama diperbarui: $transactionId dengan status: $status');
         } else {
-          // Jika tidak ditemukan, perbarui seluruh list
           log('Transaksi tidak ditemukan di daftar, menyegarkan seluruh daftar');
           refreshTransactions();
         }
@@ -299,39 +323,19 @@ class TransactionPorterController extends GetxController {
   }) async {
     try {
       isLoading.value = true;
+      isRejecting.value = true;
       error.value = '';
 
       log('Menolak transaksi: $transactionId dengan alasan: $reason');
 
-      // Proses penolakan transaksi
       await _useCase.rejectTransaction(
         transactionId: transactionId,
         reason: reason.isEmpty ? 'Tidak ada alasan' : reason,
       );
 
-      // Segera coba reassign ke porter lain
-      try {
-        log('Mencoba mengalihkan transaksi yang ditolak ke porter baru...');
-        final newTransactionId = await _useCase.reassignRejectedTransaction(
-          transactionId: transactionId,
-        );
+      needsRefresh.value = true;
 
-        if (newTransactionId != null) {
-          log('Transaksi berhasil dialihkan ke ID baru: $newTransactionId');
-          SnackbarHelper.showSuccess('Berhasil', 'Transaksi dialihkan ke porter lain');
-        } else {
-          // Jika tidak ada porter tersedia saat ini, service di background akan mencoba lagi nanti
-          log('Tidak ada porter tersedia saat ini, akan dicoba lagi nanti oleh service');
-        }
-      } catch (reassignError) {
-        log('Error saat mencoba mengalihkan transaksi: $reassignError');
-        // Tidak perlu menampilkan error ke user, service akan mencoba lagi nanti
-      }
-
-      // Dapatkan transaksi yang diperbarui
       final updatedTransaction = await getTransactionById(transactionId);
-
-      // Update list transaksi yang ada dengan yang baru
       if (updatedTransaction != null) {
         final index = transactions.indexWhere((tx) => tx.id == transactionId);
         if (index >= 0) {
@@ -342,20 +346,31 @@ class TransactionPorterController extends GetxController {
         }
       }
 
-      // Reset controller alasan
-      rejectionReasonController.clear();
+      await Future.delayed(Duration(milliseconds: 500));
+
+      try {
+        log('[TransactionPorterController] Memaksa pengecekan reassignment...');
+        await PorterServiceProvider.forceReassignmentCheck();
+      } catch (reassignError) {
+        log('[TransactionPorterController] Error saat memaksa reassignment: $reassignError');
+      }
 
       SnackbarHelper.showSuccess('Berhasil', 'Transaksi berhasil ditolak');
     } catch (e) {
       log('Error menolak transaksi: $e');
       error.value = 'Gagal menolak transaksi: $e';
-      SnackbarHelper.showError('Terjadi Kesalahan', 'Gagal menolak transaksi');
+      SnackbarHelper.showError('Gagal', 'Transaksi gagal ditolak: ${e.toString()}');
     } finally {
       isLoading.value = false;
+      isRejecting.value = false;
+
+      if (needsRefresh.value) {
+        await refreshTransactions();
+        needsRefresh.value = false;
+      }
     }
   }
 
-// Metode serupa untuk completePorterTransaction
   Future<void> completePorterTransaction({
     required String transactionId,
   }) async {
@@ -380,10 +395,8 @@ class TransactionPorterController extends GetxController {
         porterOnlineId: porterOnlineId,
       );
 
-      // Dapatkan transaksi yang diperbarui
       final updatedTransaction = await getTransactionById(transactionId);
 
-      // Update list transaksi
       if (updatedTransaction != null) {
         final index = transactions.indexWhere((tx) => tx.id == transactionId);
         if (index >= 0) {
@@ -428,11 +441,104 @@ class TransactionPorterController extends GetxController {
     loadTransactionsFromPorterId(currentPorterId.value);
   }
 
+  Future<void> refreshRejectedTransactions() async {
+    try {
+      final userData = await PreferencesService.getUserData();
+      if (userData == null || userData.uid.isEmpty) {
+        log('[TransactionPorterController] User data tidak ditemukan untuk refresh rejected transactions');
+        return;
+      }
+
+      String porterUserId = userData.uid;
+      log('[TransactionPorterController] Refreshing rejected transactions untuk porterUserId: $porterUserId');
+
+      _rejectedSubscription?.cancel();
+      _rejectedSubscription = _useCase.watchRejectedTransactionsByPorter(porterUserId).listen(
+        (transactions) {
+          log('[TransactionPorterController] Refreshed: ${transactions.length} rejected transactions');
+          rejectedTransactions.assignAll(transactions);
+        },
+        onError: (error) {
+          log('[Controller] Error watching rejected transactions: $error');
+          if (error is FirebaseException) {
+            this.error.value = 'Error loading rejected transactions: ${error.message}';
+          } else {
+            this.error.value = 'Error loading rejected transactions: $error';
+          }
+        },
+      );
+    } catch (e) {
+      log('[TransactionPorterController] Error refresh rejected transactions: $e');
+    }
+  }
+
+  Future<void> forceReassignTransaction(String transactionId) async {
+    try {
+      isLoading.value = true;
+      error.value = '';
+
+      log('[TransactionPorterController] Mencoba mengalihkan transaksi: $transactionId');
+      final result = await _useCase.reassignRejectedTransaction(
+        transactionId: transactionId,
+      );
+
+      if (result != null) {
+        await Future.delayed(Duration(milliseconds: 500));
+
+        final updatedTransaction = await getTransactionById(transactionId);
+        if (updatedTransaction != null) {
+          final index = transactions.indexWhere((tx) => tx.id == transactionId);
+          if (index >= 0) {
+            transactions[index] = updatedTransaction;
+          }
+        }
+
+        await refreshTransactions();
+        SnackbarHelper.showSuccess('Berhasil', 'Transaksi berhasil dialihkan ke porter lain');
+      } else {
+        SnackbarHelper.showInfo('Info', 'Tidak ada porter tersedia saat ini, akan dicoba lagi nanti');
+      }
+    } catch (e) {
+      error.value = 'Gagal mengalihkan transaksi: $e';
+      SnackbarHelper.showError('Gagal', 'Transaksi gagal dialihkan: ${e.toString()}');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  List<PorterTransactionModel> getFilteredTransactions() {
+    return transactions.where((tx) {
+      if (statusFilter.value == 'pending') {
+        return tx.status == 'pending' && tx.porterOnlineId == currentPorterId.value;
+      }
+      if (statusFilter.value == 'rejected') {
+        return tx.status == 'rejected' && tx.porterOnlineId == currentPorterId.value;
+      }
+      return tx.normalizedStatus == statusFilter.value && tx.porterOnlineId == currentPorterId.value;
+    }).toList();
+  }
+
+  void updateStatusFilter(String status) {
+    statusFilter.value = status;
+  }
+
+  void showRejectDialog() {
+    rejectionReason.value = '';
+    rejectionReasonController.clear();
+    isRejectionDialogVisible.value = true;
+  }
+
+  void hideRejectDialog() {
+    isRejectionDialogVisible.value = false;
+    rejectionReasonController.clear();
+  }
+
   @override
   void onClose() {
     rejectionReasonController.dispose();
     _porterSubscription?.cancel();
     _subscription?.cancel();
+    _rejectedSubscription?.cancel();
     for (var subscription in _transactionWatchers.values) {
       subscription.cancel();
     }
