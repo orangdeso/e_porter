@@ -4,6 +4,7 @@ import 'package:e_porter/_core/component/button/button_outline.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/_core/service/permission_service.dart';
+import 'package:e_porter/presentation/screens/navigation/main_navigation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -29,11 +30,12 @@ class UploadFileScreen extends StatefulWidget {
 class _UploadFileScreenState extends State<UploadFileScreen> {
   final List<UploadFileModel> uploadedFiles = [];
   final TransactionController _transactionController = Get.find<TransactionController>();
-  bool isUploading = false;
+  final isUploading = false.obs;
 
   late String ticketId;
   late String transactionId;
   late String userId = '';
+  late final bool isHistoryMode;
 
   @override
   void initState() {
@@ -41,8 +43,11 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
     final args = Get.arguments as Map<String, dynamic>;
     ticketId = args['ticketId'] ?? '';
     transactionId = args['transactionId'] ?? '';
+    isHistoryMode = (args['mode'] == 'history');
 
-    _loadUserData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadUserData();
+    });
   }
 
   Future<void> _loadUserData() async {
@@ -55,31 +60,29 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
   }
 
   void _uploadToServer() async {
+    if (ticketId.isEmpty || transactionId.isEmpty || userId.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Data transaksi tidak lengkap',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    if (uploadedFiles.isEmpty || uploadedFiles.first.status != FileUploadStatus.completed) {
+      Get.snackbar(
+        'Error',
+        'Silakan pilih dan selesaikan proses file terlebih dahulu',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    isUploading.value = true;
+
     try {
-      if (ticketId.isEmpty || transactionId.isEmpty || userId.isEmpty) {
-        Get.snackbar(
-          'Error',
-          'Data transaksi tidak lengkap',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-        return;
-      }
-
-      if (uploadedFiles.isEmpty || uploadedFiles.first.status != FileUploadStatus.completed) {
-        Get.snackbar(
-          'Error',
-          'Silakan pilih dan selesaikan proses file terlebih dahulu',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-        return;
-      }
-
-      setState(() {
-        isUploading = true;
-      });
-
       Get.snackbar(
         'Info',
         'Mengupload bukti pembayaran...',
@@ -104,7 +107,14 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
         colorText: Colors.white,
       );
 
-      Get.offAllNamed(Routes.NAVBAR);
+      if (isHistoryMode) {
+        Get.offAll(
+          () => MainNavigation(initialTabIndex: 1),
+          arguments: 'penumpang',
+        );
+      } else {
+        Get.offAllNamed(Routes.NAVBAR);
+      }
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -113,11 +123,7 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
         colorText: Colors.white,
       );
     } finally {
-      if (mounted) {
-        setState(() {
-          isUploading = false;
-        });
-      }
+      isUploading.value = false;
     }
   }
 
@@ -189,37 +195,54 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomeShadowCotainner(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ButtonOutline(
-              text: 'Nanti',
-              textColor: PrimaryColors.primary800,
-              onTap: () {
-                Get.offAllNamed(Routes.NAVBAR);
-              },
+      bottomNavigationBar: Obx(() {
+        if (isUploading.value) {
+          return CustomeShadowCotainner(
+            child: SizedBox(
+              height: 40.h,
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: PrimaryColors.primary800,
+                ),
+              ),
             ),
-            SizedBox(height: 10.h),
-            ButtonFill(
-              text: 'Upload',
-              textColor: Colors.white,
-              onTap: () {
-                if (uploadedFiles.isNotEmpty) {
-                  _submitFiles();
-                } else {
-                  Get.snackbar(
-                    'Peringatan',
-                    'Silahkan pilih file terlebih dahulu',
-                    backgroundColor: Colors.red,
-                    colorText: Colors.white,
-                  );
-                }
-              },
-            ),
-          ],
-        ),
-      ),
+          );
+        }
+        return CustomeShadowCotainner(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!isHistoryMode) ...[
+                ButtonOutline(
+                  text: 'Nanti',
+                  textColor: PrimaryColors.primary800,
+                  onTap: () {
+                    Get.offAllNamed(Routes.NAVBAR);
+                  },
+                ),
+              ],
+              SizedBox(height: 10.h),
+              ButtonFill(
+                  text: 'Upload',
+                  textColor: Colors.white,
+                  onTap: isUploading.value
+                      ? null
+                      : () {
+                          if (uploadedFiles.isNotEmpty) {
+                            _submitFiles();
+                          } else {
+                            Get.snackbar(
+                              'Peringatan',
+                              'Silahkan pilih file terlebih dahulu',
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                            );
+                          }
+                        }),
+            ],
+          ),
+        );
+      }),
     );
   }
 
@@ -349,7 +372,7 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+        allowedExtensions: ['jpg', 'jpeg', 'png'],
       );
 
       if (result != null) {

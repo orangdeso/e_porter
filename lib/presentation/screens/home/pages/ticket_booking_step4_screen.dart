@@ -1,4 +1,5 @@
-import 'dart:developer';
+import 'dart:developer' show log;
+import 'dart:math' show Random;
 
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/constants/colors.dart';
@@ -106,6 +107,14 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
     } catch (e) {
       log('Error fetching airport data: $e');
     }
+  }
+
+  String _generateBarcodeId() {
+    const prefix = 'P-';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final rand = Random.secure();
+    final code = List.generate(10, (index) => chars[rand.nextInt(chars.length)]).join();
+    return '$prefix$code';
   }
 
   String getPorterInfo(String type) {
@@ -316,7 +325,6 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
                 });
               }
 
-              // Persiapkan data user
               final userDetailData = {
                 'uid': userData.uid,
                 'name': userData.name,
@@ -326,14 +334,17 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
 
               final List<Map<String, dynamic>> passengerDetailsList = [];
               for (var passenger in selectedPassengers) {
-                if (passenger != null) {
-                  passengerDetailsList.add({
-                    'name': passenger.name,
-                    'typeId': passenger.typeId,
-                    'noId': passenger.noId,
-                    'gender': passenger.gender,
-                  });
-                }
+                if (passenger == null) continue;
+
+                final barcodeId = _generateBarcodeId();
+
+                passengerDetailsList.add({
+                  'name': passenger.name,
+                  'typeId': passenger.typeId,
+                  'noId': passenger.noId,
+                  'gender': passenger.gender,
+                  'idBarcode': barcodeId, 
+                });
               }
 
               // Buat transaksi

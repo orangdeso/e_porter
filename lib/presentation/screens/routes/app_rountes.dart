@@ -142,6 +142,7 @@ class AppRoutes {
     GetPage(
       name: Routes.UPLOADFILE,
       page: () => UploadFileScreen(),
+      binding: TransactionBinding(),
     ),
     GetPage(
       name: Routes.TRANSACTIONHISTORY,
@@ -150,6 +151,7 @@ class AppRoutes {
     GetPage(
       name: Routes.DETAILTICKET,
       page: () => DetailTicketScreen(),
+      binding: HistoryBinding(),
     ),
     GetPage(
       name: Routes.PRINTBOARDINGPASS,

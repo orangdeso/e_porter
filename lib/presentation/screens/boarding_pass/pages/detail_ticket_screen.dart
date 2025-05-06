@@ -235,10 +235,14 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
               text: 'Upload Bukti Pembayaran',
               textColor: Colors.white,
               onTap: () {
-                Get.toNamed(Routes.UPLOADFILE, arguments: {
-                  'ticketId': transaction.ticketId,
-                  'transactionId': transaction.id,
-                });
+                Get.toNamed(
+                  Routes.UPLOADFILE,
+                  arguments: {
+                    'ticketId': transaction.ticketId,
+                    'transactionId': transaction.id,
+                    'mode': 'history'
+                  },
+                );
               },
             ),
           );
@@ -265,12 +269,6 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
                     onTap: () async {
                       await Permission.camera.status;
 
-                      // final argument = {
-                      //   'ticketId': transaction.ticketId,
-                      //   'transactionId': transaction.id,
-                      // };
-                      // Get.toNamed(Routes.SCANQR, arguments: argument);
-
                       final result = await Get.toNamed(
                         Routes.SCANQR,
                         arguments: {
@@ -279,7 +277,6 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
                         },
                       );
 
-                      // 2. Jika porter sibuk, tampilkan Snackbar dan hentikan di sini
                       if (result == 'PORTER_BUSY') {
                         SnackbarHelper.showError(
                           'Porter Tidak Tersedia',
@@ -353,8 +350,11 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
                     typeId: passenger['typeId'] ?? '',
                     noId: maskedId,
                     onTap: () {
-                      Get.toNamed(Routes.PRINTBOARDINGPASS,
-                          arguments: {'transaction': transaction, 'passengerIndex': index});
+                      Get.toNamed(Routes.PRINTBOARDINGPASS, arguments: {
+                        'transactionId': transaction.id,
+                        'ticketId': transaction.ticketId,
+                        'passengerIndex': index,
+                      });
                     },
                   ),
                 );
