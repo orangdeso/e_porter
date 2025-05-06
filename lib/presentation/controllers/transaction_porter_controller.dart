@@ -5,7 +5,6 @@ import 'package:e_porter/_core/service/preferences_service.dart';
 import 'package:e_porter/_core/utils/snackbar/snackbar_helper.dart';
 import 'package:e_porter/domain/models/porter_queue_model.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/provider/porter_service_provider.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../domain/models/transaction_porter_model.dart';
 import '../../domain/usecases/transaction_porter_usecase.dart';
@@ -29,8 +28,6 @@ class TransactionPorterController extends GetxController {
 
   final RxBool isRejecting = false.obs;
   final RxBool needsRefresh = false.obs;
-
-  final TextEditingController rejectionReasonController = TextEditingController();
 
   StreamSubscription<List<PorterTransactionModel>>? _subscription;
   StreamSubscription<PorterQueueModel?>? _porterSubscription;
@@ -524,18 +521,15 @@ class TransactionPorterController extends GetxController {
 
   void showRejectDialog() {
     rejectionReason.value = '';
-    rejectionReasonController.clear();
     isRejectionDialogVisible.value = true;
   }
 
   void hideRejectDialog() {
     isRejectionDialogVisible.value = false;
-    rejectionReasonController.clear();
   }
 
   @override
   void onClose() {
-    rejectionReasonController.dispose();
     _porterSubscription?.cancel();
     _subscription?.cancel();
     _rejectedSubscription?.cancel();
@@ -544,52 +538,5 @@ class TransactionPorterController extends GetxController {
     }
     _transactionWatchers.clear();
     super.onClose();
-  }
-
-  void showRejectionDialog(String transactionId, BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Tolak Permintaan Porter'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Masukkan alasan penolakan:'),
-              const SizedBox(height: 10),
-              TextField(
-                controller: rejectionReasonController,
-                decoration: const InputDecoration(
-                  hintText: 'Contoh: Sedang melayani penumpang lain',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                rejectionReasonController.clear();
-              },
-              child: const Text('Batal'),
-            ),
-            TextButton(
-              onPressed: () {
-                final reason = rejectionReasonController.text.trim();
-                Navigator.of(context).pop();
-                rejectTransaction(
-                  transactionId: transactionId,
-                  reason: reason,
-                );
-              },
-              child: const Text('Tolak'),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-            ),
-          ],
-        );
-      },
-    );
   }
 }

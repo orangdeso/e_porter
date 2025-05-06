@@ -670,7 +670,7 @@ class TransactionPorterRepositoryImpl implements TransactionPorterRepository {
         'isAvailable': false,
         'idTransaction': transactionId,
         'idUser': txData['idPassenger'] ?? '',
-        'lastAssigned': now,
+        'onlineAt': now,
       });
 
       // 6. Update transaksi utama dengan format ReassignmentInfo

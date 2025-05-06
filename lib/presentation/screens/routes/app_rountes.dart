@@ -175,7 +175,11 @@ class AppRoutes {
     GetPage(
       name: Routes.DETAILHISTORYPORTER,
       page: () => DetailHistoryPorterScreen(),
-      binding: TransactionPorterBinding()
+      bindings: [
+        TransactionPorterBinding(),
+        TransactionBinding(),
+        HistoryBinding(),
+      ],
     ),
     GetPage(
       name: Routes.ADDPASSENGER,

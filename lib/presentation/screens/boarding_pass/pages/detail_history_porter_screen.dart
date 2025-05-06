@@ -7,10 +7,13 @@ import 'package:e_porter/_core/component/button/button_fill.dart';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
+import 'package:e_porter/_core/utils/snackbar/snackbar_helper.dart';
 import 'package:e_porter/domain/models/transaction_model.dart';
 import 'package:e_porter/domain/models/transaction_porter_model.dart';
 import 'package:e_porter/presentation/controllers/history_controller.dart';
+import 'package:e_porter/presentation/controllers/navigation_controller.dart';
 import 'package:e_porter/presentation/controllers/transaction_porter_controller.dart';
+import 'package:e_porter/presentation/screens/navigation/main_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -27,6 +30,7 @@ class DetailHistoryPorterScreen extends StatefulWidget {
 class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
   final TransactionPorterController _porterController = Get.find<TransactionPorterController>();
   final HistoryController _historyController = Get.find<HistoryController>();
+  final _reasonController = TextEditingController();
 
   PorterTransactionModel? porterTransaction;
 
@@ -42,12 +46,16 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
     final args = Get.arguments as Map<String, dynamic>;
     porterTransactionId = args['transactionPorterId'];
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchTransactioPorterById();
-      _fetchTransactionData();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _fetchTransactioPorterById();
+      await _fetchTransactionData();
     });
+  }
 
-    log('[Detail History Porter] ID Transaction Porter : $porterTransactionId');
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchTransactioPorterById() async {
@@ -91,10 +99,7 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
         if (porterTransaction.ticketId.isNotEmpty && porterTransaction.transactionId.isNotEmpty) {
           await _historyController.getTransactionFromFirestore(
               porterTransaction.ticketId, porterTransaction.transactionId);
-
-          log('[Detail History Porter] Berhasil mengambil ticket transaction');
         } else {
-          log('[Detail History Porter] ticketId atau transactionId kosong');
           _historyController.selectedTransaction.value = null;
         }
       }
@@ -103,6 +108,50 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
     } finally {
       _isLoadingTicket.value = false;
     }
+  }
+
+  void _showRejectionDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Tolak Permintaan Porter'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Masukkan alasan penolakan:'),
+            SizedBox(height: 10),
+            TextField(
+              controller: _reasonController,
+              decoration: InputDecoration(
+                hintText: 'Sedang melayani penumpang lain',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _reasonController.clear();
+            },
+            child: Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              final reason = _reasonController.text.trim();
+              Navigator.pop(context);
+              _porterController.rejectTransaction(
+                transactionId: porterTransactionId,
+                reason: reason,
+              );
+            },
+            child: Text('Tolak', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -167,7 +216,31 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
               textColor: Colors.white,
               backgroundColor: PrimaryColors.primary700,
               onTap: () {
-                _porterController.forceReassignTransaction(porterTransactionId);
+                Get.dialog(
+                  const Center(child: CircularProgressIndicator()),
+                  barrierDismissible: false,
+                );
+
+                Get.delete<NavigationController>();
+                Get.put(NavigationController());
+                Get.offAll(
+                  () => MainNavigation(initialTabIndex: 1),
+                  arguments: 'porter',
+                );
+
+                _porterController.forceReassignTransaction(porterTransactionId).then((_) {
+                  if (Get.isDialogOpen ?? false) Get.back();
+                  SnackbarHelper.showSuccess(
+                    'Berhasil',
+                    'Transaksi berhasil dialihkan ke porter lain',
+                  );
+                }).catchError((e) {
+                  if (Get.isDialogOpen ?? false) Get.back();
+                  SnackbarHelper.showError(
+                    'Gagal',
+                    'Transaksi gagal dialihkan: $e',
+                  );
+                });
               },
             ),
           );
@@ -184,7 +257,7 @@ class _DetailHistoryPorterScreenState extends State<DetailHistoryPorterScreen> {
                       textColor: Colors.white,
                       backgroundColor: RedColors.red500,
                       onTap: () {
-                        _porterController.showRejectionDialog(porterTransactionId, context);
+                        _showRejectionDialog();
                       },
                     ),
                   ),
