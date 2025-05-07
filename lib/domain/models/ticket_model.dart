@@ -73,19 +73,13 @@ class FlightModel {
 
   factory FlightModel.fromDocument(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-
-    // Ambil field seat (Map) dari Firestore
     final seatData = data['seat'] as Map<String, dynamic>? ?? {};
-
-    // Konversi setiap entry di seatData menjadi SeatInfo
     final seatMap = seatData.map<String, SeatInfo>((key, value) {
       return MapEntry(
         key,
         SeatInfo.fromMap(value as Map<String, dynamic>),
       );
     });
-
-    // print("FlightModel.fromDocument - Doc ID: ${doc.id}, data: $data");
 
     return FlightModel(
       id: doc.id,
@@ -103,7 +97,7 @@ class FlightModel {
       stop: data['stop'] ?? '',
       price: data['price'] ?? 0,
       airlineLogo: data['airlineLogo'] ?? '',
-      seat: seatMap, // masukkan Map<String, SeatInfo>
+      seat: seatMap, 
     );
   }
 

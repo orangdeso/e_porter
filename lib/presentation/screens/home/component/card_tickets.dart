@@ -18,8 +18,8 @@ class CardTickets extends StatelessWidget {
   final String departureTime;
   final String arrivalTime;
   final String duration;
-  final String seatClass;
-  final String price;
+  final String? seatClass;
+  final String? price;
   final VoidCallback? onTap;
   final bool withContainer;
   final bool showFooter;
@@ -35,8 +35,8 @@ class CardTickets extends StatelessWidget {
     required this.departureTime,
     required this.arrivalTime,
     required this.duration,
-    required this.seatClass,
-    required this.price,
+    this.seatClass,
+    this.price,
     this.onTap,
     this.withContainer = true,
     this.showFooter = true,
@@ -115,12 +115,12 @@ class CardTickets extends StatelessWidget {
                 children: [
                   CustomeIcons.FlightSeatFilled(),
                   SizedBox(width: 6.w),
-                  TypographyStyles.caption(seatClass, color: GrayColors.gray800),
+                  TypographyStyles.caption('$seatClass', color: GrayColors.gray800),
                 ],
               ),
               Row(
                 children: [
-                  TypographyStyles.body(price, color: PrimaryColors.primary800),
+                  TypographyStyles.body('$price', color: PrimaryColors.primary800),
                   SizedBox(width: 2.w),
                   TypographyStyles.small('/orang', color: GrayColors.gray600, fontWeight: FontWeight.w400),
                 ],

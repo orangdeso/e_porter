@@ -4,6 +4,7 @@ import 'package:e_porter/_core/component/button/button_outline.dart';
 import 'package:e_porter/_core/component/dotted/dashed_line_component.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
+import 'package:e_porter/_core/utils/formatter/date_helper.dart';
 import 'package:e_porter/presentation/controllers/history_controller.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/component/card_details_passenger.dart';
 import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
@@ -84,7 +85,14 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
               return Center(child: TypographyStyles.body('Data transaksi tidak ditemukan', color: GrayColors.gray400));
             }
 
-            log('ID Booking Detail Tiket: ${transaction.idBooking}');
+            final departureTime = DateFormatterHelper.formatFlightTime(transaction.flightDetails['departureTime']);
+            final arrivalTime = DateFormatterHelper.formatFlightTime(transaction.flightDetails['arrivalTime']);
+            final departureDate = DateFormatterHelper.formatFlightDate(transaction.flightDetails['departureTime']);
+            final arrivalDate = DateFormatterHelper.formatFlightDate(transaction.flightDetails['arrivalTime']);
+            final duration = DateFormatterHelper.calculateFlightDuration(
+              transaction.flightDetails['departureTime'],
+              transaction.flightDetails['arrivalTime'],
+            );
 
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
@@ -110,7 +118,7 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
                           color: GrayColors.gray800,
                         ),
                         SizedBox(width: 10.w),
-                        SvgPicture.asset('assets/images/citilink.svg', width: 40.w, height: 10.h),
+                        Image.network(transaction.flightDetails['airlineLogo'], width: 40.w),
                       ],
                     ),
                     SizedBox(height: 4.h),
@@ -131,15 +139,14 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            TypographyStyles.caption("12:20", color: GrayColors.gray800),
-                            TypographyStyles.small("Sen, 27 Jan",
+                            TypographyStyles.caption(departureTime, color: GrayColors.gray800),
+                            TypographyStyles.small(departureDate,
                                 color: GrayColors.gray600, fontWeight: FontWeight.w400),
                             SizedBox(height: 20.h),
-                            TypographyStyles.small("5j 40m", color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                            TypographyStyles.small(duration, color: GrayColors.gray600, fontWeight: FontWeight.w400),
                             SizedBox(height: 20.h),
-                            TypographyStyles.caption("12:20", color: GrayColors.gray800),
-                            TypographyStyles.small("Sen, 27 Jan",
-                                color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                            TypographyStyles.caption(arrivalTime, color: GrayColors.gray800),
+                            TypographyStyles.small(arrivalDate, color: GrayColors.gray600, fontWeight: FontWeight.w400),
                           ],
                         ),
                         SizedBox(width: 20.w),
@@ -237,11 +244,7 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
               onTap: () {
                 Get.toNamed(
                   Routes.UPLOADFILE,
-                  arguments: {
-                    'ticketId': transaction.ticketId,
-                    'transactionId': transaction.id,
-                    'mode': 'history'
-                  },
+                  arguments: {'ticketId': transaction.ticketId, 'transactionId': transaction.id, 'mode': 'history'},
                 );
               },
             ),

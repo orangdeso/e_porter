@@ -288,8 +288,9 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> with SingleTick
                   'id_transaction': transaction.id,
                   'id_ticket': transaction.ticketId,
                 };
-                log('ID Transaction: ${transaction.id}');
-                log('ID Ticket: ${transaction.ticketId}');
+                log('Arrival Time: $arrivalTime');
+                log('Departure Time: $departureTime');
+
                 Get.toNamed(Routes.DETAILTICKET, arguments: argument);
               },
             ),
