@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/utils/formatter/date_helper.dart';
@@ -283,13 +282,14 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> with SingleTick
               arrivalCode: flightDetails['codeArrival'],
               departurePlane: departurePlane,
               arrivalPlane: arrivalPlane,
+              transitCity: flightDetails['cityTransit'],
+              transitCode: flightDetails['codeTransit'],
+              transitPlane: flightDetails['transitAirplane'],
               onTap: () {
                 final argument = {
                   'id_transaction': transaction.id,
                   'id_ticket': transaction.ticketId,
                 };
-                log('Arrival Time: $arrivalTime');
-                log('Departure Time: $departureTime');
 
                 Get.toNamed(Routes.DETAILTICKET, arguments: argument);
               },

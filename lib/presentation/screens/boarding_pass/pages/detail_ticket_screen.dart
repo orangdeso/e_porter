@@ -140,8 +140,11 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             TypographyStyles.caption(departureTime, color: GrayColors.gray800),
-                            TypographyStyles.small(departureDate,
-                                color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                            TypographyStyles.small(
+                              departureDate,
+                              color: GrayColors.gray600,
+                              fontWeight: FontWeight.w400,
+                            ),
                             SizedBox(height: 20.h),
                             TypographyStyles.small(duration, color: GrayColors.gray600, fontWeight: FontWeight.w400),
                             SizedBox(height: 20.h),
@@ -152,35 +155,16 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
                         SizedBox(width: 20.w),
                         SvgPicture.asset('assets/images/garis.svg', height: 100.h),
                         SizedBox(width: 20.w),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TypographyStyles.caption(
-                                "${transaction.flightDetails['cityDeparture']} (${transaction.flightDetails['codeDeparture']})",
-                                color: GrayColors.gray800,
-                              ),
-                              TypographyStyles.caption(
-                                "${transaction.bandaraDetails['departure']?['name']}",
-                                color: GrayColors.gray600,
-                                fontWeight: FontWeight.w400,
-                                maxlines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              SizedBox(height: 58.h),
-                              TypographyStyles.caption(
-                                "${transaction.flightDetails['cityArrival']} (${transaction.flightDetails['codeArrival']})",
-                                color: GrayColors.gray800,
-                              ),
-                              TypographyStyles.caption(
-                                "${transaction.bandaraDetails['arrival']?['name']}",
-                                color: GrayColors.gray600,
-                                fontWeight: FontWeight.w400,
-                                maxlines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              )
-                            ],
-                          ),
+                        _buildDataBandara(
+                          titleDeparture:
+                              "${transaction.flightDetails['cityDeparture']} (${transaction.flightDetails['codeDeparture']})",
+                          planeDeparture: "${transaction.bandaraDetails['departure']?['name']}",
+                          titleTransit:
+                              "${transaction.flightDetails['cityTransit']} (${transaction.flightDetails['codeTransit']})",
+                          planeTransit: transaction.flightDetails['transitAirplane'],
+                          titleArrival:
+                              "${transaction.flightDetails['cityArrival']} (${transaction.flightDetails['codeArrival']})",
+                          planeArrival: "${transaction.bandaraDetails['arrival']?['name']}",
                         )
                       ],
                     ),
@@ -310,6 +294,51 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
           );
         }
       }),
+    );
+  }
+
+  Widget _buildDataBandara({
+    required String titleDeparture,
+    required String planeDeparture,
+    required String titleTransit,
+    required String planeTransit,
+    required String titleArrival,
+    required String planeArrival,
+  }) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TypographyStyles.caption(titleDeparture, color: GrayColors.gray800),
+          TypographyStyles.caption(
+            planeDeparture,
+            color: GrayColors.gray600,
+            fontWeight: FontWeight.w400,
+            maxlines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(height: 20.h),
+          if (titleTransit.isNotEmpty && planeTransit.isNotEmpty) ...[
+            TypographyStyles.caption(titleTransit, color: GrayColors.gray800),
+            TypographyStyles.caption(
+              planeTransit,
+              color: GrayColors.gray600,
+              fontWeight: FontWeight.w400,
+              maxlines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            SizedBox(height: 20.h),
+          ],
+          TypographyStyles.caption(titleArrival, color: GrayColors.gray800),
+          TypographyStyles.caption(
+            planeArrival,
+            color: GrayColors.gray600,
+            fontWeight: FontWeight.w400,
+            maxlines: 2,
+            overflow: TextOverflow.ellipsis,
+          )
+        ],
+      ),
     );
   }
 

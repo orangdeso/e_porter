@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/models/ticket_model.dart';
 import '../../domain/repositories/ticket_repository.dart';
@@ -12,26 +14,34 @@ class TicketRepositoryImpl implements TicketRepository {
     required String from,
     required String to,
     required DateTime leavingDate,
+    String? seatClass,
   }) async {
-    final collection = firestore.collection('tickets');
+    // final collection = firestore.collection('tickets');
 
-    // Normalisasi tanggal: ambil awal hari dan akhir hari untuk tanggal yang dicari
+    // final startOfDay = DateTime(leavingDate.year, leavingDate.month, leavingDate.day);
+    // final endOfDay = startOfDay.add(Duration(days: 1));
+
+    // final snapshot = await collection
+    //     .where('from', isEqualTo: from)
+    //     .where('to', isEqualTo: to)
+    //     .where('leavingDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+    //     .where('leavingDate', isLessThan: Timestamp.fromDate(endOfDay))
+    //     .get();
+
+    // snapshot.docs.forEach((doc) {});
+
     final startOfDay = DateTime(leavingDate.year, leavingDate.month, leavingDate.day);
     final endOfDay = startOfDay.add(Duration(days: 1));
 
-    // logger.d("Fetching tickets with parameters: from = $from, to = $to, leavingDate between = ${Timestamp.fromDate(startOfDay)} and ${Timestamp.fromDate(endOfDay)}");
+    log("Fetching tickets: from=$from, to=$to, leavingDate∈[$startOfDay – $endOfDay]");
 
-    final snapshot = await collection
+    final snapshot = await firestore
+        .collection('tickets')
         .where('from', isEqualTo: from)
         .where('to', isEqualTo: to)
         .where('leavingDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
         .where('leavingDate', isLessThan: Timestamp.fromDate(endOfDay))
         .get();
-
-    // logger.d("Number of tickets found: ${snapshot.docs.length}");
-    snapshot.docs.forEach((doc) {
-      // logger.d("Doc ID: ${doc.id} => ${doc.data()}");
-    });
 
     return snapshot.docs.map((doc) => TicketModel.fromDocument(doc)).toList();
   }
@@ -49,10 +59,7 @@ class TicketRepositoryImpl implements TicketRepository {
     }
 
     final snapshot = await query.get();
-    // logger.d("Number of flights found for ticket $ticketId with seatClass '$flightClass': ${snapshot.docs.length}");
-    snapshot.docs.forEach((doc) {
-      // logger.d("Flight Doc ID: ${doc.id} => ${doc.data()}");
-    });
+    snapshot.docs.forEach((doc) {});
 
     return snapshot.docs.map((doc) => FlightModel.fromDocument(doc)).toList();
   }
@@ -62,15 +69,10 @@ class TicketRepositoryImpl implements TicketRepository {
     required String ticketId,
     required String flightId,
   }) async {
-    final doc = await firestore
-      .collection('tickets')
-      .doc(ticketId)
-      .collection('flights')
-      .doc(flightId)
-      .get();
+    final doc = await firestore.collection('tickets').doc(ticketId).collection('flights').doc(flightId).get();
 
-  // logger.d("getFlightById - TicketID: $ticketId, FlightID: $flightId, Data: ${doc.data()}");
+    // logger.d("getFlightById - TicketID: $ticketId, FlightID: $flightId, Data: ${doc.data()}");
 
-  return FlightModel.fromDocument(doc);
+    return FlightModel.fromDocument(doc);
   }
 }

@@ -92,7 +92,7 @@ class CardFlightInformation extends StatelessWidget {
             ],
           ),
           SizedBox(height: 4.h),
-          Row(
+          Wrap(
             children: [
               TypographyStyles.body(departureCity, color: GrayColors.gray800),
               SizedBox(width: 10.w),

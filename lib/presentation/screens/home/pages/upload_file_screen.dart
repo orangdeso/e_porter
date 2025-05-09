@@ -4,6 +4,7 @@ import 'package:e_porter/_core/component/button/button_outline.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/_core/service/permission_service.dart';
+import 'package:e_porter/domain/bindings/navigation_binding.dart';
 import 'package:e_porter/presentation/screens/navigation/main_navigation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -110,6 +111,7 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
       if (isHistoryMode) {
         Get.offAll(
           () => MainNavigation(initialTabIndex: 1),
+          binding: MainNavigationBinding(),
           arguments: 'penumpang',
         );
       } else {

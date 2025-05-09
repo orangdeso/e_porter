@@ -46,6 +46,9 @@ class FlightModel {
   final String codeArrival;
   final DateTime departureTime;
   final DateTime arrivalTime;
+  final DateTime? startDateTransit;
+  final DateTime? endDateTransit;
+  final String cityTransit;
   final String transitAirplane;
   final String stop;
   final int price;
@@ -64,6 +67,9 @@ class FlightModel {
     required this.codeArrival,
     required this.departureTime,
     required this.arrivalTime,
+    this.startDateTransit,
+    this.endDateTransit,
+    required this.cityTransit,
     required this.transitAirplane,
     required this.stop,
     required this.price,
@@ -93,11 +99,14 @@ class FlightModel {
       codeArrival: data['codeArrival'] ?? '',
       departureTime: (data['dateDeparture'] as Timestamp).toDate(),
       arrivalTime: (data['dateArrival'] as Timestamp).toDate(),
+      startDateTransit: (data['startDateTransit'] as Timestamp?)?.toDate(),
+      endDateTransit: (data['endDateTransit'] as Timestamp?)?.toDate(),
+      cityTransit: data['cityTransit'] ?? '',
       transitAirplane: data['transitAirplane'] ?? '',
       stop: data['stop'] ?? '',
       price: data['price'] ?? 0,
       airlineLogo: data['airlineLogo'] ?? '',
-      seat: seatMap, 
+      seat: seatMap,
     );
   }
 
@@ -113,6 +122,9 @@ class FlightModel {
       'codeArrival': codeArrival,
       'dateDeparture': Timestamp.fromDate(departureTime),
       'dateArrival': Timestamp.fromDate(arrivalTime),
+      'startDateTransit': Timestamp.fromDate(startDateTransit!),
+      'endDateTransit': Timestamp.fromDate(endDateTransit!),
+      'cityTransit': cityTransit,
       'transitAirplane': transitAirplane,
       'stop': stop,
       'price': price,

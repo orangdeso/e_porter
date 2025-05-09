@@ -26,7 +26,9 @@ class CardBoardingPass extends StatelessWidget {
   final String? arrivalCode;
   final String? departurePlane;
   final String? arrivalPlane;
+  final String? transitCity;
   final String? transitPlane;
+  final String? transitCode;
   final String? transitStartDate;
   final String? transitEndDate;
   final String? departureTime;
@@ -55,7 +57,9 @@ class CardBoardingPass extends StatelessWidget {
     this.arrivalCode,
     this.departurePlane,
     this.arrivalPlane,
+    this.transitCity,
     this.transitPlane,
+    this.transitCode,
     this.transitStartDate,
     this.transitEndDate,
     this.departureTime,
@@ -157,12 +161,14 @@ class CardBoardingPass extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TypographyStyles.caption("$departureTime", color: GrayColors.gray800),
-                          TypographyStyles.small("$departureDate", color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                          TypographyStyles.small("$departureDate",
+                              color: GrayColors.gray600, fontWeight: FontWeight.w400),
                           SizedBox(height: 20.h),
                           TypographyStyles.small("$duration", color: GrayColors.gray600, fontWeight: FontWeight.w400),
                           SizedBox(height: 20.h),
                           TypographyStyles.caption("$arrivalTime", color: GrayColors.gray800),
-                          TypographyStyles.small("$arrivalDate", color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                          TypographyStyles.small("$arrivalDate",
+                              color: GrayColors.gray600, fontWeight: FontWeight.w400),
                         ],
                       ),
                       SizedBox(width: 20.w),
@@ -180,7 +186,23 @@ class CardBoardingPass extends StatelessWidget {
                               maxlines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            SizedBox(height: 58.h),
+                            SizedBox(height: 20.h),
+                            if (transitCity != null &&
+                                transitCity!.isNotEmpty &&
+                                transitCode != null &&
+                                transitCode!.isNotEmpty &&
+                                transitPlane != null &&
+                                transitPlane!.isNotEmpty) ...[
+                              TypographyStyles.caption("$transitCity ($transitCode)", color: GrayColors.gray800),
+                              TypographyStyles.caption(
+                                "$transitPlane",
+                                color: GrayColors.gray600,
+                                fontWeight: FontWeight.w400,
+                                maxlines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: 20.h),
+                            ],
                             TypographyStyles.caption("$arrivalCity ($arrivalCode)", color: GrayColors.gray800),
                             TypographyStyles.caption(
                               "$arrivalPlane",
@@ -188,7 +210,7 @@ class CardBoardingPass extends StatelessWidget {
                               fontWeight: FontWeight.w400,
                               maxlines: 2,
                               overflow: TextOverflow.ellipsis,
-                            )
+                            ),
                           ],
                         ),
                       )

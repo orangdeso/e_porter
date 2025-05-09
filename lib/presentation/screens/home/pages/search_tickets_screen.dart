@@ -86,10 +86,19 @@ class _SearchTicketsScreenState extends State<SearchTicketsScreen> {
                       child: CircularProgressIndicator(),
                     );
                   } else if (ticketController.ticketFlight.isEmpty) {
+                    final tanggal = DateFormat('EEE, d MMM yyyy').format(leavingDate);
+                    final baseMsg = flightClass.isNotEmpty
+                        ? 'Maaf, tiket kelas $flightClass dari $from ke $to pada $tanggal tidak ditemukan.'
+                        : 'Maaf, tiket dari $from ke $to pada $tanggal tidak ditemukan.';
                     return Center(
-                      child: TypographyStyles.body(
-                        "Tiket tidak ditemukan",
-                        color: GrayColors.gray600,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24.w),
+                        child: TypographyStyles.caption(
+                          baseMsg,
+                          color: GrayColors.gray400,
+                          textAlign: TextAlign.center,
+                          maxlines: 3,
+                        ),
                       ),
                     );
                   } else {

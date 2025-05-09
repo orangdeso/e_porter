@@ -59,7 +59,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
   String? airLines;
   String? code;
   String? flightClass;
-  String? transitAirplane;
+  String? cityTransit;
   String? stop;
   String? codeDeparture;
   String? codeArrival;
@@ -141,7 +141,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
           airLines = flight.airLines;
           code = flight.code;
           flightClass = flight.flightClass;
-          transitAirplane = flight.transitAirplane;
+          cityTransit = flight.cityTransit;
           stop = flight.stop;
           codeDeparture = flight.codeDeparture;
           codeArrival = flight.codeArrival;
@@ -162,7 +162,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                       plane: '${airLines} (${code})',
                       seatClass: '$flightClass',
                       passenger: '$passenger',
-                      transiAirplane: '$transitAirplane',
+                      transiAirplane: '$cityTransit',
                       stop: '$stop',
                       airlineLogo: airlineLogo,
                     ),
@@ -188,7 +188,6 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
           textColor: Colors.white,
           backgroundColor: isAllPassengersFilled() ? PrimaryColors.primary800 : GrayColors.gray400,
           onTap: () {
-            // logger.d('Selected Passengers: $selectedPassengers');
             if (selectedPassengers.any((p) => p == null)) {
               SnackbarHelper.showError('Error', 'Harap lengkapi slot penumpang');
             } else {
@@ -205,7 +204,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                 'airLines': airLines,
                 'code': code,
                 'flightClass': flightClass,
-                'transitAirplane': transitAirplane,
+                'transitAirplane': cityTransit,
                 'stop': stop,
                 'codeDeparture': codeDeparture,
                 'codeArrival': codeArrival,
@@ -232,7 +231,6 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
         } else if (snapshot.hasData && snapshot.data != null) {
           final user = snapshot.data!;
           _loggedUser = user;
-          // logger.d('Data user: ${user.noId}');
           return CustomeShadowCotainner(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -392,7 +390,6 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
                                       shrinkWrap: true,
                                       itemBuilder: (context, index) {
                                         final passenger = profilController.passengerList[index];
-                                        // logger.d("Passenger Models : ${passenger.noId}");
                                         return Padding(
                                           padding: EdgeInsets.only(top: 16.h),
                                           child: _buildAddPassenger(

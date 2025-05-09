@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/component/icons/icons_library.dart';
 import 'package:e_porter/_core/constants/colors.dart';
@@ -218,7 +216,7 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
                   seatClass: "${flightData?.flightClass}",
                   passenger: "$passenger",
                   stop: "${flightData?.stop}",
-                  transiAirplane: "${flightData?.transitAirplane}",
+                  transiAirplane: "${flightData?.cityTransit}",
                   airlineLogo: "${flightData?.airlineLogo}",
                 ),
                 SizedBox(height: 32.h),
@@ -309,13 +307,6 @@ class _TicketBookingStep3ScreenState extends State<TicketBookingStep3Screen> {
             'selectedServiceLabels': selectedServiceLabels,
             'selectedPorterServices': selectedPorterServices,
           };
-          log('[Ticket Booking Step3] From ID: $fromId');
-          log('[Ticket Booking Step3] Ticket ID: $ticketId');
-          log('[Ticket Booking Step3] Flight ID: $flightId');
-          log('[Ticket Booking Step3] Ticket Date: $ticketDate');
-          log('[Ticket Booking Step3] Opsi Penerbangan: $selectedServiceLabels');
-          log('[Ticket Booking Step3] Layanan Porter: $selectedPorterServices');
-
           Get.toNamed(Routes.TICKETBOOKINGSTEP4, arguments: argument);
         },
       ),

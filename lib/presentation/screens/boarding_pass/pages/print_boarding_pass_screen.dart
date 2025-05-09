@@ -152,6 +152,18 @@ class _PrintBoardingPassScreenState extends State<PrintBoardingPassScreen> {
               final passengerMap = (transaction.passengerDetails as List<dynamic>)[passenger] as Map<String, dynamic>;
               final idBarcode = passengerMap['idBarcode'] ?? '';
 
+              final Map<String, dynamic>? svcMap = transaction.porterServiceDetails;
+              final services = <String>[];
+              if (svcMap?['departure'] != null) {
+                services.add(svcMap!['departure']['name'] as String);
+              }
+              if (svcMap?['transit'] != null) {
+                services.add(svcMap!['transit']['name'] as String);
+              }
+              if (svcMap?['arrival'] != null) {
+                services.add(svcMap!['arrival']['name'] as String);
+              }
+
               return Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
                 child: SingleChildScrollView(
@@ -192,15 +204,15 @@ class _PrintBoardingPassScreenState extends State<PrintBoardingPassScreen> {
                               padding: EdgeInsets.symmetric(vertical: 10),
                               child: Divider(thickness: 1, color: GrayColors.gray200),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                _buildColumnText(context, label: 'Layanan', value: 'value'),
-                                _buildColumnText(context,
-                                    label: 'Class', value: transaction.flightDetails['flightClass']),
-                                _buildColumnText(context, label: 'Gate', value: 'value'),
-                                _buildColumnText(context, label: 'Seat', value: seatNumber),
-                              ],
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10.h),
+                              child: layananClassGateSeat(
+                                context: context,
+                                services: services,
+                                flightClass: transaction.flightDetails['flightClass'],
+                                gate: 'Gate',
+                                seatNumber: seatNumber,
+                              ),
                             ),
                             Padding(
                               padding: EdgeInsets.symmetric(vertical: 20.h),
@@ -224,6 +236,53 @@ class _PrintBoardingPassScreenState extends State<PrintBoardingPassScreen> {
         onPressed: _printPass,
         backgroundColor: PrimaryColors.primary800,
       ),
+    );
+  }
+
+  Widget layananClassGateSeat({
+    required BuildContext context,
+    required List<String> services,
+    required String flightClass,
+    required String gate,
+    required String seatNumber,
+  }) {
+    if (services.isEmpty) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildColumnText(context, label: 'Layanan', value: '-'),
+          _buildColumnText(context, label: 'Class', value: flightClass),
+          _buildColumnText(context, label: 'Gate', value: gate),
+          _buildColumnText(context, label: 'Seat', value: seatNumber),
+        ],
+      );
+    }
+    if (services.length == 1) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildColumnText(context, label: 'Layanan', value: services.first),
+          _buildColumnText(context, label: 'Class', value: flightClass),
+          _buildColumnText(context, label: 'Gate', value: gate),
+          _buildColumnText(context, label: 'Seat', value: seatNumber),
+        ],
+      );
+    }
+    final allServices = services.join(', ');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildColumnText(context, label: 'Layanan', value: allServices),
+        SizedBox(height: 8.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildColumnText(context, label: 'Class', value: flightClass),
+            _buildColumnText(context, label: 'Gate', value: gate),
+            _buildColumnText(context, label: 'Seat', value: seatNumber),
+          ],
+        ),
+      ],
     );
   }
 
