@@ -26,17 +26,17 @@ class UserData {
 
   UserData({
     required this.uid,
-    required this.tipeId,
-    required this.noId,
-    required this.name,
-    required this.email,
-    required this.phone,
-    required this.birthDate,
-    required this.gender,
-    required this.work,
-    required this.city,
-    required this.address,
-    required this.role,
+    this.tipeId,
+    this.noId,
+    this.name,
+    this.email,
+    this.phone,
+    this.birthDate,
+    this.gender,
+    this.work,
+    this.city,
+    this.address,
+    this.role,
   });
 
   factory UserData.fromMap(Map<String, dynamic> map) {
@@ -83,7 +83,7 @@ class UserData {
       'role': role,
     };
   }
-  
+
   UserData copyWith({
     String? uid,
     String? tipeId,

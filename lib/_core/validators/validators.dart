@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Validators {
   static String? validatorEmail(String? value) {
     if (value == null || value.isEmpty) {
@@ -11,6 +13,20 @@ class Validators {
       return 'Password tidak boleh kosong';
     }
     return null;
+  }
+
+  static String? Function(String?) validatorConfirmPassword(
+    TextEditingController passwordController,
+  ) {
+    return (String? value) {
+      if (value == null || value.isEmpty) {
+        return 'Password tidak boleh kosong';
+      }
+      if (value != passwordController.text) {
+        return 'Password tidak cocok';
+      }
+      return null;
+    };
   }
 
   static String? validatorName(String? value) {

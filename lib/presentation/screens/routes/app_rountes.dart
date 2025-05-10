@@ -12,6 +12,7 @@ import 'package:e_porter/presentation/screens/auth/pages/forget_password_screen.
 import 'package:e_porter/presentation/screens/auth/pages/login_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/register_screen.dart';
 import 'package:e_porter/presentation/screens/auth/pages/state_succes_screen.dart';
+import 'package:e_porter/presentation/screens/auth/pages/verifikasi_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/boarding_pass_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/detail_history_porter_screen.dart';
 import 'package:e_porter/presentation/screens/boarding_pass/pages/detail_ticket_screen.dart';
@@ -65,6 +66,10 @@ class AppRoutes {
       name: Routes.LOGIN,
       page: () => LoginScreen(),
       binding: AuthBinding(),
+    ),
+    GetPage(
+      name: Routes.VERIFICATION,
+      page: () => VerifikasiScreen(),
     ),
     GetPage(
       name: Routes.HOME,
@@ -196,6 +201,7 @@ class Routes {
   static const SPLASH = '/splash';
   static const ONBOARDING = '/onboarding';
   static const LOGIN = '/login';
+  static const VERIFICATION = '/verification';
   static const HOME = '/home';
   static const BOARDINGPASS = '/boarding_pass';
   static const PROFILE = '/profile';

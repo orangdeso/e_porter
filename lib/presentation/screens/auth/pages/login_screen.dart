@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:e_porter/_core/component/button/button_fill.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
@@ -128,7 +130,8 @@ class _LoginScreenState extends State<LoginScreen> {
           firstText: 'Belum punya akun?',
           secondText: 'Daftar',
           onTab: () {
-            Get.toNamed(Routes.REGISTER);
+            log('Role Login: $role');
+            Get.toNamed(Routes.REGISTER, arguments: role);
           },
         ),
       ),

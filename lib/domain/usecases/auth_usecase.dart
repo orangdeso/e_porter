@@ -23,8 +23,28 @@ class GetUserRoleUseCase {
 class GetUserDataUseCase {
   final AuthRepository authRepository;
   GetUserDataUseCase(this.authRepository);
-  
+
   Future<UserData?> call(String uid) async {
     return await authRepository.getUserData(uid);
+  }
+}
+
+class RegisterUseCase {
+  final AuthRepository authRepository;
+
+  RegisterUseCase(this.authRepository);
+
+  Future<UserEntity> call(String email, String password) async {
+    return await authRepository.registerWithEmailPassword(email, password);
+  }
+}
+
+class SaveUserDataUseCase {
+  final AuthRepository authRepository;
+
+  SaveUserDataUseCase(this.authRepository);
+
+  Future<void> call(UserData userData) async {
+    return await authRepository.saveUserData(userData);
   }
 }

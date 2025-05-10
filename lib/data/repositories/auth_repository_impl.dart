@@ -1,9 +1,9 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_porter/domain/models/user_entity.dart';
 import 'package:e_porter/domain/repositories/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-import '../../_core/service/logger_service.dart';
 
 class AuthException implements Exception {
   final String message;
@@ -24,11 +24,15 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       );
       final user = userCredential.user!;
+
+      await user.reload();
+      if (!user.emailVerified) {
+        await _firebaseAuth.signOut();
+        throw AuthException("email-not-verified");
+      }
+
       return UserEntity(uid: user.uid, email: user.email ?? "");
     } on FirebaseAuthException catch (e) {
-      logger.w("FirebaseAuthException code: ${e.code}");
-      logger.w("FirebaseAuthException message: ${e.message}");
-
       switch (e.code) {
         case 'invalid-email':
           throw AuthException("Format email tidak valid.");
@@ -41,6 +45,43 @@ class AuthRepositoryImpl implements AuthRepository {
         default:
           throw AuthException(e.message ?? "Terjadi kesalahan.");
       }
+    }
+  }
+
+  @override
+  Future<UserEntity> registerWithEmailPassword(String email, String password) async {
+    try {
+      UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      final user = userCredential.user!;
+      await user.sendEmailVerification();
+      await user.updateDisplayName(email);
+
+      return UserEntity(uid: user.uid, email: user.email ?? "");
+    } on FirebaseAuthException catch (e) {
+      log("FirebaseAuthException code: ${e.code}");
+      log("FirebaseAuthException message: ${e.message}");
+
+      throw AuthException(e.code);
+    } catch (e) {
+      throw AuthException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> saveUserData(UserData userData) async {
+    try {
+      await _firestore.collection('users').doc(userData.uid).set(
+            userData.toMap(),
+            SetOptions(merge: true),
+          );
+
+      log("User data berhasil disimpan ke Firestore");
+    } catch (e) {
+      log("Error saving user data: $e");
+      throw AuthException("Gagal menyimpan data pengguna.");
     }
   }
 
