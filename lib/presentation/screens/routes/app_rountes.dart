@@ -34,6 +34,7 @@ import 'package:e_porter/presentation/screens/home/pages/ticket_booking_step4_sc
 import 'package:e_porter/presentation/screens/home/pages/upload_file_screen.dart';
 import 'package:e_porter/presentation/screens/navigation/main_navigation.dart';
 import 'package:e_porter/presentation/screens/onboarding/onboarding_screen.dart';
+import 'package:e_porter/presentation/screens/profile/pages/information_users_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/profile_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/add_passenger_screen.dart';
 import 'package:e_porter/presentation/screens/splash/splash_screen.dart';
@@ -193,6 +194,10 @@ class AppRoutes {
       page: () => AddPassengerScreen(),
       binding: ProfilBinding(),
     ),
+    GetPage(
+      name: Routes.INFORMATIONS,
+      page: () => InformationUsersScreen(),
+    ),
   ];
 }
 
@@ -228,4 +233,5 @@ class Routes {
   static const DETAILHISTORYPORTER = '/detail_history_porter';
 
   static const ADDPASSENGER = '/add_passenger';
+  static const INFORMATIONS = '/informations';
 }

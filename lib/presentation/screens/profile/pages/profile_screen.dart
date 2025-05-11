@@ -85,7 +85,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ProfileMenu(
                             label: 'Lihat Profile',
                             svgIcon: 'assets/icons/ic_profile.svg',
-                            onTap: () {},
+                            onTap: () {
+                              Get.toNamed(Routes.INFORMATIONS);
+                            },
                           ),
                           Padding(
                             padding: EdgeInsets.symmetric(vertical: 20.h),
@@ -219,7 +221,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ProfileMenu(
                             label: 'Lihat Profile',
                             svgIcon: 'assets/icons/ic_profile.svg',
-                            onTap: () {},
+                            onTap: () {
+                              Get.toNamed(Routes.INFORMATIONS);
+                            },
                           ),
                           Padding(
                             padding: EdgeInsets.symmetric(vertical: 20.h),

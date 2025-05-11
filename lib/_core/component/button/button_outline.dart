@@ -13,6 +13,7 @@ class ButtonOutline extends StatelessWidget {
   final double? buttonWidth;
   final TextStyle? customTextStyle;
   final EdgeInsets? padding;
+  final Color borderColor;
 
   const ButtonOutline({
     Key? key,
@@ -23,6 +24,7 @@ class ButtonOutline extends StatelessWidget {
     this.buttonWidth,
     this.customTextStyle,
     this.padding,
+    this.borderColor = PrimaryColors.primary800,
   }) : super(key: key);
 
   @override
@@ -39,7 +41,7 @@ class ButtonOutline extends StatelessWidget {
             ),
             side: BorderSide(
               width: 2.w,
-              color: PrimaryColors.primary800,
+              color: borderColor,
             ),
           ),
           child: Padding(
