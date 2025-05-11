@@ -20,6 +20,10 @@ class ForgetPasswordScreen extends StatefulWidget {
 }
 
 class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
+  final String? role = Get.arguments as String;
+  final TextEditingController emailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,33 +33,34 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
           child: SingleChildScrollView(
             child: Form(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                HeaderText(
-                  firstText: 'Atur\nUlang Password',
-                  secondText:
-                      'Jangan khawatir, kami akan mengirimkan petunjuk atur ulang password Anda',
-                ),
-                SizedBox(height: 10.h),
-                Center(
-                    child: SvgPicture.asset('assets/images/taxi_homework.svg')),
-                SizedBox(height: 10.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w),
-                  child: TypographyStyles.body(
-                    'Email',
-                    color: GrayColors.gray800,
-                    fontWeight: FontWeight.w500,
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  HeaderText(
+                    firstText: 'Atur\nUlang Password',
+                    secondText: 'Jangan khawatir, kami akan mengirimkan petunjuk atur ulang password Anda',
                   ),
-                ),
-                SizedBox(height: 16.h),
-                InputForm(
-                  hintText: 'example@gmail.com',
-                  svgIconPath: 'assets/icons/ic_email.svg',
-                ),
-              ],
-            )),
+                  SizedBox(height: 10.h),
+                  Center(child: SvgPicture.asset('assets/images/taxi_homework.svg')),
+                  SizedBox(height: 10.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    child: TypographyStyles.body(
+                      'Email',
+                      color: GrayColors.gray800,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  InputForm(
+                    controller: emailController,
+                    hintText: 'example@gmail.com',
+                    svgIconPath: 'assets/icons/ic_email.svg',
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -77,7 +82,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                 text: 'Kembali untuk Masuk',
                 textColor: GrayColors.gray500,
                 onTap: () {
-                  Get.toNamed(Routes.LOGIN);
+                  Get.toNamed(Routes.LOGIN, arguments: role);
                 },
               ),
             )

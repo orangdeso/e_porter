@@ -167,7 +167,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               firstText: 'Sudah punya akun?',
               secondText: 'Masuk',
               onTab: () {
-                Get.toNamed(Routes.LOGIN);
+                Get.toNamed(Routes.LOGIN, arguments: role);
               },
             ),
           ],

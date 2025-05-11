@@ -87,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 32.h),
                   ForgetPasswordText(
                     onTab: () {
-                      Get.toNamed(Routes.FORGETPASSWORD);
+                      Get.toNamed(Routes.FORGETPASSWORD, arguments: role);
                     },
                   ),
                   SizedBox(height: 40.h),
@@ -114,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       text: 'Kembali ke sebelumnya',
                       textColor: GrayColors.gray500,
                       onTap: () {
-                        Get.back();
+                        Get.offAllNamed(Routes.ONBOARDING);
                       },
                     ),
                   )
