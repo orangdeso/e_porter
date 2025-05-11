@@ -73,19 +73,34 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ZoomTapAnimation(
-              child: ButtonFill(
-                text: 'Atur Ulang Password',
-                textColor: Colors.white,
-                onTap: () {
-                  if (_formKey.currentState!.validate()) {
-                    authController.sendResetEmail(emailController.text);
-                    Get.offAllNamed(Routes.LOGIN, arguments: role);
-                    emailController.clear();
-                  }
-                },
-              ),
-            ),
+            Obx(() {
+              if (!authController.isLoading.value) {
+                return SizedBox(
+                  width: double.infinity,
+                  height: 48.h,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: PrimaryColors.primary800,
+                    ),
+                  ),
+                );
+              }
+              return ZoomTapAnimation(
+                child: ButtonFill(
+                  text: 'Atur Ulang Password',
+                  textColor: Colors.white,
+                  onTap: () async {
+                    if (_formKey.currentState!.validate()) {
+                      authController.isLoading.value = true;
+                      await authController.sendResetEmail(emailController.text);
+                      authController.isLoading.value = false;
+                      emailController.clear();
+                      Get.offAllNamed(Routes.LOGIN, arguments: role);
+                    }
+                  },
+                ),
+              );
+            }),
             SizedBox(height: 10.h),
             ZoomTapAnimation(
               child: ButtonNoFill(
