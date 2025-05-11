@@ -115,4 +115,26 @@ class AuthRepositoryImpl implements AuthRepository {
     }
     return null;
   }
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(e.message ?? "Gagal mengirim email reset.");
+    }
+  }
+
+  @override
+  Future<void> confirmPasswordReset(String code, String newPassword) async {
+    try {
+      await _firebaseAuth.verifyPasswordResetCode(code);
+      await _firebaseAuth.confirmPasswordReset(
+        code: code,
+        newPassword: newPassword,
+      );
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(e.message ?? "Gagal mengganti password.");
+    }
+  }
 }

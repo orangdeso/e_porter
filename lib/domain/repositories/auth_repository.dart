@@ -9,4 +9,8 @@ abstract class AuthRepository {
 
   Future<UserEntity> registerWithEmailPassword(String email, String password);
   Future<void> saveUserData(UserData userData);
+
+  Future<void> sendPasswordResetEmail(String email);
+  Future<void> confirmPasswordReset(String code, String newPassword);
+  
 }

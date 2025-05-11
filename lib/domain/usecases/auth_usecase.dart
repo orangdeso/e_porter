@@ -48,3 +48,15 @@ class SaveUserDataUseCase {
     return await authRepository.saveUserData(userData);
   }
 }
+
+class SendResetEmailUseCase {
+  final AuthRepository repo;
+  SendResetEmailUseCase(this.repo);
+  Future<void> call(String email) => repo.sendPasswordResetEmail(email);
+}
+
+class ConfirmResetPasswordUseCase {
+  final AuthRepository repo;
+  ConfirmResetPasswordUseCase(this.repo);
+  Future<void> call(String code, String newPassword) => repo.confirmPasswordReset(code, newPassword);
+}

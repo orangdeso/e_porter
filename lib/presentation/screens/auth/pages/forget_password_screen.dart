@@ -1,5 +1,8 @@
 import 'package:e_porter/_core/component/button/button_fill.dart';
 import 'package:e_porter/_core/component/button/button_no_fill.dart';
+import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
+import 'package:e_porter/_core/validators/validators.dart';
+import 'package:e_porter/presentation/controllers/auth_controller.dart';
 import 'package:e_porter/presentation/screens/auth/component/header_text.dart';
 import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +26,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   final String? role = Get.arguments as String;
   final TextEditingController emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +61,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                     controller: emailController,
                     hintText: 'example@gmail.com',
                     svgIconPath: 'assets/icons/ic_email.svg',
+                    validator: Validators.validatorEmail,
                   ),
                 ],
               ),
@@ -64,8 +69,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+      bottomNavigationBar: CustomeShadowCotainner(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -73,7 +77,13 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
               child: ButtonFill(
                 text: 'Atur Ulang Password',
                 textColor: Colors.white,
-                onTap: () {},
+                onTap: () {
+                  if (_formKey.currentState!.validate()) {
+                    authController.sendResetEmail(emailController.text);
+                    Get.offAllNamed(Routes.LOGIN, arguments: role);
+                    emailController.clear();
+                  }
+                },
               ),
             ),
             SizedBox(height: 10.h),

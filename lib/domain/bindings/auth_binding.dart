@@ -15,6 +15,8 @@ class AuthBinding extends Bindings {
     final getUserDataUseCase = GetUserDataUseCase(authRepository);
     final registerUseCase = RegisterUseCase(authRepository);
     final saveUserDataUseCase = SaveUserDataUseCase(authRepository);
+    final sendResetEmailUseCase = SendResetEmailUseCase(authRepository);
+    final confirmResetPasswordUseCase = ConfirmResetPasswordUseCase(authRepository);
 
     Get.put<AuthController>(
       AuthController(
@@ -23,6 +25,8 @@ class AuthBinding extends Bindings {
         getUserDataUseCase: getUserDataUseCase,
         registerUseCase: registerUseCase,
         saveUserDataUseCase: saveUserDataUseCase,
+        sendResetEmailUseCase: sendResetEmailUseCase,
+        confirmResetPasswordUseCase: confirmResetPasswordUseCase,
       ),
     );
   }

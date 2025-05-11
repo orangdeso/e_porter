@@ -16,6 +16,8 @@ class AuthController extends GetxController {
   final GetUserDataUseCase getUserDataUseCase;
   final RegisterUseCase registerUseCase;
   final SaveUserDataUseCase saveUserDataUseCase;
+  final SendResetEmailUseCase sendResetEmailUseCase;
+  final ConfirmResetPasswordUseCase confirmResetPasswordUseCase;
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -29,6 +31,8 @@ class AuthController extends GetxController {
     required this.getUserDataUseCase,
     required this.registerUseCase,
     required this.saveUserDataUseCase,
+    required this.sendResetEmailUseCase,
+    required this.confirmResetPasswordUseCase,
   });
 
   Future<void> login({String? roleFromOnboarding}) async {
@@ -83,7 +87,7 @@ class AuthController extends GetxController {
           "Login Gagal",
           "Email atau password anda salah.",
         );
-      } 
+      }
     } catch (e) {
       SnackbarHelper.showError("Terjadi Kesalahan", e.toString());
     } finally {
@@ -200,13 +204,28 @@ class AuthController extends GetxController {
     }
   }
 
-  // void _showErrorSnackbar(String title, String message) {
-  //   Get.snackbar(
-  //     title,
-  //     message,
-  //     snackPosition: SnackPosition.TOP,
-  //     backgroundColor: Colors.red,
-  //     colorText: Colors.white,
-  //   );
-  // }
+  Future<void> sendResetEmail(String email) async {
+    try {
+      await sendResetEmailUseCase(email.trim());
+      SnackbarHelper.showSuccess(
+        "Silahkan Cek Email",
+        "Link reset password telah dikirim ke $email.",
+      );
+    } on AuthException catch (e) {
+      SnackbarHelper.showError("Gagal", e.message);
+    }
+  }
+
+  Future<void> resetPassword(String code, String newPassword) async {
+    try {
+      await confirmResetPasswordUseCase(code, newPassword);
+      SnackbarHelper.showSuccess(
+        "Berhasil",
+        "Password berhasil diubah. Silakan login kembali.",
+      );
+      Get.offAllNamed(Routes.LOGIN);
+    } on AuthException catch (e) {
+      SnackbarHelper.showError("Gagal", e.message);
+    }
+  }
 }
