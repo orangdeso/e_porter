@@ -47,7 +47,7 @@ class TextFieldComponent extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(width: 1.5.w, color: PrimaryColors.primary800),
+            borderSide: BorderSide(width: 2.w, color: PrimaryColors.primary800),
           ),
           contentPadding: EdgeInsets.symmetric(vertical: 16.h),
         ),

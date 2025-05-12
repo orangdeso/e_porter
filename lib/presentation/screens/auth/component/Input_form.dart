@@ -40,10 +40,8 @@ class _InputFormState extends State<InputForm> {
         controller: widget.controller,
         validator: widget.validator,
         keyboardType: widget.textInputType,
-        inputFormatters: widget.inputFormatters ??
-            <TextInputFormatter>[
-              FilteringTextInputFormatter.singleLineFormatter
-            ],
+        inputFormatters:
+            widget.inputFormatters ?? <TextInputFormatter>[FilteringTextInputFormatter.singleLineFormatter],
         decoration: InputDecoration(
           hintText: widget.hintText,
           hintStyle: TextStyle(
@@ -69,8 +67,8 @@ class _InputFormState extends State<InputForm> {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.r),
             borderSide: BorderSide(
-              width: 1.w,
-              color: GrayColors.gray200,
+              width: 2.w,
+              color: PrimaryColors.primary800,
             ),
           ),
           border: OutlineInputBorder(

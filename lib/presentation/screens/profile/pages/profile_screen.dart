@@ -96,7 +96,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ProfileMenu(
                             label: 'Ganti Kata Sandi',
                             svgIcon: 'assets/icons/ic_lock.svg',
-                            onTap: () {},
+                            onTap: () {
+                              Get.toNamed(Routes.CHANGEPASSWORD);
+                            },
                           ),
                           Padding(
                             padding: EdgeInsets.symmetric(vertical: 20.h),

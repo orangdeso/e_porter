@@ -34,6 +34,7 @@ import 'package:e_porter/presentation/screens/home/pages/ticket_booking_step4_sc
 import 'package:e_porter/presentation/screens/home/pages/upload_file_screen.dart';
 import 'package:e_porter/presentation/screens/navigation/main_navigation.dart';
 import 'package:e_porter/presentation/screens/onboarding/onboarding_screen.dart';
+import 'package:e_porter/presentation/screens/profile/pages/change_password_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/information_users_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/profile_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/add_passenger_screen.dart';
@@ -197,22 +198,30 @@ class AppRoutes {
     GetPage(
       name: Routes.INFORMATIONS,
       page: () => InformationUsersScreen(),
+      binding: ProfilBinding(),
+    ),
+    GetPage(
+      name: Routes.CHANGEPASSWORD,
+      page: () => ChangePasswordScreen(),
     ),
   ];
 }
 
 class Routes {
-  static const NAVBAR = '/navigation';
+  // Auth
   static const SPLASH = '/splash';
   static const ONBOARDING = '/onboarding';
   static const LOGIN = '/login';
-  static const VERIFICATION = '/verification';
-  static const HOME = '/home';
-  static const BOARDINGPASS = '/boarding_pass';
-  static const PROFILE = '/profile';
   static const REGISTER = '/register';
   static const FORGETPASSWORD = '/forget_password';
+  static const VERIFICATION = '/verification';
   static const STATESUCCES = '/state_succes';
+
+  // Navbar
+  static const NAVBAR = '/navigation';
+
+  // Home
+  static const HOME = '/home';
   static const OURSERVICE = '/our_service';
   static const BOOKINGTICKETS = '/booking_tickets';
   static const SEARCHFLIGHT = '/search_flight';
@@ -224,6 +233,9 @@ class Routes {
   static const CHOOSECHAIR = '/choose_chair';
   static const PAYMENT = '/payment';
   static const UPLOADFILE = '/upload_file';
+
+  // Boarding Pass
+  static const BOARDINGPASS = '/boarding_pass';
   static const TRANSACTIONHISTORY = '/transaction_history';
   static const DETAILTICKET = '/detail_ticket';
   static const PRINTBOARDINGPASS = '/print_boarding_pass';
@@ -232,6 +244,9 @@ class Routes {
   static const HISTORYPORTER = '/history_porter';
   static const DETAILHISTORYPORTER = '/detail_history_porter';
 
+  // Profile
+  static const PROFILE = '/profile';
   static const ADDPASSENGER = '/add_passenger';
   static const INFORMATIONS = '/informations';
+  static const CHANGEPASSWORD = '/change_password';
 }

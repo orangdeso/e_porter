@@ -55,24 +55,14 @@ class _InputPasswordState extends State<InputPassword> {
             letterSpacing: 1.w,
           ),
           prefixIcon: Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: 14.h,
-              horizontal: 13.w,
-            ),
-            child: SvgPicture.asset(
-              widget.svgIconPath,
-              color: GrayColors.gray500,
-            ),
+            padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 13.w),
+            child: SvgPicture.asset(widget.svgIconPath, color: GrayColors.gray500),
           ),
           suffixIcon: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: IconButton(
               icon: Icon(
-                _isObscure
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
+                _isObscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                 color: GrayColors.gray500,
               ),
               onPressed: () {
@@ -84,24 +74,15 @@ class _InputPasswordState extends State<InputPassword> {
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(
-              width: 1.w,
-              color: GrayColors.gray200,
-            ),
+            borderSide: BorderSide(width: 1.w, color: GrayColors.gray200),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(
-              width: 1.w,
-              color: GrayColors.gray200,
-            ),
+            borderSide: BorderSide(width: 2.w, color: PrimaryColors.primary800),
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(
-              width: 1.w,
-              color: GrayColors.gray200,
-            ),
+            borderSide: BorderSide(width: 1.w, color: GrayColors.gray200),
           ),
         ),
       ),

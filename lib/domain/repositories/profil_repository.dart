@@ -7,4 +7,5 @@ abstract class ProfilRepository {
   });
 
   Future<List<PassengerModel>> getPassengerById(String userId);
+  Future<UserData> getUserById(String userId);
 }

@@ -4,20 +4,17 @@ import '../../_core/service/logger_service.dart';
 import '../../domain/models/user_entity.dart';
 
 class ProfilRepositoryImpl implements ProfilRepository {
-   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Future<void> createPassenger({
     required String userId,
     required PassengerModel passenger,
   }) async {
-      try {
-        DocumentReference docRef = await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('passenger')
-          .add(passenger.toMap());
-        logger.d("Passenger doc id: ${docRef.id}");
+    try {
+      DocumentReference docRef =
+          await _firestore.collection('users').doc(userId).collection('passenger').add(passenger.toMap());
+      logger.d("Passenger doc id: ${docRef.id}");
     } catch (e) {
       rethrow;
     }
@@ -26,14 +23,21 @@ class ProfilRepositoryImpl implements ProfilRepository {
   @override
   Future<List<PassengerModel>> getPassengerById(String userId) async {
     try {
-      QuerySnapshot querySnapshot = await _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('passenger')
-        .get();
-      return querySnapshot.docs
-        .map((doc) => PassengerModel.fromMap(doc.data() as Map<String, dynamic>))
-        .toList();
+      QuerySnapshot querySnapshot = await _firestore.collection('users').doc(userId).collection('passenger').get();
+      return querySnapshot.docs.map((doc) => PassengerModel.fromMap(doc.data() as Map<String, dynamic>)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<UserData> getUserById(String userId) async {
+    try {
+      final doc = await _firestore.collection('users').doc(userId).get();
+      if (!doc.exists) {
+        throw Exception("User with id $userId not found");
+      }
+      return UserData.fromMap(doc.data()!);
     } catch (e) {
       rethrow;
     }

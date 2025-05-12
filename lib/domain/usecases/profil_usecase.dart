@@ -19,10 +19,17 @@ class CreatePassengerUseCase {
 
 class GetPassengerByIdUseCase {
   final ProfilRepository profilRepository;
-  
+
   GetPassengerByIdUseCase(this.profilRepository);
-  
+
   Future<List<PassengerModel>> call(String userId) async {
     return await profilRepository.getPassengerById(userId);
   }
+}
+
+class GetUserByIdUseCase {
+  final ProfilRepository profilRepository;
+  GetUserByIdUseCase(this.profilRepository);
+
+  Future<UserData> call(String userId) => profilRepository.getUserById(userId);
 }

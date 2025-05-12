@@ -3,6 +3,9 @@ import 'package:e_porter/_core/component/button/button_outline.dart';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
+import 'package:e_porter/domain/models/user_entity.dart';
+import 'package:e_porter/presentation/controllers/profil_controller.dart';
+import 'package:e_porter/presentation/screens/profile/component/header_information.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -15,6 +18,8 @@ class InformationUsersScreen extends StatefulWidget {
 }
 
 class _InformationUsersScreenState extends State<InformationUsersScreen> {
+  final ProfilController _profilController = Get.find<ProfilController>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,22 +32,30 @@ class _InformationUsersScreenState extends State<InformationUsersScreen> {
           Get.back();
         },
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-          child: SingleChildScrollView(
-            child: Form(
-              child: Column(
-                children: [
-                  _buildHeaderInformation(),
-                  _buildCardMain(),
-                  _buildCardSecondary(),
-                ],
+      body: Obx(() {
+        final fetchData = _profilController.userData.value;
+        if (fetchData == null) {
+          return Center(child: CircularProgressIndicator(color: PrimaryColors.primary800));
+        }
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+            child: SingleChildScrollView(
+              child: Form(
+                child: Column(
+                  children: [
+                    HeaderInformation(
+                        title:
+                            'Semua informasi mengenai data diri Anda, akan ditampilkan di halaman ini. Lengkapi data diri anda untuk menikmati semua layanan E-Porter'),
+                    _buildCardMain(fetchData),
+                    _buildCardSecondary(fetchData),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      }),
       bottomNavigationBar: CustomeShadowCotainner(
         child: ButtonOutline(
           text: 'Hapus Akun',
@@ -54,68 +67,46 @@ class _InformationUsersScreenState extends State<InformationUsersScreen> {
     );
   }
 
-  Widget _buildHeaderInformation() {
-    return Row(
-      children: [
-        Icon(
-          Icons.info_outline_rounded,
-          color: GrayColors.gray500,
-          size: 24.sp,
-        ),
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(left: 16.w),
-            child: TypographyStyles.caption(
-              'Semua informasi mengenai data diri Anda, akan ditampilkan di halaman ini. Lengkapi data diri anda untuk menikmati semua layanan E-Porter',
-              color: GrayColors.gray500,
-              maxlines: 5,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget _buildCardMain() {
+  Widget _buildCardMain(UserData userData) {
     return Padding(
       padding: EdgeInsets.only(top: 32.h),
       child: CustomeShadowCotainner(
         child: Column(
           children: [
-            itemWithButton(label: 'Nomor Telepon', value: 'value'),
+            itemWithButton(label: 'Nomor Telepon', value: userData.phone ?? '-'),
             SizedBox(height: 24.h),
-            itemWithButton(label: 'Email', value: 'ahmadzaqi98mmmmmm@gmail.com'),
+            itemWithButton(label: 'Email', value: userData.email ?? '-'),
             SizedBox(height: 24.h),
-            itemDoubleWithButton(label1: 'Tipe ID', value2: 'value', label2: 'No ID', value1: 'value'),
+            itemDoubleWithButton(
+                label1: 'Tipe ID', value1: userData.tipeId ?? '-', label2: 'No ID', value2: userData.noId ?? '-'),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCardSecondary() {
+  Widget _buildCardSecondary(UserData userData) {
     return Padding(
       padding: EdgeInsets.only(top: 20.h),
       child: CustomeShadowCotainner(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            itemWithButton(label: 'Nama Lengkap', value: 'Ahmad Zaqi', isDivider: false),
+            itemWithButton(label: 'Nama Lengkap', value: userData.name ?? '-', isDivider: false),
             SizedBox(height: 24.h),
             Row(
               children: [
-                infoDoubleItem(label: 'Jenis Kelamin', value: 'value'),
+                infoDoubleItem(label: 'Jenis Kelamin', value: userData.gender ?? '-'),
                 SizedBox(width: 20.w),
-                infoDoubleItem(label: 'Tanggal Lahir', value: 'value'),
+                infoDoubleItem(label: 'Tanggal Lahir', value: userData.birthDate ?? '-'),
               ],
             ),
             SizedBox(height: 24.h),
-            infoDoubleItem(label: 'Alamat', value: 'value'),
+            infoDoubleItem(label: 'Alamat', value: userData.address ?? '-'),
             SizedBox(height: 24.h),
-            infoDoubleItem(label: 'Kota / Kabupaten', value: 'value'),
+            infoDoubleItem(label: 'Kota / Kabupaten', value: userData.city ?? '-'),
             SizedBox(height: 24.h),
-            infoDoubleItem(label: 'Pekerjaan', value: 'value')
+            infoDoubleItem(label: 'Pekerjaan', value: userData.work ?? '-'),
           ],
         ),
       ),
