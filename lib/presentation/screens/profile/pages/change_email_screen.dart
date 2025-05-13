@@ -1,10 +1,7 @@
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
-import 'package:e_porter/_core/component/button/button_fill.dart';
-import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/component/text/custom_text.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/validators/validators.dart';
-import 'package:e_porter/presentation/controllers/profil_controller.dart';
 import 'package:e_porter/presentation/screens/auth/component/Input_form.dart';
 import 'package:e_porter/presentation/screens/auth/component/Input_password.dart';
 import 'package:e_porter/presentation/screens/profile/component/header_information.dart';
