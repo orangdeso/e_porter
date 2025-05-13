@@ -8,6 +8,13 @@ class Validators {
     return null;
   }
 
+  static String? validatorPhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Nomor Telepon tidak boleh kosong';
+    }
+    return null;
+  }
+
   static String? validatorPassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Password tidak boleh kosong';

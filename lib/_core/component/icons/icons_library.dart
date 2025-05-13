@@ -53,6 +53,7 @@ class CustomeIcons {
   static SvgPicture RemoveOutline({double? size, Color? color}) => getIcon('ic_remove', color: color);
   static SvgPicture UploadOutline({double? size, Color? color}) => getIcon('ic_upload', color: color);
   static SvgPicture ScrollOutline({double? size, Color? color}) => getIcon('ic_scroll_outline', color: color);
+  static SvgPicture PhoneOutline({double? size, Color? color}) => getIcon('ic_phone', color: color);
 
   static SvgPicture ScrollFilled({double? size, Color? color}) => getIcon('ic_scroll_filled', color: color);
   static SvgPicture FlightSeatFilled({double? size, Color? color}) => getIcon('ic_flight_seat_filled', color: color);
