@@ -8,7 +8,28 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CardTransaction extends StatelessWidget {
-  const CardTransaction({super.key});
+  final String bookingCode;
+  final String airlineLogo;
+  final String departureCode;
+  final String arrivalCode;
+  final String ticketDate;
+  final String flightClass;
+  final String servicePorter;
+  final String duration;
+  final String price;
+
+  const CardTransaction({
+    Key? key,
+    required this.bookingCode,
+    required this.airlineLogo,
+    required this.departureCode,
+    required this.arrivalCode,
+    required this.ticketDate,
+    required this.flightClass,
+    required this.servicePorter,
+    required this.duration,
+    required this.price,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +48,7 @@ class CardTransaction extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TypographyStyles.small("Kode Booking", color: Colors.white, fontWeight: FontWeight.w400),
-                  TypographyStyles.body("I2L8JRL", color: Colors.white)
+                  TypographyStyles.body(bookingCode, color: Colors.white)
                 ],
               ),
               Container(
@@ -46,66 +67,80 @@ class CardTransaction extends StatelessWidget {
             bottomLeft: Radius.circular(10.r),
             bottomRight: Radius.circular(10.r),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              SvgPicture.asset('assets/images/citilink.svg', width: 40.w, height: 10.h),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+          child: IntrinsicHeight(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Image.network(airlineLogo, width: 40.w),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            TypographyStyles.small(
+                              ticketDate,
+                              color: GrayColors.gray600,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            SizedBox(width: 10.w),
+                            CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)),
+                            SizedBox(width: 10.w),
+                            TypographyStyles.small(duration, color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                          ],
+                        ),
+                        SizedBox(height: 6.h),
+                        Row(
+                          children: [
+                            TypographyStyles.body(departureCode, color: GrayColors.gray800),
+                            SizedBox(width: 10.w),
+                            SvgPicture.asset(
+                              'assets/icons/ic_right.svg',
+                              color: GrayColors.gray800,
+                              width: 14.w,
+                              height: 14.h,
+                            ),
+                            SizedBox(width: 10.w),
+                            TypographyStyles.body(arrivalCode, color: GrayColors.gray800),
+                          ],
+                        ),
+                        SizedBox(height: 6.h),
+                        Row(
+                          children: [
+                            TypographyStyles.small(
+                              flightClass,
+                              color: GrayColors.gray600,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            SizedBox(width: 10.w),
+                            CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)),
+                            SizedBox(width: 10.w),
+                            Expanded(child: TypographyStyles.small(servicePorter, color: GrayColors.gray600, fontWeight: FontWeight.w400)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      TypographyStyles.small(
-                        'Sen, 27 Jan 2025 ',
-                        color: GrayColors.gray600,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      SizedBox(width: 10.w),
-                      CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)),
-                      SizedBox(width: 10.w),
-                      TypographyStyles.small('5j 40m', color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                      TypographyStyles.small('Total Harga', color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                      TypographyStyles.caption(price, color: PrimaryColors.primary800)
                     ],
                   ),
-                  SizedBox(height: 6.h),
-                  Row(
-                    children: [
-                      TypographyStyles.body('YIA', color: GrayColors.gray800),
-                      SizedBox(width: 10.w),
-                      SvgPicture.asset(
-                        'assets/icons/ic_right.svg',
-                        color: GrayColors.gray800,
-                        width: 14.w,
-                        height: 14.h,
-                      ),
-                      SizedBox(width: 10.w),
-                      TypographyStyles.body('LOP', color: GrayColors.gray800),
-                    ],
-                  ),
-                  SizedBox(height: 6.h),
-                  Row(
-                    children: [
-                      TypographyStyles.small(
-                        'Economy',
-                        color: GrayColors.gray600,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      SizedBox(width: 10.w),
-                      CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)),
-                      SizedBox(width: 10.w),
-                      TypographyStyles.small('Fast Track (FT)', color: GrayColors.gray600, fontWeight: FontWeight.w400),
-                    ],
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  TypographyStyles.small('Total Harga', color: GrayColors.gray600, fontWeight: FontWeight.w400),
-                  TypographyStyles.caption("Rp 1.410.000", color: PrimaryColors.primary800)
-                ],
-              )
-            ],
+                )
+              ],
+            ),
           ),
         )
       ],

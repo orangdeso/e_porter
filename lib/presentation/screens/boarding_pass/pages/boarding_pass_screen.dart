@@ -7,7 +7,6 @@ import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-
 import '../../../../_core/service/preferences_service.dart';
 import '../../../../_core/utils/map_helper.dart';
 import '../../../../domain/models/transaction_model.dart';

@@ -159,6 +159,7 @@ class AppRoutes {
     GetPage(
       name: Routes.TRANSACTIONHISTORY,
       page: () => transactionHistory(),
+      binding: HistoryBinding(),
     ),
     GetPage(
       name: Routes.DETAILTICKET,

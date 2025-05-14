@@ -39,6 +39,10 @@ class TransactionModel {
     required this.numberSeat,
   });
 
+  DateTime get departureDate => (flightDetails['departureTime'] is int)
+      ? DateTime.fromMillisecondsSinceEpoch(flightDetails['departureTime'] as int)
+      : DateTime.now();
+
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
     DateTime getDateTime(dynamic value) {
       if (value is Timestamp) {

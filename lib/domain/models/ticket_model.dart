@@ -52,6 +52,7 @@ class FlightModel {
   final String transitAirplane;
   final String stop;
   final int price;
+  final String gate;
   final String airlineLogo;
   final Map<String, SeatInfo> seat;
 
@@ -73,6 +74,7 @@ class FlightModel {
     required this.transitAirplane,
     required this.stop,
     required this.price,
+    required this.gate,
     required this.airlineLogo,
     required this.seat,
   });
@@ -105,6 +107,7 @@ class FlightModel {
       transitAirplane: data['transitAirplane'] ?? '',
       stop: data['stop'] ?? '',
       price: data['price'] ?? 0,
+      gate: data['gate'] ?? '',
       airlineLogo: data['airlineLogo'] ?? '',
       seat: seatMap,
     );
@@ -128,6 +131,7 @@ class FlightModel {
       'transitAirplane': transitAirplane,
       'stop': stop,
       'price': price,
+      'gate': gate,
       'airlineLogo': airlineLogo,
       'seat': seat.map((key, value) => MapEntry(key, value.toMap())),
     };

@@ -94,6 +94,18 @@ class HistoryRepositoryImpl implements HistoryRepository {
   }
 
   @override
+  Stream<List<TransactionModel>> getHistoryTransactionsStream(String userId) {
+    return getTransactionsStream(userId, 'active').map((allPaid) {
+      final startOfToday = DateTime(
+        DateTime.now().year,
+        DateTime.now().month,
+        DateTime.now().day,
+      );
+      return allPaid.where((tx) => tx.departureDate.isBefore(startOfToday)).toList();
+    });
+  }
+
+  @override
   Future<TransactionModel?> getTransactionFromFirestore(String ticketId, String transactionId) async {
     try {
       log('HistoryRepositoryImpl: mengambil transaksi dari Firestore dengan ticketId: $ticketId, transactionId: $transactionId');

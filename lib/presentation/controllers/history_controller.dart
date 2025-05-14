@@ -10,6 +10,7 @@ class HistoryController extends GetxController {
 
   final RxList<TransactionModel> pendingTransactions = <TransactionModel>[].obs;
   final RxList<TransactionModel> activeTransactions = <TransactionModel>[].obs;
+  final RxList<TransactionModel> historyTransactions = <TransactionModel>[].obs;
   final Rx<TransactionModel?> selectedTransaction = Rx<TransactionModel?>(null);
 
   final RxBool isLoading = true.obs;
@@ -18,6 +19,7 @@ class HistoryController extends GetxController {
 
   StreamSubscription? _pendingSubscription;
   StreamSubscription? _activeSubscription;
+  StreamSubscription? _historySubscription;
 
   String _currentUserId = '';
 
@@ -42,15 +44,39 @@ class HistoryController extends GetxController {
       isLoading.value = false;
     });
 
-    _activeSubscription = _historyUseCase.getActiveTransactionsStream(userId).listen((transactions) {
-      log('HistoryController: active transactions updated, count: ${transactions.length}');
+    // _activeSubscription = _historyUseCase.getActiveTransactionsStream(userId).listen((transactions) {
+    //   log('HistoryController: active transactions updated, count: ${transactions.length}');
 
-      final sortedTransactions = _sortTransactionsByCreatedAt(transactions);
-      activeTransactions.value = sortedTransactions;
+    //   final sortedTransactions = _sortTransactionsByCreatedAt(transactions);
+    //   activeTransactions.value = sortedTransactions;
 
+    //   isLoading.value = false;
+    // }, onError: (error) {
+    //   log('HistoryController: Error mendapatkan transaksi active: $error');
+    //   isLoading.value = false;
+    // });
+
+    _activeSubscription = _historyUseCase.getActiveTransactionsStream(userId).map((list) {
+      final todayStart = DateTime(
+        DateTime.now().year,
+        DateTime.now().month,
+        DateTime.now().day,
+      );
+      return list.where((tx) {
+        return tx.departureDate.isAtSameMomentAs(todayStart) || tx.departureDate.isAfter(todayStart);
+      }).toList();
+    }).listen((filtered) {
+      activeTransactions.value = _sortTransactionsByCreatedAt(filtered);
       isLoading.value = false;
-    }, onError: (error) {
-      log('HistoryController: Error mendapatkan transaksi active: $error');
+    }, onError: (e) {
+      log('Error mendapatkan transaksi active: $e');
+      isLoading.value = false;
+    });
+
+    _historySubscription = _historyUseCase.getHistoryTransactionsStream(userId).listen((historyList) {
+      historyTransactions.value = _sortTransactionsByCreatedAt(historyList);
+      isLoading.value = false;
+    }, onError: (_) {
       isLoading.value = false;
     });
   }
@@ -119,6 +145,7 @@ class HistoryController extends GetxController {
 
     pendingTransactions.clear();
     activeTransactions.clear();
+    historyTransactions.clear();
 
     isLoading.value = true;
 
@@ -129,7 +156,7 @@ class HistoryController extends GetxController {
   }
 
   String getUserId() {
-    if (_pendingSubscription != null || _activeSubscription != null) {
+    if (_pendingSubscription != null || _activeSubscription != null || _historySubscription != null) {
       return _currentUserId;
     }
     return '';
@@ -138,8 +165,10 @@ class HistoryController extends GetxController {
   void _cleanupStreams() {
     _pendingSubscription?.cancel();
     _activeSubscription?.cancel();
+    _historySubscription?.cancel();
     _pendingSubscription = null;
     _activeSubscription = null;
+    _historySubscription = null;
   }
 
   @override

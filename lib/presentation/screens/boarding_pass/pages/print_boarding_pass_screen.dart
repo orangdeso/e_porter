@@ -210,7 +210,7 @@ class _PrintBoardingPassScreenState extends State<PrintBoardingPassScreen> {
                                 context: context,
                                 services: services,
                                 flightClass: transaction.flightDetails['flightClass'],
-                                gate: 'Gate',
+                                gate: transaction.flightDetails['gate'],
                                 seatNumber: seatNumber,
                               ),
                             ),

@@ -312,6 +312,7 @@ class _TicketBookingStep4ScreenState extends State<TicketBookingStep4Screen> {
                 'stop': flightData?.stop,
                 'airlineLogo': flightData?.airlineLogo,
                 'price': flightData?.price,
+                'gate': flightData?.gate,
               };
 
               // Persiapkan data porter service jika ada

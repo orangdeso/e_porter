@@ -7,14 +7,16 @@ class HistoryUseCase {
 
   HistoryUseCase(this._repository);
 
-  // Mendapatkan transaksi dengan status pending secara realtime
   Stream<List<TransactionModel>> getPendingTransactionsStream(String userId) {
     return _repository.getTransactionsStream(userId, 'pending');
   }
 
-  // Mendapatkan transaksi dengan status active secara realtime
   Stream<List<TransactionModel>> getActiveTransactionsStream(String userId) {
     return _repository.getTransactionsStream(userId, 'active');
+  }
+
+  Stream<List<TransactionModel>> getHistoryTransactionsStream(String uid) {
+    return _repository.getHistoryTransactionsStream(uid);
   }
 
   Future<TransactionModel?> getTransactionFromFirestore(String ticketId, String transactionId) {
