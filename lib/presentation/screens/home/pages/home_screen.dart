@@ -398,17 +398,17 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Obx(
                                   () => SummaryCard(
-                                    label: 'Pesanan Masuk',
+                                    label: 'Daftar pesanan masuk anda',
                                     value: '${_statisticController.incoming.value}',
-                                    icon: CustomeIcons.PlaneLeftOutline(),
+                                    icon: CustomeIcons.OrderFilled(),
                                   ),
                                 ),
                                 SizedBox(width: 16.w),
                                 Obx(
                                   () => SummaryCard(
-                                    label: 'Pesanan Diproses',
+                                    label: 'Daftar pesanan status diproses',
                                     value: '${_statisticController.inProgress.value}',
-                                    icon: CustomeIcons.PlaneLeftOutline(),
+                                    icon: CustomeIcons.OrderHistoryFilled(),
                                   ),
                                 )
                               ],
@@ -418,9 +418,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Obx(
                                   () => SummaryCard(
-                                    label: 'Pesanan Selesai',
-                                    value: 'Rp ${_statisticController.completed.value}',
-                                    icon: CustomeIcons.PlaneLeftOutline(),
+                                    label: 'Daftar pesanan status selesai',
+                                    value: '${_statisticController.completed.value}',
+                                    icon: CustomeIcons.OrderCompleteFilled(),
                                   ),
                                 ),
                                 SizedBox(width: 16.w),
@@ -431,9 +431,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                         NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
                                             .format(revenue);
                                     return SummaryCard(
-                                      label: 'Pendapatan',
+                                      label: 'Jumlah pendapatan anda hari ini',
                                       value: formatted,
-                                      icon: CustomeIcons.PlaneLeftOutline(),
+                                      icon: CustomeIcons.IncomeFilled(),
                                     );
                                   },
                                 ),
@@ -637,7 +637,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required String nameAvatar,
     required String nameUser,
     required String subTitle,
-    VoidCallback? onTap,
+    // VoidCallback? onTap,
   }) {
     return CustomeShadowCotainner(
       sizeRadius: 0.r,
@@ -659,12 +659,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          ZoomTapAnimation(
-            child: IconButton(
-              onPressed: onTap,
-              icon: CustomeIcons.NotificationOutline(),
-            ),
-          )
+          // ZoomTapAnimation(
+          //   child: IconButton(
+          //     onPressed: onTap,
+          //     icon: CustomeIcons.NotificationOutline(),
+          //   ),
+          // )
         ],
       ),
     );

@@ -23,28 +23,35 @@ class SummaryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                icon,
-                SizedBox(width: 16.w),
-                Expanded(
-                  child: TypographyStyles.caption(
-                    label,
-                    color: GrayColors.gray600,
-                    fontWeight: FontWeight.w600,
-                    overflow: TextOverflow.ellipsis,
-                    maxlines: 1,
-                  ),
-                ),
-              ],
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: PrimaryColors.primary50,
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: icon,
             ),
-            SizedBox(height: 10.h),
-            TypographyStyles.body(
-              value,
-              color: GrayColors.gray800,
-              overflow: TextOverflow.ellipsis,
-              maxlines: 1,
-            )
+            SizedBox(height: 12.h),
+            Padding(
+              padding: EdgeInsets.only(left: 8.w),
+              child: TypographyStyles.h6(
+                value,
+                color: GrayColors.gray800,
+                overflow: TextOverflow.ellipsis,
+                maxlines: 1,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Padding(
+              padding: EdgeInsets.only(left: 8.w),
+              child: TypographyStyles.caption(
+                label,
+                fontWeight: FontWeight.w400,
+                color: GrayColors.gray500,
+                overflow: TextOverflow.ellipsis,
+                maxlines: 2,
+              ),
+            ),
           ],
         ),
       ),

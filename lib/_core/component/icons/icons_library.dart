@@ -22,6 +22,7 @@ class CustomeIcons {
     );
   }
 
+  // Icons Outlined
   static SvgPicture AccountOutline({double? size, Color? color}) => getIcon('ic_account', color: color);
   static SvgPicture CalendarOutline({double? size, Color? color}) => getIcon('ic_calendar', color: color);
   static SvgPicture DataTransferOutline({double? size, Color? color}) => getIcon('ic_data_transfer', color: color);
@@ -55,8 +56,13 @@ class CustomeIcons {
   static SvgPicture ScrollOutline({double? size, Color? color}) => getIcon('ic_scroll_outline', color: color);
   static SvgPicture PhoneOutline({double? size, Color? color}) => getIcon('ic_phone', color: color);
 
+  // Icons Filled
   static SvgPicture ScrollFilled({double? size, Color? color}) => getIcon('ic_scroll_filled', color: color);
   static SvgPicture FlightSeatFilled({double? size, Color? color}) => getIcon('ic_flight_seat_filled', color: color);
   static SvgPicture PlaneRightFilled({double? size, Color? color}) => getIcon('ic_plane_filled', color: color);
   static SvgPicture VIPFilled({double? size, Color? color}) => getIcon('ic_vip', color: color);
+  static SvgPicture IncomeFilled({double? size, Color? color}) => getIcon('ic_income_filled', color: color);
+  static SvgPicture OrderFilled({double? size, Color? color}) => getIcon('ic_order_filled', color: color);
+  static SvgPicture OrderHistoryFilled({double? size, Color? color}) => getIcon('ic_order_history_filled', color: color);
+  static SvgPicture OrderCompleteFilled({double? size, Color? color}) => getIcon('ic_order_complete_filled', color: color);
 }
