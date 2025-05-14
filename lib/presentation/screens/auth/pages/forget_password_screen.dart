@@ -74,7 +74,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Obx(() {
-              if (!authController.isLoading.value) {
+              if (authController.isLoading.value) {
                 return SizedBox(
                   width: double.infinity,
                   height: 48.h,

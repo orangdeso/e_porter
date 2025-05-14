@@ -7,5 +7,21 @@ abstract class ProfilRepository {
   });
 
   Future<List<PassengerModel>> getPassengerById(String userId);
+
   Future<UserData> getUserById(String userId);
+
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  });
+
+  Future<void> changePhone({
+    required String oldPassword,
+    required String newPhone,
+  });
+
+  // Future<void> changeEmail({
+  //   required String oldPassword,
+  //   required String newEmail,
+  // });
 }

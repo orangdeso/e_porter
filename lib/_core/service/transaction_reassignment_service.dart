@@ -11,7 +11,7 @@ class TransactionReassignmentService {
     FirebaseFirestore? firestore,
   }) : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  void startService({int intervalSeconds = 30}) {
+  void startService({int intervalSeconds = 60}) {
     log('[TransactionReassignmentService] Memulai service pengalihan transaksi dengan interval $intervalSeconds detik');
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: intervalSeconds), (_) {

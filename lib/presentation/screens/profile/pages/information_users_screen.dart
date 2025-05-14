@@ -6,9 +6,11 @@ import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/domain/models/user_entity.dart';
 import 'package:e_porter/presentation/controllers/profil_controller.dart';
 import 'package:e_porter/presentation/screens/profile/component/header_information.dart';
+import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
 class InformationUsersScreen extends StatefulWidget {
   const InformationUsersScreen({super.key});
@@ -73,9 +75,18 @@ class _InformationUsersScreenState extends State<InformationUsersScreen> {
       child: CustomeShadowCotainner(
         child: Column(
           children: [
-            itemWithButton(label: 'Nomor Telepon', value: userData.phone ?? '-'),
+            itemWithButton(
+              label: 'Email',
+              value: userData.email ?? '-',
+            ),
             SizedBox(height: 24.h),
-            itemWithButton(label: 'Email', value: userData.email ?? '-'),
+            itemWithButton(
+              label: 'Nomor Telepon',
+              value: userData.phone ?? '-',
+              onTap: () {
+                Get.toNamed(Routes.CHANGENUMBER);
+              },
+            ),
             SizedBox(height: 24.h),
             itemDoubleWithButton(
                 label1: 'Tipe ID', value1: userData.tipeId ?? '-', label2: 'No ID', value2: userData.noId ?? '-'),
@@ -92,7 +103,12 @@ class _InformationUsersScreenState extends State<InformationUsersScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            itemWithButton(label: 'Nama Lengkap', value: userData.name ?? '-', isDivider: false),
+            itemWithButton(
+              label: 'Nama Lengkap',
+              value: userData.name ?? '-',
+              isDivider: false,
+              onTap: () {},
+            ),
             SizedBox(height: 24.h),
             Row(
               children: [
@@ -113,7 +129,12 @@ class _InformationUsersScreenState extends State<InformationUsersScreen> {
     );
   }
 
-  Widget itemWithButton({required String label, required String value, bool isDivider = true}) {
+  Widget itemWithButton({
+    required String label,
+    required String value,
+    bool isDivider = true,
+    VoidCallback? onTap,
+  }) {
     return Column(
       children: [
         Row(
@@ -136,22 +157,28 @@ class _InformationUsersScreenState extends State<InformationUsersScreen> {
                 ],
               ),
             ),
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
-              decoration: BoxDecoration(
-                color: PrimaryColors.primary100,
-                borderRadius: BorderRadius.circular(10.r),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.edit, color: PrimaryColors.primary800, size: 14.sp),
-                  Padding(
-                    padding: EdgeInsets.only(left: 8.w),
-                    child: TypographyStyles.small('Ubah', color: PrimaryColors.primary800),
+            if (onTap != null)
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
+                decoration: BoxDecoration(
+                  color: PrimaryColors.primary100,
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: ZoomTapAnimation(
+                  child: GestureDetector(
+                    onTap: onTap,
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, color: PrimaryColors.primary800, size: 14.sp),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8.w),
+                          child: TypographyStyles.small('Ubah', color: PrimaryColors.primary800),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            )
+                ),
+              )
           ],
         ),
         if (isDivider)

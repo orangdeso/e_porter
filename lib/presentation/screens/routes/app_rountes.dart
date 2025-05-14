@@ -5,6 +5,7 @@ import 'package:e_porter/domain/bindings/porter_queue_binding.dart';
 import 'package:e_porter/domain/bindings/porter_service_binding.dart';
 import 'package:e_porter/domain/bindings/profil_binding.dart';
 import 'package:e_porter/domain/bindings/search_flight_binding.dart';
+import 'package:e_porter/domain/bindings/statistic_binding.dart';
 import 'package:e_porter/domain/bindings/ticket_binding.dart';
 import 'package:e_porter/domain/bindings/transaction_binding.dart';
 import 'package:e_porter/domain/bindings/transaction_porter_binding.dart';
@@ -34,8 +35,11 @@ import 'package:e_porter/presentation/screens/home/pages/ticket_booking_step4_sc
 import 'package:e_porter/presentation/screens/home/pages/upload_file_screen.dart';
 import 'package:e_porter/presentation/screens/navigation/main_navigation.dart';
 import 'package:e_porter/presentation/screens/onboarding/onboarding_screen.dart';
+import 'package:e_porter/presentation/screens/profile/pages/change_email_screen.dart';
+import 'package:e_porter/presentation/screens/profile/pages/change_number_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/change_password_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/information_users_screen.dart';
+import 'package:e_porter/presentation/screens/profile/pages/passenger_list_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/profile_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/add_passenger_screen.dart';
 import 'package:e_porter/presentation/screens/splash/splash_screen.dart';
@@ -53,6 +57,7 @@ class AppRoutes {
         HistoryBinding(),
         PorterQueueBinding(),
         TransactionPorterBinding(),
+        StatisticBinding()
       ],
     ),
     GetPage(
@@ -203,6 +208,20 @@ class AppRoutes {
     GetPage(
       name: Routes.CHANGEPASSWORD,
       page: () => ChangePasswordScreen(),
+      binding: ProfilBinding(),
+    ),
+    GetPage(
+      name: Routes.CHANGENUMBER,
+      page: () => ChangeNumberScreen(),
+    ),
+    GetPage(
+      name: Routes.CHANGEEMAIL,
+      page: () => ChangeEmailScreen(),
+      binding: ProfilBinding(),
+    ),
+    GetPage(
+      name: Routes.PASSENGERLIST,
+      page: () => PassengerListScreen(),
     ),
   ];
 }
@@ -249,4 +268,7 @@ class Routes {
   static const ADDPASSENGER = '/add_passenger';
   static const INFORMATIONS = '/informations';
   static const CHANGEPASSWORD = '/change_password';
+  static const CHANGENUMBER = '/change_number';
+  static const CHANGEEMAIL = '/change_email';
+  static const PASSENGERLIST = '/passenger_list';
 }

@@ -26,7 +26,7 @@ class HeaderInformation extends StatelessWidget {
             child: TypographyStyles.caption(
               title,
               color: GrayColors.gray500,
-              maxlines: 5,
+              maxlines: 6,
               fontWeight: FontWeight.w400,
             ),
           ),
