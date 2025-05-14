@@ -9,6 +9,7 @@ import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/_core/service/preferences_service.dart';
 import 'package:e_porter/presentation/controllers/porter_queue_controller.dart';
+import 'package:e_porter/presentation/controllers/statistic_controller.dart';
 import 'package:e_porter/presentation/screens/home/component/card_service_porter.dart';
 import 'package:e_porter/presentation/screens/home/component/profile_avatar.dart';
 import 'package:e_porter/presentation/screens/home/component/summary_card.dart';
@@ -18,6 +19,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
 import '../../../../_core/utils/snackbar/snackbar_helper.dart';
@@ -37,6 +39,8 @@ class _HomeScreenState extends State<HomeScreen> {
   late PorterQueueController _porterQueueController;
   final CarouselSliderController _carouselController = CarouselSliderController();
   final TextEditingController _locationController = TextEditingController();
+
+  final _statisticController = Get.find<StatisticController>();
 
   final List<Widget> imageList = [
     Container(
@@ -120,7 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      // Periksa apakah ada porterOnline yang aktif
       if (_porterQueueController.currentPorter.value == null) {
         SnackbarHelper.showError(
           'Gagal',
@@ -129,13 +132,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      // Dapatkan ID porter saat ini
       final porterId = _porterQueueController.currentPorter.value!.id!;
-
-      // Muat ulang data porter sebelum melakukan pengecekan (optional)
       await _porterQueueController.loadCurrentPorter(validUserId);
-
-      // Gunakan metode cek kondisi yang diperbaiki
       final canProceed = await _porterQueueController.checkConditionForPorter(porterId);
       if (!canProceed) {
         return;
@@ -398,33 +396,47 @@ class _HomeScreenState extends State<HomeScreen> {
                             SizedBox(height: 16.h),
                             Row(
                               children: [
-                                SummaryCard(
-                                  label: 'Pesanan Masuk',
-                                  value: '1000000000000000000000',
-                                  icon: CustomeIcons.PlaneLeftOutline(),
+                                Obx(
+                                  () => SummaryCard(
+                                    label: 'Pesanan Masuk',
+                                    value: '${_statisticController.incoming.value}',
+                                    icon: CustomeIcons.PlaneLeftOutline(),
+                                  ),
                                 ),
                                 SizedBox(width: 16.w),
-                                SummaryCard(
-                                  label: 'Pesanan Berjalan',
-                                  value: '1000000000000000000000',
-                                  icon: CustomeIcons.PlaneLeftOutline(),
+                                Obx(
+                                  () => SummaryCard(
+                                    label: 'Pesanan Diproses',
+                                    value: '${_statisticController.inProgress.value}',
+                                    icon: CustomeIcons.PlaneLeftOutline(),
+                                  ),
                                 )
                               ],
                             ),
                             SizedBox(height: 16.w),
                             Row(
                               children: [
-                                SummaryCard(
-                                  label: 'Pesanan Selesai',
-                                  value: '1000000000000000000000',
-                                  icon: CustomeIcons.PlaneLeftOutline(),
+                                Obx(
+                                  () => SummaryCard(
+                                    label: 'Pesanan Selesai',
+                                    value: 'Rp ${_statisticController.completed.value}',
+                                    icon: CustomeIcons.PlaneLeftOutline(),
+                                  ),
                                 ),
                                 SizedBox(width: 16.w),
-                                SummaryCard(
-                                  label: 'Pendapatan',
-                                  value: 'Rp 500.000',
-                                  icon: CustomeIcons.PlaneLeftOutline(),
-                                )
+                                Obx(
+                                  () {
+                                    final revenue = _statisticController.revenue.value;
+                                    final formatted =
+                                        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+                                            .format(revenue);
+                                    return SummaryCard(
+                                      label: 'Pendapatan',
+                                      value: formatted,
+                                      icon: CustomeIcons.PlaneLeftOutline(),
+                                    );
+                                  },
+                                ),
                               ],
                             ),
                             SizedBox(height: 32.w),
