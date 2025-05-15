@@ -11,6 +11,7 @@ import 'package:e_porter/_core/service/preferences_service.dart';
 import 'package:e_porter/presentation/controllers/porter_queue_controller.dart';
 import 'package:e_porter/presentation/controllers/statistic_controller.dart';
 import 'package:e_porter/presentation/screens/home/component/card_service_porter.dart';
+import 'package:e_porter/presentation/screens/home/component/date_setting.dart';
 import 'package:e_porter/presentation/screens/home/component/profile_avatar.dart';
 import 'package:e_porter/presentation/screens/home/component/summary_card.dart';
 import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
@@ -392,6 +393,49 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                TypographyStyles.h6('Pendapatan Perbulan', color: GrayColors.gray800),
+                                Row(
+                                  children: [
+                                    DateSetting(
+                                      onTap: () => _statisticController.previousMonth(),
+                                      icon: Icon(Icons.chevron_left, size: 20.r, color: PrimaryColors.primary800),
+                                    ),
+                                    SizedBox(width: 8.w),
+                                    DateSetting(
+                                        onTap: () => _statisticController.resetToCurrentMonth(),
+                                        icon: Icon(Icons.calendar_today, size: 20.r, color: PrimaryColors.primary800)),
+                                    SizedBox(width: 8.w),
+                                    DateSetting(
+                                      onTap: () => _statisticController.previousMonth(),
+                                      icon: Icon(Icons.chevron_right, size: 20.r, color: GrayColors.gray800),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16.h),
+                            Row(
+                              children: [
+                                Obx(
+                                  () {
+                                    final monthlyRevenue = _statisticController.monthlyRevenue.value;
+                                    final dateRange = _statisticController.monthlyDateRange.value;
+                                    final formatted =
+                                        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+                                            .format(monthlyRevenue);
+                                    return SummaryCard(
+                                      label: 'Jumlah pendapatan anda selama sebulan dari tanggal $dateRange',
+                                      value: formatted,
+                                      icon: CustomeIcons.IncomeFilled(),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 32.h),
                             TypographyStyles.h6('Ringkasan Hari ini', color: GrayColors.gray800),
                             SizedBox(height: 16.h),
                             Row(

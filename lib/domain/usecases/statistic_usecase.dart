@@ -23,4 +23,9 @@ class StatisticUseCase {
     required String porterId,
     required DateTime date,
   }) => _repo.getRevenue(porterId: porterId, date: date);
+  
+  Stream<double> getMonthlyRevenue({
+    required String porterId,
+    required DateTime month,
+  }) => _repo.getMonthlyRevenue(porterId: porterId, month: month);
 }
