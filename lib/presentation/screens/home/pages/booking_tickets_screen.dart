@@ -6,6 +6,7 @@ import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/component/icons/icons_library.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
+import 'package:e_porter/_core/utils/snackbar/snackbar_helper.dart';
 import 'package:e_porter/domain/models/airport.dart';
 import 'package:e_porter/presentation/screens/home/component/flight_class_radio.dart';
 import 'package:e_porter/presentation/screens/home/component/flight_date_selector.dart';
@@ -210,22 +211,30 @@ class _BookingTicketsState extends State<BookingTickets> {
                         text: 'Cari Tiket',
                         textColor: Colors.white,
                         onTap: () {
-                          if (selectedAirportFrom != null && selectedAirportTo != null) {
-                            final searchParams = {
-                              "toId": selectedAirportTo!.id,
-                              "fromId": selectedAirportFrom!.id,
-                              "from": '${selectedAirportFrom!.city}',
-                              "to": '${selectedAirportTo!.city}',
-                              "leavingDate": selectedDate,
-                              "flightClass": selectedClass.value,
-                              "passengerCount": selectedPassengerCount,
-                            };
-                            log('[To ID] : ${selectedAirportTo!.id}');
-                            log('[From ID] : ${selectedAirportFrom!.id}');
-                            Get.toNamed(Routes.SEARCHTICKETS, arguments: searchParams);
-                          } else {
-                            Get.snackbar("Error", "Silakan pilih bandara keberangkatan dan tujuan");
+
+                          if (selectedAirportFrom == null || selectedAirportTo == null) {
+                            SnackbarHelper.showInfo('Info', 'Silakan pilih bandara keberangkatan dan tujuan');
+                            return;
                           }
+
+                          if (selectedDateText == 'dd/mm/yyyy') {
+                            SnackbarHelper.showInfo('Info', 'Silakan pilih tanggal keberangkatan');
+                            return;
+                          }
+
+                          final searchParams = {
+                            "toId": selectedAirportTo!.id,
+                            "fromId": selectedAirportFrom!.id,
+                            "from": '${selectedAirportFrom!.city}',
+                            "to": '${selectedAirportTo!.city}',
+                            "leavingDate": selectedDate,
+                            "flightClass": selectedClass.value,
+                            "passengerCount": selectedPassengerCount,
+                          };
+
+                          log('[To ID] : ${selectedAirportTo!.id}');
+                          log('[From ID] : ${selectedAirportFrom!.id}');
+                          Get.toNamed(Routes.SEARCHTICKETS, arguments: searchParams);
                         },
                       )
                     ],
@@ -233,8 +242,8 @@ class _BookingTicketsState extends State<BookingTickets> {
                 ),
               ),
               Positioned(
-                right: 40.w, // geser agak ke dalam dari sisi kanan
-                top: 65.h, // posisikan di tengah2 antara dua card
+                right: 40.w, 
+                top: 65.h, 
                 child: InkWell(
                   onTap: () {},
                   child: Container(
