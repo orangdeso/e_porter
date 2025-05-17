@@ -10,6 +10,17 @@ abstract class ProfilRepository {
 
   Future<UserData> getUserById(String userId);
 
+  Future<void> deletePassenger({
+    required String userId,
+    required String passengerId,
+  });
+
+  Future<void> updatePassenger({
+    required String userId,
+    required String passengerId,
+    required PassengerModel passenger,
+  });
+
   Future<void> changePassword({
     required String oldPassword,
     required String newPassword,

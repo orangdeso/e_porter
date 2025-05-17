@@ -64,6 +64,38 @@ class ChangePhoneUseCase {
   }
 }
 
+class DeletePassengerUseCase {
+  final ProfilRepository profilRepository;
+  DeletePassengerUseCase(this.profilRepository);
+
+  Future<void> call({
+    required String userId,
+    required String passengerId,
+  }) {
+    return profilRepository.deletePassenger(
+      userId: userId,
+      passengerId: passengerId,
+    );
+  }
+}
+
+class UpdatePassengerUseCase {
+  final ProfilRepository profilRepository;
+  UpdatePassengerUseCase(this.profilRepository);
+
+  Future<void> call({
+    required String userId,
+    required String passengerId,
+    required PassengerModel passenger,
+  }) {
+    return profilRepository.updatePassenger(
+      userId: userId,
+      passengerId: passengerId,
+      passenger: passenger,
+    );
+  }
+}
+
 // class ChangeEmailUseCase {
 //   final ProfilRepository profilRepository;
 //   ChangeEmailUseCase(this.profilRepository);

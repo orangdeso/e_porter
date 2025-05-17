@@ -116,12 +116,14 @@ class UserData {
 }
 
 class PassengerModel {
+  final String? id; // Added document ID
   final String typeId;
   final String noId;
   final String name;
   final String gender;
 
   PassengerModel({
+    this.id,
     required this.typeId,
     required this.noId,
     required this.name,
@@ -139,6 +141,7 @@ class PassengerModel {
 
   factory PassengerModel.fromMap(Map<String, dynamic> map) {
     return PassengerModel(
+      id: map['id'],
       typeId: map['typeId'] ?? '',
       noId: map['noId'] ?? '',
       name: map['name'] ?? '',

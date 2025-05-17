@@ -223,6 +223,7 @@ class AppRoutes {
     GetPage(
       name: Routes.PASSENGERLIST,
       page: () => PassengerListScreen(),
+      binding: ProfilBinding(),
     ),
   ];
 }

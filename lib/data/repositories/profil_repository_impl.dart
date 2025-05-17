@@ -1,9 +1,8 @@
 // ignore_for_file: deprecated_member_use
-
+import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_porter/domain/repositories/profil_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../_core/service/logger_service.dart';
 import '../../domain/models/user_entity.dart';
 
 class ProfilRepositoryImpl implements ProfilRepository {
@@ -17,7 +16,7 @@ class ProfilRepositoryImpl implements ProfilRepository {
     try {
       DocumentReference docRef =
           await _firestore.collection('users').doc(userId).collection('passenger').add(passenger.toMap());
-      logger.d("Passenger doc id: ${docRef.id}");
+      log("Passenger doc id: ${docRef.id}");
     } catch (e) {
       rethrow;
     }
@@ -27,12 +26,30 @@ class ProfilRepositoryImpl implements ProfilRepository {
   Future<List<PassengerModel>> getPassengerById(String userId) async {
     try {
       QuerySnapshot querySnapshot = await _firestore.collection('users').doc(userId).collection('passenger').get();
-      return querySnapshot.docs.map((doc) => PassengerModel.fromMap(doc.data() as Map<String, dynamic>)).toList();
+      return querySnapshot.docs
+          .map((doc) => PassengerModel.fromMap({
+                'id': doc.id, 
+                ...doc.data() as Map<String, dynamic>
+              }))
+          .toList();
     } catch (e) {
       rethrow;
     }
   }
 
+  @override
+  Future<void> deletePassenger({
+    required String userId,
+    required String passengerId,
+  }) async {
+    try {
+      await _firestore.collection('users').doc(userId).collection('passenger').doc(passengerId).delete();
+      log("Passenger deleted with ID: $passengerId");
+    } catch (e) {
+      log("Error deleting passenger: $e");
+      rethrow;
+    }
+  }
   @override
   Future<UserData> getUserById(String userId) async {
     try {
@@ -42,6 +59,26 @@ class ProfilRepositoryImpl implements ProfilRepository {
       }
       return UserData.fromMap(doc.data()!);
     } catch (e) {
+      rethrow;
+    }
+  }
+  
+  @override
+  Future<void> updatePassenger({
+    required String userId,
+    required String passengerId,
+    required PassengerModel passenger,
+  }) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('passenger')
+          .doc(passengerId)
+          .update(passenger.toMap());
+      log("Passenger updated with ID: $passengerId");
+    } catch (e) {
+      log("Error updating passenger: $e");
       rethrow;
     }
   }

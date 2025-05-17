@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'package:e_porter/_core/service/logger_service.dart';
 import 'package:e_porter/_core/service/preferences_service.dart';
 import 'package:e_porter/_core/utils/snackbar/snackbar_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,6 +13,8 @@ class ProfilController extends GetxController {
   final GetUserByIdUseCase getUserByIdUseCase;
   final ChangePasswordUseCase changePasswordUseCase;
   final ChangePhoneUseCase changePhoneUseCase;
+  final DeletePassengerUseCase deletePassengerUseCase;
+  final UpdatePassengerUseCase updatePassengerUseCase;
   // final ChangeEmailUseCase changeEmailUseCase;
 
   var passengerList = <PassengerModel>[].obs;
@@ -21,6 +22,8 @@ class ProfilController extends GetxController {
   var isLoading = false.obs;
   var isChangingPassword = false.obs;
   var isChangingPhone = false.obs;
+  var isDeletingPassenger = false.obs;
+  var isUpdatingPassenger = false.obs;
   // var isChangingEmail = false.obs;
 
   ProfilController({
@@ -29,6 +32,8 @@ class ProfilController extends GetxController {
     required this.getUserByIdUseCase,
     required this.changePasswordUseCase,
     required this.changePhoneUseCase,
+    required this.deletePassengerUseCase,
+    required this.updatePassengerUseCase,
     // required this.changeEmailUseCase,
   });
 
@@ -97,7 +102,50 @@ class ProfilController extends GetxController {
       List<PassengerModel> list = await getPassengerByIdUseCase(userId);
       passengerList.assignAll(list);
     } catch (e) {
-      logger.e("Error fetching passengers: $e");
+      log("Error fetching passengers: $e");
+    }
+  }
+
+  Future<bool> deletePassenger({
+    required String userId,
+    required String passengerId,
+  }) async {
+    isDeletingPassenger.value = true;
+    try {
+      await deletePassengerUseCase(
+        userId: userId,
+        passengerId: passengerId,
+      );
+      SnackbarHelper.showSuccess("Berhasil", "Data penumpang berhasil dihapus.");
+      return true;
+    } catch (e) {
+      log("Error deleting passenger: $e");
+      SnackbarHelper.showError("Gagal", "Terjadi kesalahan saat menghapus data penumpang.");
+      return false;
+    } finally {
+      isDeletingPassenger.value = false;
+    }
+  }
+
+  Future<bool> updatePassenger({
+    required String userId,
+    required String passengerId,
+    required PassengerModel passenger,
+  }) async {
+    isUpdatingPassenger.value = true;
+    try {
+      await updatePassengerUseCase(
+        userId: userId,
+        passengerId: passengerId,
+        passenger: passenger,
+      );
+      return true;
+    } catch (e) {
+      log("Error updating passenger: $e");
+      SnackbarHelper.showError("Gagal", "Terjadi kesalahan saat mengupdate data penumpang.");
+      return false;
+    } finally {
+      isUpdatingPassenger.value = false;
     }
   }
 
