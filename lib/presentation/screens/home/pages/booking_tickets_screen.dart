@@ -211,7 +211,6 @@ class _BookingTicketsState extends State<BookingTickets> {
                         text: 'Cari Tiket',
                         textColor: Colors.white,
                         onTap: () {
-
                           if (selectedAirportFrom == null || selectedAirportTo == null) {
                             SnackbarHelper.showInfo('Info', 'Silakan pilih bandara keberangkatan dan tujuan');
                             return;
@@ -241,29 +240,43 @@ class _BookingTicketsState extends State<BookingTickets> {
                   ),
                 ),
               ),
-              Positioned(
-                right: 40.w, 
-                top: 65.h, 
-                child: InkWell(
-                  onTap: () {},
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10.w,
-                      vertical: 10.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        strokeAlign: 1.5,
-                        color: GrayColors.gray200,
-                      ),
-                    ),
-                    child: CustomeIcons.DataTransferOutline(),
-                  ),
-                ),
+              _buttonSwitch(
+                onTap: () {
+                  setState(() {
+                    final tempAirport = selectedAirportFrom;
+                    selectedAirportFrom = selectedAirportTo;
+                    selectedAirportTo = tempAirport;
+                  });
+                },
               )
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buttonSwitch({required VoidCallback onTap}) {
+    return Positioned(
+      right: 40.w,
+      top: 65.h,
+      child: ZoomTapAnimation(
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 10.w,
+              vertical: 10.h,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(
+                strokeAlign: 1.5,
+                color: GrayColors.gray200,
+              ),
+            ),
+            child: CustomeIcons.DataTransferOutline(),
           ),
         ),
       ),
