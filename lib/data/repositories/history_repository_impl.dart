@@ -132,12 +132,60 @@ class HistoryRepositoryImpl implements HistoryRepository {
       data['id'] = transactionId;
       data['ticketId'] = ticketId;
 
-      // Konversi ke model TransactionModel
       final transaction = TransactionModel.fromJson(data);
       log('HistoryRepositoryImpl: berhasil mengambil transaksi dari Firestore');
       return transaction;
     } catch (e) {
       log('HistoryRepositoryImpl: error saat mengambil transaksi dari Firestore: $e');
+      return null;
+    }
+  }
+  
+  @override
+  Future<bool> checkIfTicketHasPorter(String ticketId, String transactionId) async {
+    try {
+      log('HistoryRepositoryImpl: checking if ticket has porter, ticketId: $ticketId, transactionId: $transactionId');
+      
+      final querySnapshot = await _firestore
+          .collection('porterTransactions')
+          .where('ticketId', isEqualTo: ticketId)
+          .where('transactionId', isEqualTo: transactionId)
+          .limit(1)
+          .get();
+      
+      final hasPorter = querySnapshot.docs.isNotEmpty;
+      log('HistoryRepositoryImpl: ticket has porter: $hasPorter');
+      
+      return hasPorter;
+    } catch (e) {
+      log('HistoryRepositoryImpl: error checking if ticket has porter: $e');
+      return false;
+    }
+  }
+  
+  @override
+  Future<String?> getPorterTransactionId(String ticketId, String transactionId) async {
+    try {
+      log('HistoryRepositoryImpl: getting porter transaction ID, ticketId: $ticketId, transactionId: $transactionId');
+      
+      final querySnapshot = await _firestore
+          .collection('porterTransactions')
+          .where('ticketId', isEqualTo: ticketId)
+          .where('transactionId', isEqualTo: transactionId)
+          .limit(1)
+          .get();
+      
+      if (querySnapshot.docs.isEmpty) {
+        log('HistoryRepositoryImpl: no porter transaction found');
+        return null;
+      }
+      
+      final porterTransactionId = querySnapshot.docs.first.id;
+      log('HistoryRepositoryImpl: found porter transaction ID: $porterTransactionId');
+      
+      return porterTransactionId;
+    } catch (e) {
+      log('HistoryRepositoryImpl: error getting porter transaction ID: $e');
       return null;
     }
   }

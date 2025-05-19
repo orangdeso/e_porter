@@ -409,7 +409,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         icon: Icon(Icons.calendar_today, size: 20.r, color: PrimaryColors.primary800)),
                                     SizedBox(width: 8.w),
                                     DateSetting(
-                                      onTap: () => _statisticController.previousMonth(),
+                                      onTap: () => _statisticController.nextMonth(),
                                       icon: Icon(Icons.chevron_right, size: 20.r, color: GrayColors.gray800),
                                     ),
                                   ],
@@ -489,9 +489,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 final hasPorter = _porterQueueController.currentPorter.value != null;
                                 return ZoomTapAnimation(
                                   child: GestureDetector(
-                                    onTap: hasPorter
-                                        ? _handleStopPorterQueue // sekarang benar-benar terpilih saat Obx rebuild
-                                        : _handlePorterQueueCreation,
+                                    onTap: hasPorter ? _handleStopPorterQueue : _handlePorterQueueCreation,
                                     child: Column(
                                       children: [
                                         Container(
@@ -538,6 +536,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<bool> _showStopConfirmationDialog() async {
     return await Get.dialog<bool>(
           Dialog(
+            backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.r),
             ),
@@ -551,13 +550,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: GrayColors.gray800,
                   ),
                   SizedBox(height: 16.h),
-                  Text(
+                  TypographyStyles.caption(
                     'Apakah Anda yakin ingin menghentikan layanan porter?',
+                    fontWeight: FontWeight.w400,
+                    color: GrayColors.gray500,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: GrayColors.gray600,
-                    ),
+                    maxlines: 3,
                   ),
                   SizedBox(height: 24.h),
                   Row(
@@ -569,7 +567,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextButton.styleFrom(
                             foregroundColor: GrayColors.gray600,
                           ),
-                          child: Text('Batal'),
+                          child: TypographyStyles.body('Batal', color: GrayColors.gray600),
                         ),
                       ),
                       SizedBox(width: 8.w),
@@ -580,7 +578,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             backgroundColor: RedColors.red500,
                             foregroundColor: Colors.white,
                           ),
-                          child: Text('Berhenti'),
+                          child: TypographyStyles.body('Berhenti', color: Colors.white),
                         ),
                       ),
                     ],
@@ -681,7 +679,6 @@ class _HomeScreenState extends State<HomeScreen> {
     required String nameAvatar,
     required String nameUser,
     required String subTitle,
-    // VoidCallback? onTap,
   }) {
     return CustomeShadowCotainner(
       sizeRadius: 0.r,
@@ -703,12 +700,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          // ZoomTapAnimation(
-          //   child: IconButton(
-          //     onPressed: onTap,
-          //     icon: CustomeIcons.NotificationOutline(),
-          //   ),
-          // )
         ],
       ),
     );

@@ -22,4 +22,12 @@ class HistoryUseCase {
   Future<TransactionModel?> getTransactionFromFirestore(String ticketId, String transactionId) {
     return _repository.getTransactionFromFirestore(ticketId, transactionId);
   }
+  
+  Future<bool> checkIfTicketHasPorter(String ticketId, String transactionId) {
+    return _repository.checkIfTicketHasPorter(ticketId, transactionId);
+  }
+  
+  Future<String?> getPorterTransactionId(String ticketId, String transactionId) {
+    return _repository.getPorterTransactionId(ticketId, transactionId);
+  }
 }

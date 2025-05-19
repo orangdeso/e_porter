@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_porter/domain/repositories/statistic_repository.dart';
 
 class StatisticRepositoryImpl implements StatisticRepository {

@@ -15,6 +15,7 @@ class HistoryController extends GetxController {
 
   final RxBool isLoading = true.obs;
   final RxBool isCheckingExpiry = false.obs;
+  final RxBool hasAssignedPorter = false.obs;
   final RxString errorMessage = ''.obs;
 
   StreamSubscription? _pendingSubscription;
@@ -22,6 +23,7 @@ class HistoryController extends GetxController {
   StreamSubscription? _historySubscription;
 
   String _currentUserId = '';
+  String? currentPorterTransactionId;
 
   HistoryController(this._historyUseCase);
 
@@ -43,18 +45,6 @@ class HistoryController extends GetxController {
       log('HistoryController: Error mendapatkan transaksi pending: $error');
       isLoading.value = false;
     });
-
-    // _activeSubscription = _historyUseCase.getActiveTransactionsStream(userId).listen((transactions) {
-    //   log('HistoryController: active transactions updated, count: ${transactions.length}');
-
-    //   final sortedTransactions = _sortTransactionsByCreatedAt(transactions);
-    //   activeTransactions.value = sortedTransactions;
-
-    //   isLoading.value = false;
-    // }, onError: (error) {
-    //   log('HistoryController: Error mendapatkan transaksi active: $error');
-    //   isLoading.value = false;
-    // });
 
     _activeSubscription = _historyUseCase.getActiveTransactionsStream(userId).map((list) {
       final todayStart = DateTime(
@@ -126,6 +116,12 @@ class HistoryController extends GetxController {
 
       if (transaction != null) {
         selectedTransaction.value = transaction;
+
+        hasAssignedPorter.value = await _historyUseCase.checkIfTicketHasPorter(ticketId, transactionId);
+
+        if (hasAssignedPorter.value) {
+          currentPorterTransactionId = await _historyUseCase.getPorterTransactionId(ticketId, transactionId);
+        }
       } else {
         errorMessage.value = 'Transaksi tidak ditemukan';
       }
@@ -137,6 +133,26 @@ class HistoryController extends GetxController {
       return null;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<bool> checkIfTicketHasPorter(String ticketId, String transactionId) async {
+    try {
+      hasAssignedPorter.value = await _historyUseCase.checkIfTicketHasPorter(ticketId, transactionId);
+      return hasAssignedPorter.value;
+    } catch (e) {
+      log('HistoryController: error checking if ticket has porter: $e');
+      return false;
+    }
+  }
+
+  Future<String?> getPorterTransactionId(String ticketId, String transactionId) async {
+    try {
+      currentPorterTransactionId = await _historyUseCase.getPorterTransactionId(ticketId, transactionId);
+      return currentPorterTransactionId;
+    } catch (e) {
+      log('HistoryController: error getting porter transaction ID: $e');
+      return null;
     }
   }
 

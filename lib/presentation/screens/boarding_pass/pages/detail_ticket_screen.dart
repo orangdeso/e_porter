@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:e_porter/_core/component/button/button_outline.dart';
 import 'package:e_porter/_core/component/dotted/dashed_line_component.dart';
 import 'package:e_porter/_core/constants/colors.dart';
@@ -14,7 +13,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
-
 import '../../../../_core/component/appbar/appbar_component.dart';
 import '../../../../_core/component/button/button_fill.dart';
 import '../../../../_core/component/card/custome_shadow_cotainner.dart';
@@ -41,7 +39,6 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
     final args = Get.arguments as Map<String, dynamic>;
     id_transaction = args['id_transaction'];
     id_ticket = args['id_ticket'];
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadTransactionData();
     });
@@ -100,13 +97,17 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TypographyStyles.caption(
-                      "Kode Booking Maskapai",
-                      color: GrayColors.gray500,
-                      fontWeight: FontWeight.w500,
+                    _buildUIHeader(
+                      value: "${transaction.idBooking}",
+                      onTap: () {
+                        Get.toNamed(
+                          Routes.PROCESSING,
+                          arguments: {
+                            'transactionPorterId': historyController.currentPorterTransactionId,
+                          },
+                        );
+                      },
                     ),
-                    SizedBox(height: 6.h),
-                    TypographyStyles.body("${transaction.idBooking}", color: GrayColors.gray800),
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 20.h),
                       child: CustomDashedLine(),
@@ -123,15 +124,7 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
                     ),
                     SizedBox(height: 4.h),
                     Row(
-                      children: [
-                        TypographyStyles.small("Fast Track (FT)",
-                            color: GrayColors.gray600, fontWeight: FontWeight.w400),
-                        SizedBox(width: 10.w),
-                        CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)),
-                        SizedBox(width: 10.w),
-                        TypographyStyles.small("${transaction.flightDetails['flightClass']}",
-                            color: GrayColors.gray600, fontWeight: FontWeight.w400),
-                      ],
+                      children: _buildServiceInfoItems(transaction),
                     ),
                     SizedBox(height: 16.h),
                     Row(
@@ -250,30 +243,36 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ButtonOutline(
-                    text: 'Scan QR Code Porter',
-                    textColor: PrimaryColors.primary800,
-                    onTap: () async {
-                      await Permission.camera.status;
+                  if (!historyController.hasAssignedPorter.value)
+                    ButtonOutline(
+                      text: 'Scan QR Code Porter',
+                      textColor: PrimaryColors.primary800,
+                      onTap: () async {
+                        await Permission.camera.status;
 
-                      final result = await Get.toNamed(
-                        Routes.SCANQR,
-                        arguments: {
-                          'ticketId': transaction.ticketId,
-                          'transactionId': transaction.id,
-                        },
-                      );
-
-                      if (result == 'PORTER_BUSY') {
-                        SnackbarHelper.showError(
-                          'Porter Tidak Tersedia',
-                          'Tidak ada porter yang tersedia atau semua porter sedang sibuk, coba nanti.',
+                        final result = await Get.toNamed(
+                          Routes.SCANQR,
+                          arguments: {
+                            'ticketId': transaction.ticketId,
+                            'transactionId': transaction.id,
+                          },
                         );
-                        return;
-                      }
-                    },
-                  ),
-                  SizedBox(height: 12.h),
+
+                        if (result == 'PORTER_BUSY') {
+                          SnackbarHelper.showError(
+                            'Porter Tidak Tersedia',
+                            'Tidak ada porter yang tersedia atau semua porter sedang sibuk, coba nanti.',
+                          );
+                          return;
+                        }
+
+                        if (result == 'SUCCESS') {
+                          historyController.hasAssignedPorter.value = true;
+                          _loadTransactionData();
+                        }
+                      },
+                    ),
+                  if (!historyController.hasAssignedPorter.value) SizedBox(height: 12.h),
                   ButtonFill(
                     text: 'Cetak Boarding Pass',
                     textColor: Colors.white,
@@ -294,6 +293,45 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
           );
         }
       }),
+    );
+  }
+
+  Widget _buildUIHeader({required String value, required VoidCallback? onTap}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TypographyStyles.caption(
+              "Kode Booking Maskapai",
+              color: GrayColors.gray500,
+              fontWeight: FontWeight.w500,
+            ),
+            SizedBox(height: 6.h),
+            TypographyStyles.body(value, color: GrayColors.gray800),
+          ],
+        ),
+        Obx(() {
+          if (historyController.hasAssignedPorter.value) {
+            return ZoomTapAnimation(
+              child: GestureDetector(
+                onTap: onTap,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade400,
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: TypographyStyles.small("Lihat Status Porter", color: Colors.white),
+                ),
+              ),
+            );
+          } else {
+            return SizedBox(); 
+          }
+        }),
+      ],
     );
   }
 
@@ -340,6 +378,48 @@ class _DetailTicketScreenState extends State<DetailTicketScreen> {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildServiceInfoItems(TransactionModel transaction) {
+    List<Widget> items = [];
+    if (transaction.porterServiceDetails != null &&
+        (transaction.porterServiceDetails as Map<String, dynamic>).isNotEmpty) {
+      if ((transaction.porterServiceDetails as Map<String, dynamic>).containsKey('departure') &&
+          (transaction.porterServiceDetails as Map<String, dynamic>)['departure'] != null) {
+        final departureName =
+            (transaction.porterServiceDetails as Map<String, dynamic>)['departure']['name'] as String? ?? "Fast Track";
+        items.add(TypographyStyles.small(
+          departureName,
+          color: GrayColors.gray600,
+          fontWeight: FontWeight.w400,
+        ));
+        items.add(SizedBox(width: 10.w));
+        items.add(CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)));
+        items.add(SizedBox(width: 10.w));
+      }
+
+      if ((transaction.porterServiceDetails as Map<String, dynamic>).containsKey('transit') &&
+          (transaction.porterServiceDetails as Map<String, dynamic>)['transit'] != null) {
+        final transitName =
+            (transaction.porterServiceDetails as Map<String, dynamic>)['transit']['name'] as String? ?? "Transit";
+        items.add(TypographyStyles.small(
+          transitName,
+          color: GrayColors.gray600,
+          fontWeight: FontWeight.w400,
+        ));
+        items.add(SizedBox(width: 10.w));
+        items.add(CircleAvatar(radius: 2.r, backgroundColor: Color(0xFFD9D9D9)));
+        items.add(SizedBox(width: 10.w));
+      }
+    }
+
+    items.add(TypographyStyles.small(
+      "${transaction.flightDetails['flightClass']}",
+      color: GrayColors.gray600,
+      fontWeight: FontWeight.w400,
+    ));
+
+    return items;
   }
 
   void _showCetakBoardingPassBottomSheet(TransactionModel transaction) {

@@ -34,12 +34,6 @@ class _ProcessingPorterScreenState extends State<ProcessingPorterScreen> {
   @override
   void initState() {
     super.initState();
-    // final args = Get.arguments as Map<String, dynamic>;
-    // final location = args['location'] ?? '';
-    // final ticketId = args['ticketId'] ?? '';
-    // final transactionId = args['transactionId'];
-    // final porterOnlineId = args['porterOnlineId'];
-    // final transactionPorterId = args['transactionPorterId'] ?? '';
     _initializeData();
   }
 
@@ -59,7 +53,6 @@ class _ProcessingPorterScreenState extends State<ProcessingPorterScreen> {
 
     log('Memulai pemantauan transaksi porter: $transactionPorterId');
 
-    // Dapatkan detail transaksi dan mulai memantau perubahan
     _porterController.getTransactionById(transactionPorterId).then((transaction) {
       if (transaction == null) {
         log('Transaksi tidak ditemukan: $transactionPorterId');
@@ -70,7 +63,6 @@ class _ProcessingPorterScreenState extends State<ProcessingPorterScreen> {
       log('Error mendapatkan transaksi: $e');
     });
 
-    // Mulai memantau transaksi secara real-time
     _porterController.watchTransaction(transactionPorterId);
   }
 
@@ -86,138 +78,53 @@ class _ProcessingPorterScreenState extends State<ProcessingPorterScreen> {
           Get.back();
         },
       ),
-      body: SafeArea(child: Obx(
-        () {
-          final transaction = _porterController.currentTransaction.value;
-          final isLoading = _porterController.isLoading.value;
-          final error = _porterController.error.value;
+      body: SafeArea(
+        child: Obx(
+          () {
+            final transaction = _porterController.currentTransaction.value;
+            final isLoading = _porterController.isLoading.value;
+            final error = _porterController.error.value;
 
-          if (isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (error.isNotEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 48.h, color: Colors.red),
-                  SizedBox(height: 16.h),
-                  TypographyStyles.body(
-                    'Terjadi Kesalahan',
-                    color: Colors.red,
-                  ),
-                  SizedBox(height: 8.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 32.w),
-                    child: TypographyStyles.caption(
-                      error,
-                      color: GrayColors.gray600,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  ButtonFill(
-                    text: 'Kembali',
-                    textColor: Colors.white,
-                    onTap: () => Get.back(),
-                  ),
-                ],
+            if (isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (error.isNotEmpty) {
+              return Center(child: TypographyStyles.body('Data transaksi tidak ditemukan', color: GrayColors.gray400));
+            }
+            if (transaction == null) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.search_off, size: 48.h, color: GrayColors.gray400),
+                    SizedBox(height: 16.h),
+                    TypographyStyles.body('Transaksi tidak ditemukan', color: GrayColors.gray600),
+                  ],
+                ),
+              );
+            }
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildPorterStatusCard(transaction.status),
+                    SizedBox(height: 20.h),
+                    _buildInfoPorterCard(kodePorter: transaction.kodePorter, namePorter: transaction.porterUserId),
+                    SizedBox(height: 20.h),
+                    _buildPorterDetailsCard(transaction),
+                  ],
+                ),
               ),
             );
-          }
-          if (transaction == null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.search_off, size: 48.h, color: GrayColors.gray400),
-                  SizedBox(height: 16.h),
-                  TypographyStyles.body(
-                    'Transaksi tidak ditemukan',
-                    color: GrayColors.gray600,
-                  ),
-                  SizedBox(height: 16.h),
-                  ButtonFill(
-                    text: 'Kembali',
-                    textColor: Colors.white,
-                    onTap: () => Get.back(),
-                  ),
-                ],
-              ),
-            );
-          }
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _buildPorterStatusCard(transaction.status),
-                  SizedBox(height: 20.h),
-                  _buildPorterDetailsCard(transaction),
-                ],
-              ),
-            ),
-          );
-        },
-      )),
+          },
+        ),
+      ),
       bottomNavigationBar: CustomeShadowCotainner(
         child: ButtonFill(
           text: 'Kembali ke menu',
           textColor: Colors.white,
           onTap: () {},
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDesignOld() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            TypographyStyles.h1('Ilustrasi'),
-            SizedBox(height: 32.h),
-            CustomeShadowCotainner(
-              child: Column(
-                children: [
-                  TypographyStyles.h6('Tunggu Portermu', color: GrayColors.gray800),
-                  SizedBox(height: 4.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TypographyStyles.caption(
-                        'Tunngu dari pihak Porter merespon',
-                        color: GrayColors.gray500,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      SizedBox(width: 4.w),
-                      Icon(Icons.timelapse_outlined)
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 20.h),
-            CustomeShadowCotainner(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TypographyStyles.body('Ahmad Choirul Umam', color: GrayColors.gray800),
-                  SizedBox(height: 10.h),
-                  Divider(thickness: 1, color: GrayColors.gray200),
-                  SizedBox(height: 10.h),
-                  TypographyStyles.body('Lokasi', color: GrayColors.gray800),
-                  SizedBox(height: 10.h),
-                  // _buildRowLocation(location: 'Gate Penerbangan', desc: 'Lokasi Anda'),
-                  SizedBox(height: 10.h),
-                  // _buildRowLocation(location: 'Guyangan', desc: 'Lokasi Porter Anda'),
-                  SizedBox(height: 10.h),
-                  // _buildRowLocation(location: 'Porter menuju ke lokasi anda', desc: 'Porter bergerak'),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -280,6 +187,39 @@ class _ProcessingPorterScreenState extends State<ProcessingPorterScreen> {
     }
   }
 
+  Widget _buildInfoPorterCard({required String kodePorter, required String namePorter}) {
+    return CustomeShadowCotainner(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TypographyStyles.h6('Informasi Porter', color: GrayColors.gray800),
+          SizedBox(height: 10.h),
+          Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TypographyStyles.body('Kode Porter', color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                  TypographyStyles.body('Nama Porter', color: GrayColors.gray600, fontWeight: FontWeight.w400),
+                ],
+              ),
+              SizedBox(width: 20.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TypographyStyles.body(kodePorter, color: GrayColors.gray800, maxlines: 1),
+                    TypographyStyles.body(namePorter, color: GrayColors.gray800, maxlines: 1),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPorterDetailsCard(dynamic transaction) {
     final now = DateTime.now();
 
@@ -287,11 +227,7 @@ class _ProcessingPorterScreenState extends State<ProcessingPorterScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TypographyStyles.body('Informasi Porter', color: GrayColors.gray800),
-          SizedBox(height: 10.h),
-          Divider(thickness: 1, color: GrayColors.gray200),
-          SizedBox(height: 10.h),
-          TypographyStyles.body('Lokasi', color: GrayColors.gray800),
+          TypographyStyles.h6('Lokasi', color: GrayColors.gray800),
           SizedBox(height: 10.h),
           _buildRowLocation(
             location: location.isNotEmpty ? location : transaction.locationPassenger,
@@ -309,20 +245,6 @@ class _ProcessingPorterScreenState extends State<ProcessingPorterScreen> {
             location: _getLocationStatusText(transaction.status),
             desc: 'Status Porter',
             timestamp: now,
-          ),
-          SizedBox(height: 10.h),
-          TypographyStyles.body('Kode Porter', color: GrayColors.gray800),
-          SizedBox(height: 4.h),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-            decoration: BoxDecoration(
-              color: PrimaryColors.primary100,
-              borderRadius: BorderRadius.circular(4.r),
-            ),
-            child: TypographyStyles.h6(
-              transaction.kodePorter,
-              color: PrimaryColors.primary800,
-            ),
           ),
         ],
       ),
@@ -353,12 +275,12 @@ class _ProcessingPorterScreenState extends State<ProcessingPorterScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            TypographyStyles.caption(
+            TypographyStyles.body(
               _dateFormat.format(timestamp),
               color: GrayColors.gray600,
               fontWeight: FontWeight.w400,
             ),
-            TypographyStyles.caption(
+            TypographyStyles.body(
               _timeFormat.format(timestamp),
               color: GrayColors.gray600,
               fontWeight: FontWeight.w400,
@@ -370,16 +292,8 @@ class _ProcessingPorterScreenState extends State<ProcessingPorterScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TypographyStyles.caption(
-                location,
-                color: GrayColors.gray800,
-                fontWeight: FontWeight.w600,
-              ),
-              TypographyStyles.small(
-                desc,
-                color: GrayColors.gray600,
-                fontWeight: FontWeight.w400,
-              )
+              TypographyStyles.body(location, color: GrayColors.gray800),
+              TypographyStyles.caption(desc, color: GrayColors.gray600, fontWeight: FontWeight.w400)
             ],
           ),
         ),

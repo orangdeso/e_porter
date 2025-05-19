@@ -28,6 +28,7 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
     torchEnabled: false,
     returnImage: true,
   );
+
   bool isProcessing = false;
   bool _isTorchOn = false;
 
@@ -220,7 +221,7 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
         transactionId: transactionId,
         location: rawLocation,
       );
-      await Future.delayed(Duration(seconds: 3));
+      // await Future.delayed(Duration(seconds: 3));
 
       log('[ScanQRScreen] requestPorter succeeded: $result');
 
@@ -245,7 +246,6 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
     } on Exception catch (e) {
       final msg = e.toString();
       if (msg.contains('Porter tidak tersedia')) {
-        // Porter sibuk → langsung pop dengan result
         Get.back(result: 'PORTER_BUSY');
         return;
       }
