@@ -10,11 +10,9 @@ class StatisticRepositoryImpl implements StatisticRepository {
   Timestamp _tsToDate(DateTime d) =>
       Timestamp.fromDate(DateTime(d.year, d.month, d.day).add(const Duration(days: 1)));
   
-  // Helper untuk menentukan tanggal awal bulan
   Timestamp _tsFirstDayOfMonth(DateTime month) =>
       Timestamp.fromDate(DateTime(month.year, month.month, 1));
   
-  // Helper untuk menentukan tanggal awal bulan berikutnya
   Timestamp _tsFirstDayOfNextMonth(DateTime month) =>
       Timestamp.fromDate(DateTime(month.year, month.month + 1, 1));
 

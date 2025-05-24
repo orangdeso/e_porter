@@ -18,7 +18,7 @@ abstract class StatisticRepository {
     required String porterId,
     required DateTime date,
   });
-  
+
   Stream<double> getMonthlyRevenue({
     required String porterId,
     required DateTime month,
