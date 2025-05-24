@@ -1,7 +1,6 @@
-
 import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../../../_core/service/preferences_service.dart';
@@ -30,12 +29,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Center(
-        child: Text(
-          'Splash Screen',
-          style: TextStyle(
-            fontSize: 32.sp,
-          ),
+        child: SvgPicture.asset(
+          'assets/images/eporter-logo.svg',
         ),
       ),
     );
