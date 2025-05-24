@@ -1,5 +1,4 @@
 // ignore_for_file: deprecated_member_use
-
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/button/button_list_tile.dart';
 import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
@@ -10,6 +9,10 @@ import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/_core/service/preferences_service.dart';
 import 'package:e_porter/presentation/controllers/porter_queue_controller.dart';
 import 'package:e_porter/presentation/controllers/statistic_controller.dart';
+import 'package:e_porter/presentation/screens/home/component/banners/features_banner.dart';
+import 'package:e_porter/presentation/screens/home/component/banners/priority_banner.dart';
+import 'package:e_porter/presentation/screens/home/component/banners/service_banner.dart';
+import 'package:e_porter/presentation/screens/home/component/banners/welcome_banner.dart';
 import 'package:e_porter/presentation/screens/home/component/card_service_porter.dart';
 import 'package:e_porter/presentation/screens/home/component/date_setting.dart';
 import 'package:e_porter/presentation/screens/home/component/profile_avatar.dart';
@@ -22,7 +25,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
-
 import '../../../../_core/utils/snackbar/snackbar_helper.dart';
 import '../../../../domain/models/user_entity.dart';
 
@@ -44,16 +46,10 @@ class _HomeScreenState extends State<HomeScreen> {
   final _statisticController = Get.find<StatisticController>();
 
   final List<Widget> imageList = [
-    Container(
-      child: Image.asset(
-        'assets/images/banner.png',
-      ),
-    ),
-    Container(
-      child: Image.asset(
-        'assets/images/banner.png',
-      ),
-    )
+    const WelcomeBanner(),
+    const FeaturesBanner(),
+    const ServiceBanner(),
+    const PriorityBanner(),
   ];
 
   @override
@@ -253,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ],
                                   ),
                                 ),
-                                SvgPicture.asset('assets/icons/ic_notification.svg'),
+                                // SvgPicture.asset('assets/icons/ic_notification.svg'),
                               ],
                             ),
                             SizedBox(height: 20.h),

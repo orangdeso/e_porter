@@ -28,8 +28,8 @@ class TransactionController extends GetxController {
     Map<String, dynamic>? porterServiceDetails,
     required Map<String, dynamic> userDetails,
     required int passenger,
-    required List<Map<String, dynamic>> passengerDetails, // Tambah parameter ini
-    required List<String> numberSeat, // Tambah parameter ini
+    required List<Map<String, dynamic>> passengerDetails, 
+    required List<String> numberSeat, 
   }) async {
     try {
       isLoading.value = true;

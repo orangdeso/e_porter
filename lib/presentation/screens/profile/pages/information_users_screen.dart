@@ -58,14 +58,14 @@ class _InformationUsersScreenState extends State<InformationUsersScreen> {
           ),
         );
       }),
-      bottomNavigationBar: CustomeShadowCotainner(
-        child: ButtonOutline(
-          text: 'Hapus Akun',
-          textColor: RedColors.red600,
-          borderColor: RedColors.red600,
-          onTap: () {},
-        ),
-      ),
+      // bottomNavigationBar: CustomeShadowCotainner(
+      //   child: ButtonOutline(
+      //     text: 'Hapus Akun',
+      //     textColor: RedColors.red600,
+      //     borderColor: RedColors.red600,
+      //     onTap: () {},
+      //   ),
+      // ),
     );
   }
 
