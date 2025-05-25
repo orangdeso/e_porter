@@ -11,6 +11,7 @@ class InputPassword extends StatefulWidget {
   final TextEditingController? controller;
   final String? Function(String?)? validator;
   final bool obscureText;
+  final Color? backgroundColor;
 
   const InputPassword({
     Key? key,
@@ -19,6 +20,7 @@ class InputPassword extends StatefulWidget {
     this.controller,
     this.validator,
     this.obscureText = true,
+    this.backgroundColor = GrayColors.gray50,
   }) : super(key: key);
 
   @override
@@ -38,7 +40,7 @@ class _InputPasswordState extends State<InputPassword> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: GrayColors.gray50,
+        color: widget.backgroundColor,
         borderRadius: BorderRadius.circular(10.r),
       ),
       child: TextFormField(

@@ -35,6 +35,7 @@ import 'package:e_porter/presentation/screens/home/pages/ticket_booking_step4_sc
 import 'package:e_porter/presentation/screens/home/pages/upload_file_screen.dart';
 import 'package:e_porter/presentation/screens/navigation/main_navigation.dart';
 import 'package:e_porter/presentation/screens/onboarding/onboarding_screen.dart';
+import 'package:e_porter/presentation/screens/profile/pages/change/change_no_id.dart';
 import 'package:e_porter/presentation/screens/profile/pages/change_email_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/change_number_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/change_password_screen.dart';
@@ -216,6 +217,10 @@ class AppRoutes {
       page: () => ChangeNumberScreen(),
     ),
     GetPage(
+      name: Routes.CHANGENOID,
+      page: () => ChangeNoId(),
+    ),
+    GetPage(
       name: Routes.CHANGEEMAIL,
       page: () => ChangeEmailScreen(),
       binding: ProfilBinding(),
@@ -271,6 +276,7 @@ class Routes {
   static const INFORMATIONS = '/informations';
   static const CHANGEPASSWORD = '/change_password';
   static const CHANGENUMBER = '/change_number';
+  static const CHANGENOID = '/change_no_id';
   static const CHANGEEMAIL = '/change_email';
   static const PASSENGERLIST = '/passenger_list';
 }

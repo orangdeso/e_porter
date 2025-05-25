@@ -8,6 +8,7 @@ import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/_core/utils/snackbar/snackbar_helper.dart';
 import 'package:e_porter/_core/validators/validators.dart';
 import 'package:e_porter/presentation/controllers/profil_controller.dart';
+import 'package:e_porter/presentation/screens/profile/component/radio_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -121,9 +122,9 @@ class _AddPassengerScreenState extends State<AddPassengerScreen> {
                   TypographyStyles.body('Jenis Kelamin', color: GrayColors.gray600, fontWeight: FontWeight.w400),
                   Row(
                     children: [
-                      _buildRadioButton(context, label: 'Laki-laki', value: 'Laki-laki'),
+                      RadioButtonGender(value: 'Laki-laki', label: 'Laki-laki', selectedGender: selectedGender),
                       SizedBox(width: 40.h),
-                      _buildRadioButton(context, label: 'Perempuan', value: 'Perempuan')
+                      RadioButtonGender(value: 'Perempuan', label: 'Perempuan', selectedGender: selectedGender),
                     ],
                   )
                 ],
@@ -145,32 +146,6 @@ class _AddPassengerScreenState extends State<AddPassengerScreen> {
           },
         ),
       ),
-    );
-  }
-
-  Widget _buildRadioButton(
-    BuildContext context, {
-    required String label,
-    required String value,
-  }) {
-    return ValueListenableBuilder<String>(
-      valueListenable: selectedGender,
-      builder: (context, selected, child) {
-        return Row(
-          children: [
-            Radio<String>(
-              value: value,
-              groupValue: selected,
-              activeColor: PrimaryColors.primary800,
-              onChanged: (val) {
-                selectedGender.value = val!;
-              },
-            ),
-            SizedBox(width: 10.w),
-            TypographyStyles.body(label, color: GrayColors.gray800, fontWeight: FontWeight.w500)
-          ],
-        );
-      },
     );
   }
 

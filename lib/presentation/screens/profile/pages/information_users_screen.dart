@@ -88,7 +88,14 @@ class _InformationUsersScreenState extends State<InformationUsersScreen> {
             ),
             SizedBox(height: 24.h),
             itemDoubleWithButton(
-                label1: 'Tipe ID', value1: userData.tipeId ?? '-', label2: 'No ID', value2: userData.noId ?? '-'),
+              label1: 'Tipe ID',
+              value1: userData.tipeId ?? '-',
+              label2: 'No ID',
+              value2: userData.noId ?? '-',
+              onTap: () {
+                Get.toNamed(Routes.CHANGENOID);
+              },
+            ),
           ],
         ),
       ),
@@ -194,6 +201,7 @@ class _InformationUsersScreenState extends State<InformationUsersScreen> {
     required String label2,
     required String value1,
     required String value2,
+    required VoidCallback onTap,
   }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -206,20 +214,25 @@ class _InformationUsersScreenState extends State<InformationUsersScreen> {
             infoDoubleItem(label: label2, value: value2)
           ],
         ),
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
-          decoration: BoxDecoration(
-            color: PrimaryColors.primary100,
-            borderRadius: BorderRadius.circular(10.r),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.edit, color: PrimaryColors.primary800, size: 14.sp),
-              Padding(
-                padding: EdgeInsets.only(left: 8.w),
-                child: TypographyStyles.small('Ubah', color: PrimaryColors.primary800),
+        ZoomTapAnimation(
+          child: InkWell(
+            onTap: onTap,
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
+              decoration: BoxDecoration(
+                color: PrimaryColors.primary100,
+                borderRadius: BorderRadius.circular(10.r),
               ),
-            ],
+              child: Row(
+                children: [
+                  Icon(Icons.edit, color: PrimaryColors.primary800, size: 14.sp),
+                  Padding(
+                    padding: EdgeInsets.only(left: 8.w),
+                    child: TypographyStyles.small('Ubah', color: PrimaryColors.primary800),
+                  ),
+                ],
+              ),
+            ),
           ),
         )
       ],
