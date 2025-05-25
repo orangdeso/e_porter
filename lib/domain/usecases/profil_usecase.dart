@@ -64,6 +64,23 @@ class ChangePhoneUseCase {
   }
 }
 
+class ChangeNoIdUseCase {
+  final ProfilRepository profilRepository;
+  ChangeNoIdUseCase(this.profilRepository);
+
+  Future<void> call({
+    required String oldPassword,
+    required String typeId,
+    required String noId,
+  }) {
+    return profilRepository.changeNoId(
+      oldPassword: oldPassword,
+      typeId: typeId,
+      noId: noId,
+    );
+  }
+}
+
 class DeletePassengerUseCase {
   final ProfilRepository profilRepository;
   DeletePassengerUseCase(this.profilRepository);

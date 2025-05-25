@@ -25,10 +25,16 @@ abstract class ProfilRepository {
     required String oldPassword,
     required String newPassword,
   });
-
+  
   Future<void> changePhone({
     required String oldPassword,
     required String newPhone,
+  });
+
+  Future<void> changeNoId({
+    required String oldPassword,
+    required String typeId,
+    required String noId,
   });
 
   // Future<void> changeEmail({

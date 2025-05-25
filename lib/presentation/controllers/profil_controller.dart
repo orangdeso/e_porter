@@ -3,7 +3,6 @@ import 'package:e_porter/_core/service/preferences_service.dart';
 import 'package:e_porter/_core/utils/snackbar/snackbar_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-
 import '../../domain/models/user_entity.dart';
 import '../../domain/usecases/profil_usecase.dart';
 
@@ -13,6 +12,7 @@ class ProfilController extends GetxController {
   final GetUserByIdUseCase getUserByIdUseCase;
   final ChangePasswordUseCase changePasswordUseCase;
   final ChangePhoneUseCase changePhoneUseCase;
+  final ChangeNoIdUseCase changeNoIdUseCase;
   final DeletePassengerUseCase deletePassengerUseCase;
   final UpdatePassengerUseCase updatePassengerUseCase;
   // final ChangeEmailUseCase changeEmailUseCase;
@@ -22,6 +22,7 @@ class ProfilController extends GetxController {
   var isLoading = false.obs;
   var isChangingPassword = false.obs;
   var isChangingPhone = false.obs;
+  var isChangingNoId = false.obs;
   var isDeletingPassenger = false.obs;
   var isUpdatingPassenger = false.obs;
   // var isChangingEmail = false.obs;
@@ -32,6 +33,7 @@ class ProfilController extends GetxController {
     required this.getUserByIdUseCase,
     required this.changePasswordUseCase,
     required this.changePhoneUseCase,
+    required this.changeNoIdUseCase,
     required this.deletePassengerUseCase,
     required this.updatePassengerUseCase,
     // required this.changeEmailUseCase,
@@ -203,6 +205,42 @@ class ProfilController extends GetxController {
       return false;
     } finally {
       isChangingPhone.value = false;
+    }
+  }
+
+  Future<bool> changeNoId({
+    required String oldPassword,
+    required String typeId,
+    required String noId,
+  }) async {
+    isChangingNoId.value = true;
+    try {
+      await changeNoIdUseCase(
+        oldPassword: oldPassword,
+        typeId: typeId,
+        noId: noId,
+      );
+
+      await _loadProfile();
+      SnackbarHelper.showSuccess("Berhasil", "Nomor ID berhasil diperbarui.");
+
+      return true;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        SnackbarHelper.showError("Gagal", "Password lama salah.");
+      } else {
+        SnackbarHelper.showError("Gagal", e.message ?? "Terjadi kesalahan.");
+      }
+      return false;
+    } catch (e) {
+      if (e.toString().contains("Nomor ID sudah digunakan oleh pengguna lain")) {
+        SnackbarHelper.showError("Gagal", "Nomor ID sudah digunakan oleh pengguna lain.");
+      } else {
+        SnackbarHelper.showError("Gagal", "Terjadi kesalahan: $e");
+      }
+      return false;
+    } finally {
+      isChangingNoId.value = false;
     }
   }
 

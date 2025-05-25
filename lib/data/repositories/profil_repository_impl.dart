@@ -27,10 +27,7 @@ class ProfilRepositoryImpl implements ProfilRepository {
     try {
       QuerySnapshot querySnapshot = await _firestore.collection('users').doc(userId).collection('passenger').get();
       return querySnapshot.docs
-          .map((doc) => PassengerModel.fromMap({
-                'id': doc.id, 
-                ...doc.data() as Map<String, dynamic>
-              }))
+          .map((doc) => PassengerModel.fromMap({'id': doc.id, ...doc.data() as Map<String, dynamic>}))
           .toList();
     } catch (e) {
       rethrow;
@@ -50,6 +47,7 @@ class ProfilRepositoryImpl implements ProfilRepository {
       rethrow;
     }
   }
+
   @override
   Future<UserData> getUserById(String userId) async {
     try {
@@ -62,7 +60,7 @@ class ProfilRepositoryImpl implements ProfilRepository {
       rethrow;
     }
   }
-  
+
   @override
   Future<void> updatePassenger({
     required String userId,
@@ -117,6 +115,52 @@ class ProfilRepositoryImpl implements ProfilRepository {
     );
     await user.reauthenticateWithCredential(cred);
     await _firestore.collection('users').doc(user.uid).update({'phone': newPhone});
+  }
+
+  @override
+  Future<void> changeNoId({
+    required String oldPassword,
+    required String typeId,
+    required String noId,
+  }) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception("User belum login");
+    }
+
+    final existingUserQuery =
+        await _firestore.collection('users').where('typeId', isEqualTo: typeId).where('noId', isEqualTo: noId).get();
+
+    if (existingUserQuery.docs.isNotEmpty) {
+      final isCurrentUser = existingUserQuery.docs.any((doc) => doc.id == user.uid);
+      if (!isCurrentUser) {
+        throw Exception("Nomor ID sudah digunakan oleh pengguna lain");
+      }
+    }
+
+    final allUsersQuery = await _firestore.collection('users').get();
+    for (final userDoc in allUsersQuery.docs) {
+      final passengerQuery = await _firestore
+          .collection('users')
+          .doc(userDoc.id)
+          .collection('passenger')
+          .where('typeId', isEqualTo: typeId)
+          .where('noId', isEqualTo: noId)
+          .get();
+      if (passengerQuery.docs.isNotEmpty) {
+        throw Exception("Nomor ID sudah digunakan oleh pengguna lain");
+      }
+    }
+
+    final cred = EmailAuthProvider.credential(
+      email: user.email!,
+      password: oldPassword,
+    );
+    await user.reauthenticateWithCredential(cred);
+    await _firestore.collection('users').doc(user.uid).update({
+      'typeId': typeId,
+      'noId': noId,
+    });
   }
 
   // @override

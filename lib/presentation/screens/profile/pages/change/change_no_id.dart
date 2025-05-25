@@ -1,4 +1,6 @@
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
+import 'package:e_porter/_core/component/button/button_fill.dart';
+import 'package:e_porter/_core/component/card/custome_shadow_cotainner.dart';
 import 'package:e_porter/_core/component/text/custom_text.dart';
 import 'package:e_porter/_core/component/text_field/dropdown/dropdown_component.dart';
 import 'package:e_porter/_core/component/text_field/text_input/text_field_component.dart';
@@ -7,6 +9,7 @@ import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/_core/validators/validators.dart';
 import 'package:e_porter/presentation/screens/auth/component/Input_password.dart';
 import 'package:e_porter/presentation/screens/profile/component/header_information.dart';
+import 'package:e_porter/presentation/controllers/profil_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -23,6 +26,7 @@ class _ChangeNoIdState extends State<ChangeNoId> {
   final _formKey = GlobalKey<FormState>();
   final _oldPassword = TextEditingController();
   final _noIdController = TextEditingController();
+  final ProfilController _profilController = Get.find<ProfilController>();
 
   String selectedTypeId = 'KTP';
   @override
@@ -109,31 +113,38 @@ class _ChangeNoIdState extends State<ChangeNoId> {
           ),
         ),
       ),
-      // bottomNavigationBar: Obx(
-      //   () {
-      //     return CustomeShadowCotainner(
-      //       child: _authController.isChangingPhone.value
-      //           ? Center(
-      //               child: CircularProgressIndicator(color: PrimaryColors.primary800),
-      //             )
-      //           : ButtonFill(
-      //               text: 'Simpan',
-      //               textColor: Colors.white,
-      //               onTap: () async {
-      //                 if (!_formKey.currentState!.validate()) return;
-      //                 final result = await _authController.changePhone(
-      //                   oldPassword: _oldPassword.text.trim(),
-      //                   newPhone: _phoneNumber.text.trim(),
-      //                 );
-      //                 if (result) {
-      //                   _oldPassword.clear();
-      //                   _phoneNumber.clear();
-      //                 }
-      //               },
-      //             ),
-      //     );
-      //   },
-      // ),
+      bottomNavigationBar: Obx(() {
+        return CustomeShadowCotainner(
+          child: _profilController.isChangingNoId.value
+              ? Center(
+                  child: CircularProgressIndicator(color: PrimaryColors.primary800),
+                )
+              : ButtonFill(
+                  text: 'Simpan',
+                  textColor: Colors.white,
+                  onTap: () async {
+                    if (!_formKey.currentState!.validate()) return;
+                    final result = await _profilController.changeNoId(
+                        oldPassword: _oldPassword.text.trim(),
+                        noId: _noIdController.text.trim(),
+                        typeId: selectedTypeId);
+
+                    if (result) {
+                      _oldPassword.clear();
+                      _noIdController.clear();
+
+                      await Future.delayed(Duration(milliseconds: 1500));
+
+                      if (Get.isSnackbarOpen) {
+                        Get.closeAllSnackbars();
+                        await Future.delayed(Duration(milliseconds: 300));
+                      }
+                      Get.back();
+                    }
+                  },
+                ),
+        );
+      }),
     );
   }
 }

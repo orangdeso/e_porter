@@ -15,10 +15,11 @@ class ProfilBinding extends Bindings {
     Get.lazyPut(() => GetUserByIdUseCase(Get.find()));
     Get.lazyPut(() => ChangePasswordUseCase(Get.find()));
     Get.lazyPut(() => ChangePhoneUseCase(Get.find()));
+    Get.lazyPut(() => ChangeNoIdUseCase(Get.find()));
     Get.lazyPut(() => DeletePassengerUseCase(Get.find()));
     Get.lazyPut(() => UpdatePassengerUseCase(Get.find()));
     // Get.lazyPut(() => ChangeEmailUseCase(Get.find()));
-    
+
     Get.lazyPut(
       () => ProfilController(
         createPassengerUseCase: Get.find(),
@@ -26,6 +27,7 @@ class ProfilBinding extends Bindings {
         getUserByIdUseCase: Get.find(),
         changePasswordUseCase: Get.find(),
         changePhoneUseCase: Get.find(),
+        changeNoIdUseCase: Get.find(),
         deletePassengerUseCase: Get.find(),
         updatePassengerUseCase: Get.find(),
       ),

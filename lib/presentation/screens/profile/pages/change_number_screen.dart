@@ -20,7 +20,7 @@ class ChangeNumberScreen extends StatefulWidget {
 }
 
 class _ChangeNumberScreenState extends State<ChangeNumberScreen> {
-  final _authController = Get.find<ProfilController>();
+  final _profilController = Get.find<ProfilController>();
   final _formKey = GlobalKey<FormState>();
   final _oldPassword = TextEditingController();
   final _phoneNumber = TextEditingController();
@@ -78,7 +78,7 @@ class _ChangeNumberScreenState extends State<ChangeNumberScreen> {
       bottomNavigationBar: Obx(
         () {
           return CustomeShadowCotainner(
-            child: _authController.isChangingPhone.value
+            child: _profilController.isChangingPhone.value
                 ? Center(
                     child: CircularProgressIndicator(color: PrimaryColors.primary800),
                   )
@@ -87,7 +87,7 @@ class _ChangeNumberScreenState extends State<ChangeNumberScreen> {
                     textColor: Colors.white,
                     onTap: () async {
                       if (!_formKey.currentState!.validate()) return;
-                      final result = await _authController.changePhone(
+                      final result = await _profilController.changePhone(
                         oldPassword: _oldPassword.text.trim(),
                         newPhone: _phoneNumber.text.trim(),
                       );
