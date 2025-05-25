@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:developer';
-
 import 'package:e_porter/_core/component/appbar/appbar_component.dart';
 import 'package:e_porter/_core/component/button/button_fill.dart';
 import 'package:e_porter/_core/component/button/switch_button.dart';
@@ -96,7 +95,7 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
   Future<void> _loadPassengers() async {
     final userData = await PreferencesService.getUserData();
     if (userData == null || userData.uid.isEmpty) {
-      SnackbarHelper.showError('Error', 'User ID tidak ditemukan, silakan login kembali');
+      SnackbarHelper.showError('Gagal', 'User ID tidak ditemukan, silakan login kembali');
       return;
     }
     final userId = userData.uid;
@@ -105,10 +104,45 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
 
   bool isAllPassengersFilled() {
     if (isToggled && _loggedUser != null) {
-      return selectedPassengers.skip(1).every((p) => p != null);
+      if (!_isUserDataComplete(_loggedUser)) {
+        return false;
+      }
+      return selectedPassengers.skip(1).every((p) => p != null && _isPassengerDataComplete(p));
     } else {
-      return selectedPassengers.every((p) => p != null);
+      return selectedPassengers.every((p) => p != null && _isPassengerDataComplete(p));
     }
+  }
+
+  bool _isUserDataComplete(dynamic userData) {
+    return userData.tipeId != null && userData.tipeId!.isNotEmpty && userData.noId != null && userData.noId!.isNotEmpty;
+  }
+
+  bool _isPassengerDataComplete(PassengerModel passenger) {
+    return passenger.typeId.isNotEmpty && passenger.noId.isNotEmpty;
+  }
+
+  String? _getValidationMessage() {
+    if (isToggled && _loggedUser != null && !_isUserDataComplete(_loggedUser)) {
+      return 'Data Anda tidak lengkap. Harap lengkapi tipe ID dan nomor ID di profil terlebih dahulu.';
+    }
+
+    if (selectedPassengers.any((p) => p == null)) {
+      return 'Harap lengkapi semua slot penumpang';
+    }
+
+    if (isToggled && _loggedUser != null) {
+      final incompletePassengers = selectedPassengers.skip(1).where((p) => p != null && !_isPassengerDataComplete(p));
+      if (incompletePassengers.isNotEmpty) {
+        return 'Ada data penumpang yang tidak lengkap. Harap periksa kembali informasi penumpang.';
+      }
+    } else {
+      final incompletePassengers = selectedPassengers.where((p) => p != null && !_isPassengerDataComplete(p));
+      if (incompletePassengers.isNotEmpty) {
+        return 'Ada data penumpang yang tidak lengkap. Harap periksa kembali informasi penumpang.';
+      }
+    }
+
+    return null;
   }
 
   @override
@@ -188,34 +222,35 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
           textColor: Colors.white,
           backgroundColor: isAllPassengersFilled() ? PrimaryColors.primary800 : GrayColors.gray400,
           onTap: () {
-            if (selectedPassengers.any((p) => p == null)) {
-              SnackbarHelper.showError('Error', 'Harap lengkapi slot penumpang');
-            } else {
-              final argument = {
-                "fromId": fromId,
-                "toId": toId,
-                'ticketId': ticketId,
-                'flightId': flightId,
-                'date': ticketDate,
-                'departureTime': departureTime,
-                'arrivalTime': arrivalTime,
-                'cityDeparture': cityDeparture,
-                'cityArrival': cityArrival,
-                'airLines': airLines,
-                'code': code,
-                'flightClass': flightClass,
-                'transitAirplane': cityTransit,
-                'stop': stop,
-                'codeDeparture': codeDeparture,
-                'codeArrival': codeArrival,
-                'airlineLogo': airlineLogo,
-                'passenger': passenger,
-                'selectedPassenger': selectedPassengers,
-              };
-              log('[Ticket Booking Step1] From ID: $fromId');
-
-              Get.toNamed(Routes.TICKETBOOKINGSTEP2, arguments: argument);
+            final validationMessage = _getValidationMessage();
+            if (validationMessage != null) {
+              SnackbarHelper.showError('Error', validationMessage);
+              return;
             }
+            final argument = {
+              "fromId": fromId,
+              "toId": toId,
+              'ticketId': ticketId,
+              'flightId': flightId,
+              'date': ticketDate,
+              'departureTime': departureTime,
+              'arrivalTime': arrivalTime,
+              'cityDeparture': cityDeparture,
+              'cityArrival': cityArrival,
+              'airLines': airLines,
+              'code': code,
+              'flightClass': flightClass,
+              'transitAirplane': cityTransit,
+              'stop': stop,
+              'codeDeparture': codeDeparture,
+              'codeArrival': codeArrival,
+              'airlineLogo': airlineLogo,
+              'passenger': passenger,
+              'selectedPassenger': selectedPassengers,
+            };
+            log('[Ticket Booking Step1] From ID: $fromId');
+
+            Get.toNamed(Routes.TICKETBOOKINGSTEP2, arguments: argument);
           },
         ),
       ),
@@ -316,114 +351,163 @@ class _TicketBookingStep1ScreenState extends State<TicketBookingStep1Screen> {
 
   Widget _buildUserPassengerCard(dynamic user, int index) {
     bool isSlotEditTable = !isToggled || index != 0;
+    bool isDataComplete = _isUserDataComplete(user);
+
     return Padding(
       padding: EdgeInsets.only(bottom: 16.h),
-      child: CustomeShadowCotainner(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10.r),
+          border: !isDataComplete ? Border.all(color: Colors.red.shade300, width: 1.5.w) : null,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TypographyStyles.body(
-                  '${_loggedUser.name}',
-                  color: GrayColors.gray800,
-                  fontWeight: FontWeight.w500,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TypographyStyles.body(
+                        '${_loggedUser.name}',
+                        color: GrayColors.gray800,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      SizedBox(height: 4.h),
+                      TypographyStyles.caption(
+                        (_loggedUser.tipeId?.isEmpty ?? true) || (_loggedUser.noId?.isEmpty ?? true)
+                            ? "Data tidak lengkap"
+                            : "${_loggedUser.tipeId} - ${_loggedUser.noId}",
+                        color: !isDataComplete ? Colors.red.shade600 : GrayColors.gray800,
+                        fontWeight: FontWeight.w400,
+                      )
+                    ],
+                  ),
                 ),
-                SizedBox(height: 4.h),
-                TypographyStyles.caption(
-                  "${_loggedUser.tipeId} - ${_loggedUser.noId}",
-                  color: GrayColors.gray800,
-                  fontWeight: FontWeight.w400,
+                Row(
+                  children: [
+                    ZoomTapAnimation(
+                      child: IconButton(
+                        icon: CustomeIcons.RemoveOutline(),
+                        onPressed: () {
+                          setState(() {
+                            selectedPassengers[0] = null;
+                            isToggled = false;
+                          });
+                        },
+                      ),
+                    ),
+                    if (isSlotEditTable)
+                      ZoomTapAnimation(
+                        child: GestureDetector(
+                          child: CustomeIcons.EditOutline(),
+                          onTap: () {
+                            Get.bottomSheet(
+                              Padding(
+                                padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
+                                child: Wrap(
+                                  children: [
+                                    TitleShowModal(
+                                      text: 'Informasi Penumpang',
+                                      onTap: () async {
+                                        if (Get.isBottomSheetOpen ?? false) {
+                                          Get.back();
+                                        }
+                                        await Future.delayed(Duration(seconds: 1));
+                                        var result = await Get.toNamed(Routes.ADDPASSENGER);
+                                        if (result == true) {
+                                          _loadPassengers().then((_) => setState(() {}));
+                                        }
+                                      },
+                                    ),
+                                    Obx(
+                                      () {
+                                        if (profilController.passengerList.isEmpty) {
+                                          return Center(
+                                            child: TypographyStyles.body(
+                                              "Belum ada penumpang",
+                                              color: GrayColors.gray400,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          );
+                                        }
+                                        return ListView.builder(
+                                          itemCount: profilController.passengerList.length,
+                                          shrinkWrap: true,
+                                          itemBuilder: (context, index) {
+                                            final passenger = profilController.passengerList[index];
+                                            return Padding(
+                                              padding: EdgeInsets.only(top: 16.h),
+                                              child: _buildAddPassenger(
+                                                context,
+                                                title: "${passenger.name}",
+                                                subTitle: "${passenger.typeId} - ${passenger.noId}",
+                                                onTap: () {
+                                                  selectedPassengers[index] = passenger;
+                                                  Get.back();
+                                                  setState(() {});
+                                                },
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              backgroundColor: Colors.white,
+                              isScrollControlled: true,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(10.r),
+                                  topRight: Radius.circular(10.r),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                  ],
                 )
               ],
             ),
-            Row(
-              children: [
-                ZoomTapAnimation(
-                  child: IconButton(
-                    icon: CustomeIcons.RemoveOutline(),
-                    onPressed: () {
-                      setState(() {
-                        selectedPassengers[0] = null;
-                        isToggled = false;
-                      });
-                    },
-                  ),
+            if (!isDataComplete)
+              Container(
+                margin: EdgeInsets.only(top: 8.h),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(6.r),
                 ),
-                if (isSlotEditTable)
-                  ZoomTapAnimation(
-                    child: GestureDetector(
-                      child: CustomeIcons.EditOutline(),
-                      onTap: () {
-                        Get.bottomSheet(
-                          Padding(
-                            padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
-                            child: Wrap(
-                              children: [
-                                TitleShowModal(
-                                  text: 'Informasi Penumpang',
-                                  onTap: () async {
-                                    if (Get.isBottomSheetOpen ?? false) {
-                                      Get.back();
-                                    }
-                                    await Future.delayed(Duration(seconds: 1));
-                                    var result = await Get.toNamed(Routes.ADDPASSENGER);
-                                    if (result == true) {
-                                      _loadPassengers().then((_) => setState(() {}));
-                                    }
-                                  },
-                                ),
-                                Obx(
-                                  () {
-                                    if (profilController.passengerList.isEmpty) {
-                                      return Center(
-                                        child: TypographyStyles.body(
-                                          "Belum ada penumpang",
-                                          color: GrayColors.gray400,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      );
-                                    }
-                                    return ListView.builder(
-                                      itemCount: profilController.passengerList.length,
-                                      shrinkWrap: true,
-                                      itemBuilder: (context, index) {
-                                        final passenger = profilController.passengerList[index];
-                                        return Padding(
-                                          padding: EdgeInsets.only(top: 16.h),
-                                          child: _buildAddPassenger(
-                                            context,
-                                            title: "${passenger.name}",
-                                            subTitle: "${passenger.typeId} - ${passenger.noId}",
-                                            onTap: () {
-                                              selectedPassengers[index] = passenger;
-                                              Get.back();
-                                              setState(() {});
-                                            },
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          backgroundColor: Colors.white,
-                          isScrollControlled: true,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(10.r),
-                              topRight: Radius.circular(10.r),
-                            ),
-                          ),
-                        );
-                      },
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 16.w,
+                      color: Colors.red.shade600,
                     ),
-                  ),
-              ],
-            )
+                    SizedBox(width: 6.w),
+                    Expanded(
+                      child: TypographyStyles.caption(
+                        'Lengkapi tipe ID dan nomor ID di profil Anda',
+                        color: Colors.red.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),

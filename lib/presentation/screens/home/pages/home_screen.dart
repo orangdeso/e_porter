@@ -271,7 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: CarouselSlider(
                             items: imageList,
                             options: CarouselOptions(
-                              autoPlay: false,
+                              autoPlay: true,
                               enlargeCenterPage: true,
                               aspectRatio: 2.3,
                               viewportFraction: 0.8,
