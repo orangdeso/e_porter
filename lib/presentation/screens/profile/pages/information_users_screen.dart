@@ -113,7 +113,9 @@ class _InformationUsersScreenState extends State<InformationUsersScreen> {
               label: 'Nama Lengkap',
               value: userData.name ?? '-',
               isDivider: false,
-              onTap: () {},
+              onTap: () {
+                Get.toNamed(Routes.CHANGEDATACOMPLETE);
+              },
             ),
             SizedBox(height: 24.h),
             Row(

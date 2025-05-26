@@ -19,8 +19,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
-import '../../../../_core/service/logger_service.dart';
-
 class BookingTickets extends StatefulWidget {
   const BookingTickets({super.key});
 
@@ -121,7 +119,6 @@ class _BookingTicketsState extends State<BookingTickets> {
                             setState(() {
                               selectedDate = picked;
                               selectedDateText = DateFormat('EEE, d MMM yyyy', 'en_US').format(selectedDate);
-                              logger.d(selectedDate);
                             });
                           }
                         },

@@ -13,6 +13,10 @@ class InputForm extends StatefulWidget {
   final String? Function(String?)? validator;
   final TextInputType textInputType;
   final List<TextInputFormatter>? inputFormatters;
+  final Widget? suffixIcon;
+  final bool enabled;
+  final VoidCallback? onTap;
+  final Color? backgroundColor;
 
   const InputForm({
     Key? key,
@@ -22,6 +26,10 @@ class InputForm extends StatefulWidget {
     this.validator,
     this.textInputType = TextInputType.text,
     this.inputFormatters,
+    this.suffixIcon,
+    this.enabled = true,
+    this.onTap,
+    this.backgroundColor = GrayColors.gray50,
   }) : super(key: key);
 
   @override
@@ -31,51 +39,68 @@ class InputForm extends StatefulWidget {
 class _InputFormState extends State<InputForm> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: GrayColors.gray50,
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      child: TextFormField(
-        controller: widget.controller,
-        validator: widget.validator,
-        keyboardType: widget.textInputType,
-        inputFormatters:
-            widget.inputFormatters ?? <TextInputFormatter>[FilteringTextInputFormatter.singleLineFormatter],
-        decoration: InputDecoration(
-          hintText: widget.hintText,
-          hintStyle: TextStyle(
+    bool hasValidValue = widget.controller?.text.isNotEmpty == true &&
+        widget.controller?.text != 'dd/mm/yyyy' &&
+        widget.controller?.text != widget.hintText;
+
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: widget.backgroundColor,
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+        child: TextFormField(
+          controller: widget.controller,
+          validator: widget.validator,
+          enabled: widget.enabled,
+          keyboardType: widget.textInputType,
+          inputFormatters:
+              widget.inputFormatters ?? <TextInputFormatter>[FilteringTextInputFormatter.singleLineFormatter],
+          style: TextStyle(
             fontFamily: 'DMSans',
             fontSize: 14.sp,
-            fontWeight: FontWeight.w400,
-            color: GrayColors.gray600,
+            fontWeight: (!widget.enabled && hasValidValue) ? FontWeight.w500 : FontWeight.w400,
+            color: hasValidValue ? GrayColors.gray800 : GrayColors.gray500,
           ),
-          prefixIcon: Padding(
-            padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 14.w),
-            child: SvgPicture.asset(
-              widget.svgIconPath,
+          decoration: InputDecoration(
+            hintText: widget.hintText,
+            hintStyle: TextStyle(
+              fontFamily: 'DMSans',
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
               color: GrayColors.gray500,
             ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(
-              width: 1.w,
-              color: GrayColors.gray200,
+            prefixIcon: Padding(
+              padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 14.w),
+              child: SvgPicture.asset(
+                widget.svgIconPath,
+                color: GrayColors.gray500,
+              ),
             ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(
-              width: 2.w,
-              color: PrimaryColors.primary800,
+            suffixIcon: widget.suffixIcon != null
+                ? Padding(padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 14.w), child: widget.suffixIcon)
+                : null,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.r),
+              borderSide: BorderSide(
+                width: 1.w,
+                color: GrayColors.gray200,
+              ),
             ),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(
-              width: 1.w,
-              color: GrayColors.gray200,
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.r),
+              borderSide: BorderSide(
+                width: 2.w,
+                color: PrimaryColors.primary800,
+              ),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.r),
+              borderSide: BorderSide(
+                width: 1.w,
+                color: GrayColors.gray200,
+              ),
             ),
           ),
         ),

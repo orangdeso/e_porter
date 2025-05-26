@@ -35,10 +35,11 @@ import 'package:e_porter/presentation/screens/home/pages/ticket_booking_step4_sc
 import 'package:e_porter/presentation/screens/home/pages/upload_file_screen.dart';
 import 'package:e_porter/presentation/screens/navigation/main_navigation.dart';
 import 'package:e_porter/presentation/screens/onboarding/onboarding_screen.dart';
+import 'package:e_porter/presentation/screens/profile/pages/change/change_data_complete.dart';
 import 'package:e_porter/presentation/screens/profile/pages/change/change_no_id.dart';
-import 'package:e_porter/presentation/screens/profile/pages/change_email_screen.dart';
-import 'package:e_porter/presentation/screens/profile/pages/change_number_screen.dart';
-import 'package:e_porter/presentation/screens/profile/pages/change_password_screen.dart';
+import 'package:e_porter/presentation/screens/profile/pages/change/change_email_screen.dart';
+import 'package:e_porter/presentation/screens/profile/pages/change/change_number_screen.dart';
+import 'package:e_porter/presentation/screens/profile/pages/change/change_password_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/information_users_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/passenger_list_screen.dart';
 import 'package:e_porter/presentation/screens/profile/pages/profile_screen.dart';
@@ -221,6 +222,10 @@ class AppRoutes {
       page: () => ChangeNoId(),
     ),
     GetPage(
+      name: Routes.CHANGEDATACOMPLETE,
+      page: () => ChangeDataComplete(),
+    ),
+    GetPage(
       name: Routes.CHANGEEMAIL,
       page: () => ChangeEmailScreen(),
       binding: ProfilBinding(),
@@ -277,6 +282,7 @@ class Routes {
   static const CHANGEPASSWORD = '/change_password';
   static const CHANGENUMBER = '/change_number';
   static const CHANGENOID = '/change_no_id';
+  static const CHANGEDATACOMPLETE = '/change_data_complete';
   static const CHANGEEMAIL = '/change_email';
   static const PASSENGERLIST = '/passenger_list';
 }

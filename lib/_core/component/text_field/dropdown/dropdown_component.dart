@@ -8,6 +8,7 @@ class DropdownComponent extends StatefulWidget {
   final String? value;
   final Function(String?) onChanged;
   final String hintText;
+  final double? width;
 
   const DropdownComponent({
     Key? key,
@@ -15,6 +16,7 @@ class DropdownComponent extends StatefulWidget {
     this.value,
     required this.onChanged,
     required this.hintText,
+    this.width,
   }) : super(key: key);
 
   @override
@@ -28,13 +30,18 @@ class _DropdownComponentState extends State<DropdownComponent> {
   @override
   void initState() {
     super.initState();
-    selectedValue = widget.value;
+    // selectedValue = widget.value;
+    if (widget.value != null && widget.items.contains(widget.value)) {
+      selectedValue = widget.value;
+    } else {
+      selectedValue = null;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.height * 0.14,
+      width: widget.width ?? MediaQuery.of(context).size.height * 0.14,
       child: DropdownButtonHideUnderline(
         child: DropdownButton2<String>(
           isExpanded: true,
@@ -57,9 +64,9 @@ class _DropdownComponentState extends State<DropdownComponent> {
             widget.hintText,
             style: TextStyle(
               fontFamily: 'DMsans',
-              fontSize: 16.sp,
-              color: GrayColors.gray600,
-              fontWeight: FontWeight.w500,
+              fontSize: 14.sp,
+              color: GrayColors.gray500,
+              fontWeight: FontWeight.w400,
             ),
           ),
           onMenuStateChange: (isOpen) {
@@ -77,9 +84,7 @@ class _DropdownComponentState extends State<DropdownComponent> {
             padding: EdgeInsets.only(left: 10.w, right: 16.w, top: 4.h, bottom: 4.h),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10.r),
-              border: Border.all(
-                  width: 1.w,
-                  color: _isMenuOpen ? PrimaryColors.primary800 : GrayColors.gray200),
+              border: Border.all(width: 1.w, color: _isMenuOpen ? PrimaryColors.primary800 : GrayColors.gray200),
               color: Colors.white,
             ),
           ),
