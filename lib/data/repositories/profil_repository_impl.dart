@@ -163,6 +163,29 @@ class ProfilRepositoryImpl implements ProfilRepository {
     });
   }
 
+  @override
+  Future<void> updateUserData(UserData userData) async {
+    try {
+      if (userData.uid.isEmpty) {
+        throw Exception("User ID tidak boleh kosong");
+      }
+
+      await _firestore.collection('users').doc(userData.uid).update({
+        'name': userData.name,
+        'birth_date': userData.birthDate,
+        'gender': userData.gender,
+        'work': userData.work,
+        'city': userData.city,
+        'address': userData.address
+      });
+
+      log("Data pengguna berhasil diperbarui untuk ID: ${userData.uid}");
+    } catch (e) {
+      log("Error saat memperbarui data pengguna: $e");
+      rethrow;
+    }
+  }
+
   // @override
   // Future<void> changeEmail({
   //   required String oldPassword,

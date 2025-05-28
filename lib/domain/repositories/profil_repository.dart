@@ -25,7 +25,7 @@ abstract class ProfilRepository {
     required String oldPassword,
     required String newPassword,
   });
-  
+
   Future<void> changePhone({
     required String oldPassword,
     required String newPhone,
@@ -36,6 +36,8 @@ abstract class ProfilRepository {
     required String typeId,
     required String noId,
   });
+
+  Future<void> updateUserData(UserData userData);
 
   // Future<void> changeEmail({
   //   required String oldPassword,

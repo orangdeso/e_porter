@@ -127,3 +127,12 @@ class UpdatePassengerUseCase {
 //     );
 //   }
 // }
+
+class UpdateUserDataUseCase {
+  final ProfilRepository profilRepository;
+  UpdateUserDataUseCase(this.profilRepository);
+
+  Future<void> call(UserData userData) {
+    return profilRepository.updateUserData(userData);
+  }
+}

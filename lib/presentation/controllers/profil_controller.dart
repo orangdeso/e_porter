@@ -15,6 +15,7 @@ class ProfilController extends GetxController {
   final ChangeNoIdUseCase changeNoIdUseCase;
   final DeletePassengerUseCase deletePassengerUseCase;
   final UpdatePassengerUseCase updatePassengerUseCase;
+  final UpdateUserDataUseCase updateUserDataUseCase;
   // final ChangeEmailUseCase changeEmailUseCase;
 
   var passengerList = <PassengerModel>[].obs;
@@ -25,6 +26,7 @@ class ProfilController extends GetxController {
   var isChangingNoId = false.obs;
   var isDeletingPassenger = false.obs;
   var isUpdatingPassenger = false.obs;
+  var isUpdatingUserData = false.obs;
   // var isChangingEmail = false.obs;
 
   ProfilController({
@@ -36,6 +38,7 @@ class ProfilController extends GetxController {
     required this.changeNoIdUseCase,
     required this.deletePassengerUseCase,
     required this.updatePassengerUseCase,
+    required this.updateUserDataUseCase,
     // required this.changeEmailUseCase,
   });
 
@@ -244,6 +247,47 @@ class ProfilController extends GetxController {
     }
   }
 
+  Future<bool> updateUserData({
+    required String name,
+    String? birthDate,
+    String? gender,
+    String? work,
+    String? city,
+    String? address,
+  }) async {
+    isUpdatingUserData.value = true;
+    try {
+      final currentUser = userData.value;
+      if (currentUser == null) {
+        throw Exception("Data pengguna tidak tersedia");
+      }
+
+      final updatedUserData = UserData(
+        uid: currentUser.uid,
+        email: currentUser.email,
+        name: name,
+        birthDate: birthDate,
+        gender: gender,
+        work: work,
+        city: city,
+        address: address,
+        phone: currentUser.phone,
+        role: currentUser.role,
+        noId: currentUser.noId,
+        tipeId: currentUser.tipeId,
+      );
+      await updateUserDataUseCase(updatedUserData);
+      await _loadProfile();
+      SnackbarHelper.showSuccess("Berhasil", "Anda telah berhasil memperbarui data diri");
+      return true;
+    } catch (e) {
+      SnackbarHelper.showError("Gagal", "Terjadi kesalahan: $e");
+      return false;
+    } finally {
+      isUpdatingUserData.value = false;
+    }
+  }
+
   // Future<bool> changeEmail({
   //   required String oldPassword,
   //   required String newEmail,
@@ -274,42 +318,6 @@ class ProfilController extends GetxController {
   //       default:
   //         SnackbarHelper.showError("Gagal", e.message ?? e.code);
   //     }
-  //     return false;
-  //   } finally {
-  //     isChangingEmail.value = false;
-  //   }
-  // }
-
-  // Future<bool> changeEmail({
-  //   required String oldPassword,
-  //   required String newEmail,
-  // }) async {
-  //   isChangingEmail.value = true;
-  //   try {
-  //     await changeEmailUseCase(oldPassword: oldPassword, newEmail: newEmail);
-  //     SnackbarHelper.showSuccess("Link Terkirim", "Silakan cek email $newEmail untuk verifikasi.");
-  //     return true;
-  //   } on FirebaseAuthException catch (e) {
-  //     switch (e.code) {
-  //       case 'wrong-password':
-  //       case 'invalid-credential':
-  //         SnackbarHelper.showError("Gagal", "Password lama salah.");
-  //         break;
-  //       case 'email-already-in-use':
-  //         SnackbarHelper.showError("Gagal", "Email baru sudah digunakan.");
-  //         break;
-  //       case 'unauthorized-domain':
-  //         SnackbarHelper.showError(
-  //             "Gagal",
-  //             "Domain verifikasi belum diizinkan. "
-  //                 "Tambahkan \"eporter.page.link\" di Firebase Console → Authentication → Settings → Authorized domains.");
-  //         break;
-  //       default:
-  //         SnackbarHelper.showError("Gagal", e.message ?? e.code);
-  //     }
-  //     return false;
-  //   } catch (_) {
-  //     SnackbarHelper.showError("Gagal", "Terjadi kesalahan.");
   //     return false;
   //   } finally {
   //     isChangingEmail.value = false;

@@ -18,6 +18,7 @@ class ProfilBinding extends Bindings {
     Get.lazyPut(() => ChangeNoIdUseCase(Get.find()));
     Get.lazyPut(() => DeletePassengerUseCase(Get.find()));
     Get.lazyPut(() => UpdatePassengerUseCase(Get.find()));
+    Get.lazyPut(() => UpdateUserDataUseCase(Get.find()));
     // Get.lazyPut(() => ChangeEmailUseCase(Get.find()));
 
     Get.lazyPut(
@@ -30,6 +31,7 @@ class ProfilBinding extends Bindings {
         changeNoIdUseCase: Get.find(),
         deletePassengerUseCase: Get.find(),
         updatePassengerUseCase: Get.find(),
+        updateUserDataUseCase: Get.find(),
       ),
     );
   }

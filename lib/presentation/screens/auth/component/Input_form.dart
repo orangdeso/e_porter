@@ -59,15 +59,15 @@ class _InputFormState extends State<InputForm> {
               widget.inputFormatters ?? <TextInputFormatter>[FilteringTextInputFormatter.singleLineFormatter],
           style: TextStyle(
             fontFamily: 'DMSans',
-            fontSize: 14.sp,
-            fontWeight: (!widget.enabled && hasValidValue) ? FontWeight.w500 : FontWeight.w400,
-            color: hasValidValue ? GrayColors.gray800 : GrayColors.gray500,
+            fontSize: 16.sp,
+            fontWeight: (widget.enabled && hasValidValue) ? FontWeight.w500 : FontWeight.w500,
+            color: hasValidValue ? GrayColors.gray800 : GrayColors.gray800,
           ),
           decoration: InputDecoration(
             hintText: widget.hintText,
             hintStyle: TextStyle(
               fontFamily: 'DMSans',
-              fontSize: 14.sp,
+              fontSize: 16.sp,
               fontWeight: FontWeight.w400,
               color: GrayColors.gray500,
             ),
