@@ -1,8 +1,12 @@
+import 'package:animations/animations.dart';
 import 'package:e_porter/_core/component/button/button_fill.dart';
 import 'package:e_porter/_core/component/button/button_outline.dart';
 import 'package:e_porter/_core/constants/colors.dart';
 import 'package:e_porter/_core/constants/typography.dart';
 import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
+import 'package:e_porter/presentation/widgets/animations/container_transform.dart';
+import 'package:e_porter/presentation/widgets/animations/fade_through.dart';
+import 'package:e_porter/presentation/widgets/animations/staggered_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -24,17 +28,28 @@ class OnboardingScreen extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
           child: Column(
             children: [
-              SvgPicture.asset(
-                'assets/images/ilustrasi_onboarding.svg',
+              StaggeredFadeAnimation(
+                index: 0,
+                delay: const Duration(milliseconds: 500),
+                duration: const Duration(milliseconds: 1000),
+                reverse: true,
+                transitionType: SharedAxisTransitionType.vertical,
+                child: SvgPicture.asset(
+                  'assets/images/ilustrasi_onboarding.svg',
+                ),
               ),
               SizedBox(height: 16.h),
-              TypographyStyles.h6(
-                'Hemat waktu Anda di bandara dengan layanan E-Porter. Kami siap membantu setiap kebutuhan perjalanan prioritas Anda dengan mudah dan cepat',
-                fontWeight: FontWeight.w600,
-                color: GrayColors.gray600,
-                textAlign: TextAlign.center,
-                maxlines: 5,
-              )
+              FadeThroughAnimation(
+                delay: const Duration(milliseconds: 1200),
+                duration: const Duration(milliseconds: 800),
+                child: TypographyStyles.h6(
+                  'Hemat waktu Anda di bandara dengan layanan E-Porter. Kami siap membantu setiap kebutuhan perjalanan prioritas Anda dengan mudah dan cepat',
+                  fontWeight: FontWeight.w600,
+                  color: GrayColors.gray600,
+                  textAlign: TextAlign.center,
+                  maxlines: 5,
+                ),
+              ),
             ],
           ),
         ),
@@ -44,25 +59,35 @@ class OnboardingScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ZoomTapAnimation(
-              child: ButtonFill(
-                text: 'Masuk sebagai Penumpang',
-                textColor: Colors.white,
-                onTap: () {
-                  Get.toNamed(Routes.LOGIN, arguments: 'penumpang');
-                },
+            ContainerTransformAnimation(
+              delay: const Duration(milliseconds: 1800),
+              duration: const Duration(milliseconds: 600),
+              animationType: AnimationType.fadeThrough,
+              child: ZoomTapAnimation(
+                child: ButtonFill(
+                  text: 'Masuk sebagai Penumpang',
+                  textColor: Colors.white,
+                  onTap: () {
+                    Get.toNamed(Routes.LOGIN, arguments: 'penumpang');
+                  },
+                ),
               ),
             ),
             SizedBox(
               height: 10.h,
             ),
-            ZoomTapAnimation(
-              child: ButtonOutline(
-                text: 'Masuk sebagai Porter',
-                textColor: PrimaryColors.primary800,
-                onTap: () {
-                  Get.toNamed(Routes.LOGIN, arguments: 'porter');
-                },
+            ContainerTransformAnimation(
+              delay: const Duration(milliseconds: 2100),
+              duration: const Duration(milliseconds: 600),
+              animationType: AnimationType.sharedAxisHorizontal,
+              child: ZoomTapAnimation(
+                child: ButtonOutline(
+                  text: 'Masuk sebagai Porter',
+                  textColor: PrimaryColors.primary800,
+                  onTap: () {
+                    Get.toNamed(Routes.LOGIN, arguments: 'porter');
+                  },
+                ),
               ),
             ),
           ],

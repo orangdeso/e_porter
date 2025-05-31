@@ -61,6 +61,7 @@ dependencies:
   mobile_scanner: ^6.0.10
   pdf: ^3.11.3
   printing: ^5.14.2
+  animations: ^2.0.11
   # firebase_dynamic_links: ^6.1.5
 
   # workmanager: ^0.5.2

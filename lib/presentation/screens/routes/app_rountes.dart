@@ -77,6 +77,10 @@ class AppRoutes {
       binding: AuthBinding(),
     ),
     GetPage(
+      name: Routes.REGISTER,
+      page: () => RegisterScreen(),
+    ),
+    GetPage(
       name: Routes.VERIFICATION,
       page: () => VerifikasiScreen(),
     ),
@@ -92,10 +96,6 @@ class AppRoutes {
     GetPage(
       name: Routes.PROFILE,
       page: () => ProfileScreen(),
-    ),
-    GetPage(
-      name: Routes.REGISTER,
-      page: () => RegisterScreen(),
     ),
     GetPage(
       name: Routes.FORGETPASSWORD,
