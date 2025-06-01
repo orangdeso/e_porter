@@ -74,6 +74,9 @@ class AuthController extends GetxController {
         return;
       }
 
+      emailController.clear();
+      passwordController.clear();
+
       await PreferencesService.saveUserData(userData);
       Get.offAllNamed(Routes.NAVBAR, arguments: effectiveRole);
     } on AuthException catch (e) {

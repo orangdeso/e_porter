@@ -17,14 +17,6 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Future.delayed(Duration(seconds: 3), () async {
-    //   final userData = await PreferencesService.getUserData();
-    //   if (userData != null) {
-    //     Get.offAllNamed(Routes.NAVBAR, arguments: userData.role);
-    //   } else {
-    //     Get.offAllNamed(Routes.ONBOARDING);
-    //   }
-    // });
     _navigateAfterDelay();
   }
 

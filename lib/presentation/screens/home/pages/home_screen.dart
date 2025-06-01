@@ -16,6 +16,8 @@ import 'package:e_porter/presentation/screens/home/component/banners/welcome_ban
 import 'package:e_porter/presentation/screens/home/component/card_service_porter.dart';
 import 'package:e_porter/presentation/screens/home/component/date_setting.dart';
 import 'package:e_porter/presentation/screens/home/component/profile_avatar.dart';
+import 'package:e_porter/presentation/screens/home/component/shimmer/home_porter_shimmer.dart';
+import 'package:e_porter/presentation/screens/home/component/shimmer/home_shimmer.dart';
 import 'package:e_porter/presentation/screens/home/component/summary_card.dart';
 import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:flutter/material.dart';
@@ -193,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (context, snapshot) {
             String userName = "Guest";
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
+              return const HomeShimmer();
             } else if (snapshot.hasData && snapshot.data?.name != null) {
               userName = snapshot.data!.name!;
             }
@@ -364,7 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
             String userPorter = "Guest";
             String userId = '';
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
+              return const HomePorterShimmer();
             } else if (snapshot.hasData && snapshot.data?.name != null) {
               userPorter = snapshot.data!.name!;
 

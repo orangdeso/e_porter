@@ -1,12 +1,7 @@
-// ignore_for_file: deprecated_member_use
-// import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
-// import 'package:e_porter/presentation/controllers/profil_controller.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:developer';
 import 'package:e_porter/domain/bindings/app_binding.dart';
 import 'package:e_porter/presentation/screens/routes/app_rountes.dart';
 import 'package:firebase_core/firebase_core.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';

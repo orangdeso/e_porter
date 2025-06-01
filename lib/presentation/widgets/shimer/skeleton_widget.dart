@@ -3,13 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 
 class SkeletonWidget extends StatelessWidget {
-  final double height;
-  final double width;
+  final double? height;
+  final double? width;
 
   const SkeletonWidget({
     Key? key,
-    required this.height,
-    required this.width,
+    this.height,
+    this.width,
   }) : super(key: key);
 
   @override
