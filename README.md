@@ -320,9 +320,9 @@ Distributed under the MIT License. See `LICENSE` file for more information.
 ## 📞 Contact
 
 **Developer**: [Your Name]
-- Email: your.email@example.com
+- Email: ahmadzaqi98mmm@gmail.com
 - GitHub: [@orangdeso](https://github.com/orangdeso)
-- LinkedIn: [Your LinkedIn Profile]
+- LinkedIn: [Ahmad Choirul Umam Ali R](https://www.linkedin.com/in/ahmad-choirul-umam-ali-rozaqi-1b3196271/)
 
 **Project Link**: [https://github.com/orangdeso/e_porter](https://github.com/orangdeso/e_porter)
 
